@@ -60,14 +60,14 @@ def load_data(test_size=0.25, random_state=None, dir_name='~/DATA/Challenge',
     if use_flair:
         min_shape = min([im.shape for im in flair])
         flair = np.asarray([nd.zoom(im,[float(min_shape[0])/im.shape[0],float(min_shape[1])/im.shape[1],float(min_shape[2])/im.shape[2]]) for im in flair])
-        flair = flair.reshape(n_patients,1,flair.shape[1],flair.shape[2],flair.shape[3]).astype(np.float32)
+        flair.reshape(n_patients,1,flair.shape[1],flair.shape[2],flair.shape[3]).astype(np.float32)
     if use_pd:
         min_shape = min([im.shape for im in pd])
         pd = np.asarray([nd.zoom(im,[float(min_shape[0])/im.shape[0],float(min_shape[1])/im.shape[1],float(min_shape[2])/im.shape[2]]) for im in pd])
         pd.reshape(n_patients,1,pd.shape[1],pd.shape[2],pd.shape[3]).astype(np.float32)
     if use_t2:
         min_shape = min([im.shape for im in t2])
-        flair = np.asarray([nd.zoom(im,[float(min_shape[0])/im.shape[0],float(min_shape[1])/im.shape[1],float(min_shape[2])/im.shape[2]]) for im in t2])
+        t2 = np.asarray([nd.zoom(im,[float(min_shape[0])/im.shape[0],float(min_shape[1])/im.shape[1],float(min_shape[2])/im.shape[2]]) for im in t2])
         t2.reshape(n_patients,1,t2.shape[1],t2.shape[2],t2.shape[3]).astype(np.float32)
     if use_gado:
         min_shape = min([im.shape for im in gado])
