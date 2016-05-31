@@ -1,22 +1,16 @@
+import os
 import matplotlib
-matplotlib.use('Agg')
-
 import numpy as np
 from scipy import ndimage as nd
-#import pandas as pd
 from nibabel import load as load_nii
-
 from sklearn.cross_validation import train_test_split
-
 from lasagne.layers import InputLayer, DenseLayer, DropoutLayer, FeaturePoolLayer, InverseLayer
 from lasagne.layers.dnn import Conv3DDNNLayer, MaxPool3DDNNLayer
 from lasagne import nonlinearities
 from lasagne import objectives
 from lasagne import updates
-
 from nolearn.lasagne import NeuralNet
 from nolearn.lasagne.handlers import SaveWeights
-
 from nolearn_utils.iterators import (
     BufferedBatchIteratorMixin,
     ShuffleBatchIteratorMixin,
@@ -27,16 +21,17 @@ from nolearn_utils.hooks import (
     SaveTrainingHistory, PlotTrainingHistory,
     EarlyStopping
 )
+matplotlib.use('Agg')
 
 
 def load_data(test_size=0.25, random_state=None, dir_name='~/DATA/Challenge',
-    flair_name='FLAIR_preprocessed.nii.gz', pd_name='DP_preprocessed.nii.gz',
-    t2_name='T2_preprocessed.nii.gz', gado_name='GADO_preprocessed.nii.gz',
-    t1_name='T1_preprocessed.nii.gz', use_flair=True, use_pd=True, use_t2=True,
-    use_gado=True, use_t1=True
-):
+              flair_name='FLAIR_preprocessed.nii.gz', pd_name='DP_preprocessed.nii.gz',
+              t2_name='T2_preprocessed.nii.gz', gado_name='GADO_preprocessed.nii.gz',
+              t1_name='T1_preprocessed.nii.gz', use_flair=True, use_pd=True, use_t2=True,
+              use_gado=True, use_t1=True
+              ):
     # Setting up the lists for all images
-    patients = [file for file in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name,file))]
+    patients = [file for file in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, file))]
     n_patients = len(patients)
     flair = None
     pd = None
@@ -59,24 +54,29 @@ def load_data(test_size=0.25, random_state=None, dir_name='~/DATA/Challenge',
     # The size of the final numpy array should be: n_patients x n_images x size_of_image
     if use_flair:
         min_shape = min([im.shape for im in flair])
-        flair = np.asarray([nd.zoom(im,[float(min_shape[0])/im.shape[0],float(min_shape[1])/im.shape[1],float(min_shape[2])/im.shape[2]]) for im in flair])
-        flair.reshape(n_patients,1,flair.shape[1],flair.shape[2],flair.shape[3]).astype(np.float32)
+        flair = np.asarray([nd.zoom(im, [float(min_shape[0]) / im.shape[0], float(min_shape[1]) / im.shape[1],
+                                         float(min_shape[2]) / im.shape[2]]) for im in flair])
+        flair.reshape(n_patients, 1, flair.shape[1], flair.shape[2], flair.shape[3]).astype(np.float32)
     if use_pd:
         min_shape = min([im.shape for im in pd])
-        pd = np.asarray([nd.zoom(im,[float(min_shape[0])/im.shape[0],float(min_shape[1])/im.shape[1],float(min_shape[2])/im.shape[2]]) for im in pd])
-        pd.reshape(n_patients,1,pd.shape[1],pd.shape[2],pd.shape[3]).astype(np.float32)
+        pd = np.asarray([nd.zoom(im, [float(min_shape[0]) / im.shape[0], float(min_shape[1]) / im.shape[1],
+                                      float(min_shape[2]) / im.shape[2]]) for im in pd])
+        pd.reshape(n_patients, 1, pd.shape[1], pd.shape[2], pd.shape[3]).astype(np.float32)
     if use_t2:
         min_shape = min([im.shape for im in t2])
-        t2 = np.asarray([nd.zoom(im,[float(min_shape[0])/im.shape[0],float(min_shape[1])/im.shape[1],float(min_shape[2])/im.shape[2]]) for im in t2])
-        t2.reshape(n_patients,1,t2.shape[1],t2.shape[2],t2.shape[3]).astype(np.float32)
+        t2 = np.asarray([nd.zoom(im, [float(min_shape[0]) / im.shape[0], float(min_shape[1]) / im.shape[1],
+                                      float(min_shape[2]) / im.shape[2]]) for im in t2])
+        t2.reshape(n_patients, 1, t2.shape[1], t2.shape[2], t2.shape[3]).astype(np.float32)
     if use_gado:
         min_shape = min([im.shape for im in gado])
-        gado = np.asarray([nd.zoom(im,[float(min_shape[0])/im.shape[0],float(min_shape[1])/im.shape[1],float(min_shape[2])/im.shape[2]]) for im in gado])
-        gado.reshape(n_patients,1,gado.shape[1],gado.shape[2],gado.shape[3]).astype(np.float32)
+        gado = np.asarray([nd.zoom(im, [float(min_shape[0]) / im.shape[0], float(min_shape[1]) / im.shape[1],
+                                        float(min_shape[2]) / im.shape[2]]) for im in gado])
+        gado.reshape(n_patients, 1, gado.shape[1], gado.shape[2], gado.shape[3]).astype(np.float32)
     if use_t1:
         min_shape = min([im.shape for im in t1])
-        t1 = np.asarray([nd.zoom(im,[float(min_shape[0])/im.shape[0],float(min_shape[1])/im.shape[1],float(min_shape[2])/im.shape[2]]) for im in t1])
-        t1.reshape(n_patients,1,t1.shape[1],t1.shape[2],t1.shape[3]).astype(np.float32)
+        t1 = np.asarray([nd.zoom(im, [float(min_shape[0]) / im.shape[0], float(min_shape[1]) / im.shape[1],
+                                      float(min_shape[2]) / im.shape[2]]) for im in t1])
+        t1.reshape(n_patients, 1, t1.shape[1], t1.shape[2], t1.shape[3]).astype(np.float32)
     images = filter(None, [flair, pd, t2, gado, t1])
     image_vector = np.stack(images, axis=1)
     n_images = len(images)
@@ -134,12 +134,10 @@ net = NeuralNet(
         (MaxPool3DDNNLayer, dict(name='pool', pool_size=2)),
 
         (Conv3DDNNLayer, dict(name='conv2', num_filters=32, filter_size=(9, 9, 9), pad='same')),
-        
-        (InverseLayer, dict(name='deconv2', incoming='conv2', layer='conv2')),  
+
+        (InverseLayer, dict(name='deconv2', incoming='conv2', layer='conv2')),
         (InverseLayer, dict(name='unpool', incoming='deconv2', layer='pool')),
         (InverseLayer, dict(name='deconv1', incoming='unpool', layer='pool')),
-
-
 
     ],
 
