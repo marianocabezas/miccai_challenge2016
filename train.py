@@ -1,7 +1,6 @@
 import os
 import matplotlib
 import numpy as np
-from theano import tens
 from scipy import ndimage as nd
 from nibabel import load as load_nii
 from sklearn.cross_validation import train_test_split
@@ -164,11 +163,6 @@ save_training_history = SaveTrainingHistory('./examples/mnist/model_history.pkl'
 plot_training_history = PlotTrainingHistory('./examples/mnist/training_history.png')
 early_stopping = EarlyStopping(patience=100)
 
-pool_l = (MaxPool3DDNNLayer, {'name': 'pool', 'pool_size': 2})
-deconv2_l = (InverseLayer, {'name': 'deconv2', 'incoming': conv2_l, 'layer': conv2_l})
-unpool_l = (InverseLayer, {'name': 'unpool', 'incoming': deconv2_l, 'layer': pool_l})
-deconv1_l = (InverseLayer, {'name': 'deconv1', 'incoming': unpool_l, 'layer': conv1_l})
-
 net = NeuralNet(
     layers=[
         (InputLayer, {'name': 'input', 'shape': (None, 5, None, None, None)}),
@@ -179,8 +173,8 @@ net = NeuralNet(
         (Conv3DDNNLayer, {'name': 'conv2', 'num_filters': 32, 'filter_size': (9, 9, 9)}),
 
         (Conv3DDNNLayer, {'name': 'conv2', 'num_filters': 9, 'filter_size': (9, 9, 32)}),
-        (Unpooling3D, {'name': 'unpool', 'pool_size': 2})
-        deconv1_l,
+        (Unpooling3D, {'name': 'unpool', 'pool_size': 2}),
+        (Conv3DDNNLayer, {'name': 'conv2', 'num_filters': 9, 'filter_size': (9, 9, 32)}),
 
     ],
 
