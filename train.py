@@ -15,7 +15,7 @@ from nolearn_utils.hooks import (
 matplotlib.use('Agg')
 
 
-def create_encoder(input_shape):
+def create_encoder(input_shape, convo_size, pool_size):
 
     save_weights = SaveWeights('./model_weights.pkl', only_best=True, pickle=False)
     save_training_history = SaveTrainingHistory('./model_history.pkl')
@@ -26,14 +26,14 @@ def create_encoder(input_shape):
         layers=[
             (InputLayer, {'name': 'input', 'shape': input_shape}),
 
-            (Conv3DDNNLayer, {'name': 'conv1', 'num_filters': 32, 'filter_size': (15, 15, 15), 'pad': 'valid'}),
-            (MaxPool3DDNNLayer, {'name': 'pool', 'pool_size': 2}),
+            (Conv3DDNNLayer, {'name': 'conv1', 'num_filters': 32, 'filter_size': (convo_size, convo_size, convo_size), 'pad': 'valid'}),
+            (MaxPool3DDNNLayer, {'name': 'pool', 'pool_size': pool_size}),
 
             #(Conv3DDNNLayer, {'name': 'conv2', 'num_filters': 32, 'filter_size': (3, 3, 3), 'pad': 'valid'}),
             #(Conv3DDNNLayer, {'name': 'deconv2', 'num_filters': 32, 'filter_size': (3, 3, 3), 'pad': 'full'}),
 
-            (Unpooling3D, {'name': 'unpool', 'pool_size': 2}),
-            (Conv3DDNNLayer, {'name': 'deconv1', 'num_filters': 5, 'filter_size': (15, 15, 15), 'pad': 'full'}),
+            (Unpooling3D, {'name': 'unpool', 'pool_size': pool_size}),
+            (Conv3DDNNLayer, {'name': 'deconv1', 'num_filters': 5, 'filter_size': (convo_size, convo_size, convo_size), 'pad': 'full'}),
 
         ],
 
@@ -64,11 +64,15 @@ if __name__ == '__main__':
                       help="read data from FOLDER")
     parser.add_option('-v', '--verbose',
                       action='store_true', dest='verbose', default=False)
+    parser.add_option('-cs', '--convolution-size',
+                      action='store', dest='convo_size', type='int', nargs=1, default=15)
+    parser.add_option('-ps', '--pool-size',
+                      action='store', dest='pool_size', type='int', nargs=1, default=2)
     (options, args) = parser.parse_args()
 
-    X_train, X_test, y_train, y_test = load_encoder_data(test_size=0.25, random_state=42,dir_name=options.folder)
+    X_train, X_test, y_train, y_test = load_encoder_data(test_size=0.25, random_state=42, dir_name=options.folder)
     np.save(options.folder + 'test_encoder.npy', X_test)
-    net = create_encoder(X_train.shape)
+    net = create_encoder(X_train.shape, options.convo_size, options.pool_size)
     net.fit(X_train, y_train.astype(np.float32))
 
     # Load the best weights from pickled model
