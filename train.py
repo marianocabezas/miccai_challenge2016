@@ -68,9 +68,11 @@ if __name__ == '__main__':
                       action='store', dest='convo_size', type='int', nargs=1, default=15)
     parser.add_option('-p', '--pool-size',
                       action='store', dest='pool_size', type='int', nargs=1, default=2)
+    parser.add_option('-t', '--test-size',
+                      action='store', dest='test_size', type='float', nargs=1, default=2)
     (options, args) = parser.parse_args()
 
-    X_train, X_test, y_train, y_test = load_encoder_data(test_size=0.25, random_state=42, dir_name=options.folder)
+    X_train, X_test, y_train, y_test = load_encoder_data(test_size=options.test_size, dir_name=options.folder)
     np.save(options.folder + 'test_encoder.npy', X_test)
     net = create_encoder(X_train.shape, options.convo_size, options.pool_size)
     net.fit(X_train, y_train.astype(np.float32))
