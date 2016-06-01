@@ -64,9 +64,9 @@ if __name__ == '__main__':
                       help="read data from FOLDER")
     parser.add_option('-v', '--verbose',
                       action='store_true', dest='verbose', default=False)
-    parser.add_option('-cs', '--convolution-size',
+    parser.add_option('-c', '--convolution-size',
                       action='store', dest='convo_size', type='int', nargs=1, default=15)
-    parser.add_option('-ps', '--pool-size',
+    parser.add_option('-p', '--pool-size',
                       action='store', dest='pool_size', type='int', nargs=1, default=2)
     (options, args) = parser.parse_args()
 
