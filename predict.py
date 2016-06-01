@@ -1,6 +1,6 @@
 import numpy as np
 from optparse import OptionParser
-from nets import create_encoder
+import cPickle as pickle
 
 
 if __name__ == '__main__':
@@ -21,9 +21,8 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
 
     X = np.load(options.folder + 'test_encoder.npy')
-    X_train = np.load(options.folder + 'train_encoder.npy')
 
-    net = create_encoder(X_train.shape, options.convo_size, options.pool_size)
+    net = pickle.load(open(options.folder + 'net.pkl', 'rb'))
     net.load_params_from('./model_weights.pkl')
     y_pred = net.predict(X)
 
