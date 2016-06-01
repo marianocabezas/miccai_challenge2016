@@ -1,4 +1,5 @@
 import os
+from optparse import OptionParser
 import matplotlib
 import numpy as np
 from scipy import ndimage as nd
@@ -175,7 +176,17 @@ def create_encoder(input_shape):
 
 
 if __name__ == '__main__':
-    X_train, X_test, y_train, y_test = load_encoder_data(test_size=0.25, random_state=42)
+    # parse command line options
+    usage = "usage: %prog [options] arg"
+    parser = OptionParser(usage)
+    parser.add_option('-f', '--folder', dest='folder',
+                      default='/home/mariano/DATA/Challenge/',
+                      help="read data from FOLDER")
+    parser.add_option('-v', '--verbose',
+                      action='store_true', dest='verbose', default=False)
+    (options, args) = parser.parse_args()
+
+    X_train, X_test, y_train, y_test = load_encoder_data(test_size=0.25, random_state=42,dir_name=options.folder)
     net = create_encoder(X_train.shape)
     net.fit(X_train, y_train.astype(np.float32))
 
