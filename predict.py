@@ -20,5 +20,5 @@ if __name__ == '__main__':
     net.load_params_from('./model_weights.pkl')
     y_pred = net.predict(X)
 
-    np.save(options.folder + 'encoder_results.npy', y_pred)
+    np.save(options.folder + 'encoder_results.npy', y_pred.reshape(X.shape))
 
