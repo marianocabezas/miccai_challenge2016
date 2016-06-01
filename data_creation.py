@@ -31,7 +31,6 @@ def load_encoder_data(test_size=0.25, random_state=None, dir_name='/home/mariano
         X = np.load(dir_name + 'image_vector.npy')
     except IOError:
         # Setting up the lists for all images
-        n_patients = len(patients)
         flair = None
         pd = None
         t2 = None
