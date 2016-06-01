@@ -1,7 +1,7 @@
 from optparse import OptionParser
 import matplotlib
 import numpy as np
-from lasagne.layers import InputLayer
+from lasagne.layers import InputLayer, ReshapeLayer
 from lasagne.layers.dnn import Conv3DDNNLayer, MaxPool3DDNNLayer
 from layers import Unpooling3D
 from lasagne import updates
@@ -29,12 +29,13 @@ def create_encoder(input_shape, convo_size, pool_size):
             (Conv3DDNNLayer, {'name': 'conv1', 'num_filters': 32, 'filter_size': (convo_size, convo_size, convo_size), 'pad': 'valid'}),
             (MaxPool3DDNNLayer, {'name': 'pool', 'pool_size': pool_size}),
 
-            #(Conv3DDNNLayer, {'name': 'conv2', 'num_filters': 32, 'filter_size': (3, 3, 3), 'pad': 'valid'}),
-            #(Conv3DDNNLayer, {'name': 'deconv2', 'num_filters': 32, 'filter_size': (3, 3, 3), 'pad': 'full'}),
+            (Conv3DDNNLayer, {'name': 'conv2', 'num_filters': 32, 'filter_size': (convo_size, convo_size, convo_size), 'pad': 'valid'}),
+            (Conv3DDNNLayer, {'name': 'deconv2', 'num_filters': 32, 'filter_size': (convo_size, convo_size, convo_size), 'pad': 'full'}),
 
             (Unpooling3D, {'name': 'unpool', 'pool_size': pool_size}),
             (Conv3DDNNLayer, {'name': 'deconv1', 'num_filters': 5, 'filter_size': (convo_size, convo_size, convo_size), 'pad': 'full'}),
             (Unpooling3D, {'name': 'upsample', 'pool_size': pool_size})
+            (ReshapeLayer, {'shape': (([0], -1))}),
 
         ],
 

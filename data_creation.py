@@ -52,10 +52,9 @@ def load_encoder_data(test_size=0.25, random_state=None, dir_name='/home/mariano
         X = np.stack([data for data in [flair, pd, t2, gado, t1] if data is not None], axis=1)
         np.save(dir_name + 'image_vector_encoder.npy', X)
 
-    #y = np.reshape(X, [X.shape[0], -1])
+    y = np.reshape(X, [X.shape[0], -1])
 
-    #return train_test_split(X, y, test_size=test_size, random_state=random_state)
-    return train_test_split(X, X, test_size=test_size, random_state=random_state)
+    return train_test_split(X, y, test_size=test_size, random_state=random_state)
 
 
 def load_data(test_size=0.25, random_state=None, dir_name='/home/mariano/DATA/Challenge/',
