@@ -26,14 +26,14 @@ def create_encoder(input_shape):
         layers=[
             (InputLayer, {'name': 'input', 'shape': input_shape}),
 
-            (Conv3DDNNLayer, {'name': 'conv1', 'num_filters': 32, 'filter_size': (3, 3, 3), 'pad': 'valid'}),
+            (Conv3DDNNLayer, {'name': 'conv1', 'num_filters': 32, 'filter_size': (15, 15, 15), 'pad': 'valid'}),
             (MaxPool3DDNNLayer, {'name': 'pool', 'pool_size': 2}),
 
             #(Conv3DDNNLayer, {'name': 'conv2', 'num_filters': 32, 'filter_size': (3, 3, 3), 'pad': 'valid'}),
             #(Conv3DDNNLayer, {'name': 'deconv2', 'num_filters': 32, 'filter_size': (3, 3, 3), 'pad': 'full'}),
 
             (Unpooling3D, {'name': 'unpool', 'pool_size': 2}),
-            (Conv3DDNNLayer, {'name': 'deconv1', 'num_filters': 5, 'filter_size': (3, 3, 3), 'pad': 'full'}),
+            (Conv3DDNNLayer, {'name': 'deconv1', 'num_filters': 5, 'filter_size': (15, 15, 15), 'pad': 'full'}),
 
         ],
 
