@@ -12,12 +12,6 @@ if __name__ == '__main__':
                       help="read data from FOLDER")
     parser.add_option('-v', '--verbose',
                       action='store_true', dest='verbose', default=False)
-    parser.add_option('-c', '--convolution-size',
-                      action='store', dest='convo_size', type='int', nargs=1, default=15)
-    parser.add_option('-p', '--pool-size',
-                      action='store', dest='pool_size', type='int', nargs=1, default=2)
-    parser.add_option('-t', '--test-size',
-                      action='store', dest='test_size', type='float', nargs=1, default=2)
     (options, args) = parser.parse_args()
 
     X = np.load(options.folder + 'test_encoder.npy')
