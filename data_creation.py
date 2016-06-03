@@ -1,63 +1,137 @@
 import os
+import re
 import numpy as np
 from scipy import ndimage as nd
 from nibabel import load as load_nii
-from sklearn.cross_validation import train_test_split
+from nibabel import save as save_nii
+from nibabel import Nifti2Image as NiftiImage
+from math import floor
+#from sklearn.cross_validation import train_test_split
+
+def train_test_split(data, labels, test_size=0.1, random_state=42):
+    # Init (Set the random seed and determine the number of cases for test)
+    n_test = floor(data.shape[0]*test_size)
+
+    # We create a random permutation of the data
+    # First we permute the data indices, then we shuffle the data and labels
+    np.random.seed(random_state)
+    indices = np.random.permutation(range(0, data.shape[0])).tolist()
+    np.random.seed(random_state)
+    shuffled_data = np.random.permutation(data)
+    np.random.seed(random_state)
+    shuffled_labels = np.random.permutation(labels)
+
+    X_train = shuffled_data[:-n_test]
+    X_test = shuffled_data[-n_test:]
+    y_train = shuffled_labels[:-n_test]
+    y_test = shuffled_data[-n_test:]
+    idx_train = indices[:-n_test]
+    idx_test = indices[-n_test:]
+
+    return X_train, X_test, y_train, y_test, idx_train, idx_test
+
+
+def reshape_save_nifti(image, original_name):
+    # Open the original nifti
+    original = load_nii(original_name).get_data()
+    reshaped = nd.zoom([
+        float(original.shape[0]) / image.shape[0],
+        float(original.shape[1]) / image.shape[1],
+        float(original.shape[2]) / image.shape[2]
+    ])
+    reshaped_nii = NiftiImage(reshaped, affine=np.eye(4))
+    name_no_ext = re.search(r'(.+?)\..|\.+', original_name)
+    new_name = name_no_ext + '_reshaped.nii.gz'
+    save_nii(reshaped_nii, new_name)
+
 
 
 def load_and_vectorize(name, dir_name, datatype=np.float32):
+    # Get the names of the images and load them
     patients = [file for file in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, file))]
-    images = [load_nii('%s/%s/%s' % (dir_name, patient, name)).get_data() for patient in patients]
+    image_names = ['%s/%s/%s' % (dir_name, patient, name) for patient in patients]
+    images = [load_nii(image_name).get_data() for image_name in image_names]
+    # Reshape everything to have data of homogenous size (important for training)
+    # Also, normalize the data
     min_shape = min([im.shape for im in images])
     data = np.asarray(
         [nd.zoom((im - im.mean()) / im.std(),
                  [float(min_shape[0]) / im.shape[0], float(min_shape[1]) / im.shape[1],
                   float(min_shape[2]) / im.shape[2]]) for im in images]
     )
-    data.reshape(data.shape[0], 1, data.shape[1], data.shape[2], data.shape[3]).astype(datatype)
-    return data
+
+    return data.reshape(data.shape[0], 1, data.shape[1], data.shape[2], data.shape[3]).astype(datatype)
+
+
+def load_images(test_size=0.25, dir_name='/home/mariano/DATA/Challenge/',
+                  flair_name='FLAIR_preprocessed.nii.gz', pd_name='DP_preprocessed.nii.gz',
+                  t2_name='T2_preprocessed.nii.gz', gado_name='GADO_preprocessed.nii.gz',
+                  t1_name='T1_preprocessed.nii.gz', use_flair=True, use_pd=True, use_t2=True,
+                  use_gado=True, use_t1=True
+                ):
+
+    patients = [dir_name + file for file in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, file))]
+
+    try:
+        X = np.load(dir_name + 'image_vector.npy')
+        image_names = np.load(dir_name + 'image_names_encoder.npy')
+    except IOError:
+        # Setting up the lists for all images
+        flair, flair_names = None, None
+        pd, pd_names = None, None
+        t2, t2_names = None, None
+        gado, gado_names = None, None
+        t1, t1_names = None, None
+
+        # We load the image modalities for each patient according to the parameters
+        if use_flair:
+            flair, flair_names = load_and_vectorize(flair_name, dir_name)
+        if use_pd:
+            pd, pd_names = load_and_vectorize(pd_name, dir_name)
+        if use_t2:
+            t2, t2_names = load_and_vectorize(t2_name, dir_name)
+        if use_gado:
+            gado, gado_names = load_and_vectorize(gado_name, dir_name)
+        if use_t1:
+            t1, t1_names = load_and_vectorize(t1_name, dir_name)
+
+        X = np.stack([data for data in [flair, pd, t2, gado, t1] if data is not None], axis=1)
+        image_names = np.stack([name for name in [flair_names, pd_names, t2_names, gado_names, t1_names] if name is not None])
+        np.save(dir_name + 'image_vector_encoder.npy', X)
+        np.save(dir_name + 'image_names_encoder.npy', image_names)
+
+    return X
+
 
 
 def load_encoder_data(test_size=0.25, random_state=None, dir_name='/home/mariano/DATA/Challenge/',
                   flair_name='FLAIR_preprocessed.nii.gz', pd_name='DP_preprocessed.nii.gz',
                   t2_name='T2_preprocessed.nii.gz', gado_name='GADO_preprocessed.nii.gz',
                   t1_name='T1_preprocessed.nii.gz', use_flair=True, use_pd=True, use_t2=True,
-                  use_gado=True, use_t1=True, rater=3
+                  use_gado=True, use_t1=True
                   ):
 
-    patients = [file for file in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, file))]
 
-    try:
-        X = np.load(dir_name + 'image_vector.npy')
-    except IOError:
-        # Setting up the lists for all images
-        flair = None
-        pd = None
-        t2 = None
-        gado = None
-        t1 = None
-
-        # We load the image modalities for each patient according to the parameters
-        if use_flair:
-            flair = load_and_vectorize(flair_name, dir_name)
-        if use_pd:
-            pd = load_and_vectorize(pd_name, dir_name)
-        if use_t2:
-            t2 = load_and_vectorize(t2_name, dir_name)
-        if use_gado:
-            gado = load_and_vectorize(gado_name, dir_name)
-        if use_t1:
-            t1 = load_and_vectorize(t1_name, dir_name)
-
-        X = np.stack([data for data in [flair, pd, t2, gado, t1] if data is not None], axis=1)
-        np.save(dir_name + 'image_vector_encoder.npy', X)
-
+    X = load_images(
+        test_size,
+        dir_name,
+        flair_name,
+        pd_name,
+        t2_name,
+        gado_name,
+        t1_name,
+        use_flair,
+        use_pd,
+        use_t2,
+        use_gado,
+        use_t1
+    )
     y = np.reshape(X, [X.shape[0], -1])
 
     return train_test_split(X, y, test_size=test_size, random_state=random_state)
 
 
-def load_data(test_size=0.25, random_state=None, dir_name='/home/mariano/DATA/Challenge/',
+def load_unet_data(test_size=0.25, random_state=None, dir_name='/home/mariano/DATA/Challenge/',
               flair_name='FLAIR_preprocessed.nii.gz', pd_name='DP_preprocessed.nii.gz',
               t2_name='T2_preprocessed.nii.gz', gado_name='GADO_preprocessed.nii.gz',
               t1_name='T1_preprocessed.nii.gz', use_flair=True, use_pd=True, use_t2=True,
@@ -78,29 +152,19 @@ def load_data(test_size=0.25, random_state=None, dir_name='/home/mariano/DATA/Ch
         ).astype(np.uint8)
         np.save('%slabel%d_vector.npy' % (dir_name, rater), y)
 
-    try:
-        X = np.load(dir_name + 'image_vector.npy')
-    except IOError:
-        # Setting up the lists for all images
-        flair = None
-        pd = None
-        t2 = None
-        gado = None
-        t1 = None
-
-        # We load the image modalities for each patient according to the parameters
-        if use_flair:
-            flair = load_and_vectorize(flair_name, dir_name)
-        if use_pd:
-            pd = load_and_vectorize(pd_name, dir_name)
-        if use_t2:
-            t2 = load_and_vectorize(t2_name, dir_name)
-        if use_gado:
-            gado = load_and_vectorize(gado_name, dir_name)
-        if use_t1:
-            t1 = load_and_vectorize(t1_name, dir_name)
-
-        X = np.stack([data for data in [flair, pd, t2, gado, t1] if data is not None], axis=1)
-        np.save(dir_name + 'image_vector_encoder.npy', X)
+    X = load_images(
+        test_size,
+        dir_name,
+        flair_name,
+        pd_name,
+        t2_name,
+        gado_name,
+        t1_name,
+        use_flair,
+        use_pd,
+        use_t2,
+        use_gado,
+        use_t1
+    )
 
     return train_test_split(X, y, test_size=test_size, random_state=random_state)
