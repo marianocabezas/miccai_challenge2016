@@ -10,7 +10,7 @@ from math import floor
 
 def train_test_split(data, labels, test_size=0.1, random_state=42):
     # Init (Set the random seed and determine the number of cases for test)
-    n_test = floor(data.shape[0]*test_size)
+    n_test = int(floor(data.shape[0]*test_size))
 
     # We create a random permutation of the data
     # First we permute the data indices, then we shuffle the data and labels
