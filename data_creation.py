@@ -34,16 +34,21 @@ def train_test_split(data, labels, test_size=0.1, random_state=42):
 def reshape_save_nifti(image, original_name):
     # Open the original nifti
     original = load_nii(original_name).get_data()
-    reshaped = nd.zoom([
-        float(original.shape[0]) / image.shape[0],
-        float(original.shape[1]) / image.shape[1],
-        float(original.shape[2]) / image.shape[2]
-    ])
+    # Reshape the image and save it
+    reshaped = nd.zoom(
+        image,
+        [
+            float(original.shape[0]) / image.shape[0],
+            float(original.shape[1]) / image.shape[1],
+            float(original.shape[2]) / image.shape[2]
+        ]
+    )
     reshaped_nii = NiftiImage(reshaped, affine=np.eye(4))
     name_no_ext = re.search(r'(.+?)\..|\.+', original_name)
     new_name = name_no_ext + '_reshaped.nii.gz'
     save_nii(reshaped_nii, new_name)
-
+    # Return it too, just in case
+    return reshaped_nii
 
 
 def load_and_vectorize(name, dir_name, datatype=np.float32):
@@ -85,15 +90,15 @@ def load_images(test_size=0.25, dir_name='/home/mariano/DATA/Challenge/',
 
         # We load the image modalities for each patient according to the parameters
         if use_flair:
-            flair, flair_names = load_and_vectorize(flair_name, dir_name)
+            flair = load_and_vectorize(flair_name, dir_name)
         if use_pd:
-            pd, pd_names = load_and_vectorize(pd_name, dir_name)
+            pd = load_and_vectorize(pd_name, dir_name)
         if use_t2:
-            t2, t2_names = load_and_vectorize(t2_name, dir_name)
+            t2 = load_and_vectorize(t2_name, dir_name)
         if use_gado:
-            gado, gado_names = load_and_vectorize(gado_name, dir_name)
+            gado = load_and_vectorize(gado_name, dir_name)
         if use_t1:
-            t1, t1_names = load_and_vectorize(t1_name, dir_name)
+            t1 = load_and_vectorize(t1_name, dir_name)
 
         X = np.stack([data for data in [flair, pd, t2, gado, t1] if data is not None], axis=1)
         image_names = np.stack([name for name in [flair_names, pd_names, t2_names, gado_names, t1_names] if name is not None])
