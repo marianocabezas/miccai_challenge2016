@@ -65,7 +65,7 @@ def load_and_vectorize(name, dir_name, datatype=np.float32):
                   float(min_shape[2]) / im.shape[2]]) for im in images]
     )
 
-    return data.reshape(data.shape[0], 1, data.shape[1], data.shape[2], data.shape[3]).astype(datatype)
+    return data.reshape(data.shape[0], 1, data.shape[1], data.shape[2], data.shape[3]).astype(datatype), image_names
 
 
 def load_images(test_size=0.25, dir_name='/home/mariano/DATA/Challenge/',
@@ -90,15 +90,15 @@ def load_images(test_size=0.25, dir_name='/home/mariano/DATA/Challenge/',
 
         # We load the image modalities for each patient according to the parameters
         if use_flair:
-            flair = load_and_vectorize(flair_name, dir_name)
+            flair, flair_names = load_and_vectorize(flair_name, dir_name)
         if use_pd:
-            pd = load_and_vectorize(pd_name, dir_name)
+            pd, pd_names = load_and_vectorize(pd_name, dir_name)
         if use_t2:
-            t2 = load_and_vectorize(t2_name, dir_name)
+            t2, t2_names = load_and_vectorize(t2_name, dir_name)
         if use_gado:
-            gado = load_and_vectorize(gado_name, dir_name)
+            gado, gado_names = load_and_vectorize(gado_name, dir_name)
         if use_t1:
-            t1 = load_and_vectorize(t1_name, dir_name)
+            t1, t1_names = load_and_vectorize(t1_name, dir_name)
 
         X = np.stack([data for data in [flair, pd, t2, gado, t1] if data is not None], axis=1)
         image_names = np.stack([name for name in [flair_names, pd_names, t2_names, gado_names, t1_names] if name is not None])
