@@ -50,7 +50,7 @@ def create_encoder(input_shape, convo_size, pool_size):
                 'pad': 'full'
             }),
             # (Unpooling3D, {'name': 'upsample', 'pool_size': pool_size}),
-            (ReshapeLayer, {'name': 'resampling', 'shape': (([0], -1))})
+            (ReshapeLayer, {'name': 'resampling', 'shape': ([0], -1)})
 
         ],
 

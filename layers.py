@@ -7,8 +7,8 @@ class Unpooling3D(Layer):
         self.pool_size = pool_size
         self.ignore_border = ignore_border
 
-    def get_output_for(self, input, **kwargs):
-        output = input.repeat(self.pool_size, axis=2).repeat(self.pool_size, axis=3).repeat(self.pool_size, axis=4)
+    def get_output_for(self, data, **kwargs):
+        output = data.repeat(self.pool_size, axis=2).repeat(self.pool_size, axis=3).repeat(self.pool_size, axis=4)
         return output
 
     def get_output_shape_for(self, input_shape):

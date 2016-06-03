@@ -1,7 +1,7 @@
 import numpy as np
 from optparse import OptionParser
 from data_creation import reshape_save_nifti
-import cPickle as pickle
+import cPickle
 
 
 if __name__ == '__main__':
@@ -19,15 +19,12 @@ if __name__ == '__main__':
     idx_test = np.load('idx_test_encoder.npy')
     image_names = np.load('image_names_encoder.npy')
 
-    net = pickle.load(open(options.folder + 'net.pkl', 'rb'))
+    net = cPickle.load(open(options.folder + 'net.pkl', 'rb'))
     net.load_params_from('./model_weights.pkl')
     y_pred = net.predict(X)
 
     y = y_pred.reshape(X.shape)
     np.save(options.folder + 'encoder_results.npy', y_pred.reshape(X.shape))
 
-    images_names = [(y_im, image_names[:,idx]) for y_im, idx in zip(y, idx_test)]
+    images_names = [(y_im, image_names[:, idx]) for y_im, idx in zip(y, idx_test)]
     niftis = [reshape_save_nifti(im, name) for (ims, names) in images_names for (im, name) in zip(ims, names)]
-
-
-

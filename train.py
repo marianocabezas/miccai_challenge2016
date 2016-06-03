@@ -1,7 +1,7 @@
 from optparse import OptionParser
 import matplotlib
 import numpy as np
-import cPickle as pickle
+import cPickle
 from data_creation import load_encoder_data
 from nets import create_encoder
 matplotlib.use('Agg')
@@ -24,11 +24,12 @@ if __name__ == '__main__':
                       action='store', dest='test_size', type='float', nargs=1, default=0.25)
     (options, args) = parser.parse_args()
 
-    X_train, X_test, y_train, y_test, idx_train, idx_test = load_encoder_data(test_size=options.test_size, dir_name=options.folder)
+    encoder_data = load_encoder_data(test_size=options.test_size, dir_name=options.folder)
+    (X_train, X_test, y_train, y_test, idx_train, idx_test) = encoder_data
     np.save(options.folder + 'test_encoder.npy', X_test)
     np.save(options.folder + 'idx_test_encoder.npy', idx_test)
     net = create_encoder(X_train.shape, options.convo_size, options.pool_size)
-    pickle.dump(net, open(options.folder + 'net.pkl', 'wb'))
+    cPickle.dump(net, open(options.folder + 'net.pkl', 'wb'))
 
     net.fit(X_train, y_train.astype(np.float32))
 
