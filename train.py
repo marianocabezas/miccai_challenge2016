@@ -21,7 +21,7 @@ if __name__ == '__main__':
     parser.add_option('-p', '--pool-size',
                       action='store', dest='pool_size', type='int', nargs=1, default=2)
     parser.add_option('-t', '--test-size',
-                      action='store', dest='test_size', type='float', nargs=1, default=2)
+                      action='store', dest='test_size', type='float', nargs=1, default=0.25)
     (options, args) = parser.parse_args()
 
     X_train, X_test, y_train, y_test, idx_train, idx_test = load_encoder_data(test_size=options.test_size, dir_name=options.folder)
