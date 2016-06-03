@@ -65,7 +65,7 @@ def load_and_vectorize(name, dir_name, datatype=np.float32):
                   float(min_shape[2]) / im.shape[2]]) for im in images]
     )
 
-    return data.reshape(data.shape[0], 1, data.shape[1], data.shape[2], data.shape[3]).astype(datatype), image_names
+    return data.reshape([data.shape[0], 1, data.shape[1], data.shape[2], data.shape[3]]).astype(datatype), image_names
 
 
 def load_images(test_size=0.25, dir_name='/home/mariano/DATA/Challenge/',
