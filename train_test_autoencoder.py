@@ -22,7 +22,7 @@ if __name__ == '__main__':
                       action='store', dest='pool_size', type='int', nargs=1, default=2)
     parser.add_option('-t', '--test-size',
                       action='store', dest='test_size', type='float', nargs=1, default=0.25)
-    parser.add_option('-f', '--number-filters',
+    parser.add_option('-nf', '--number-filters',
                       action='store', dest='number_filters', type='int', nargs=1, default=64)
     parser.add_option('--use-gado',
                       action='store_true', dest='use_gado', default=False)
