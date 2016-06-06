@@ -85,9 +85,14 @@ def load_images(
         use_t1
 ):
 
+    images_used = [use_flair, use_pd, use_t2, use_gado, use_t1]
+    letters = ['fl', 'pd', 't2', 'gd', 't1']
+    image_sufix = '.'.join(
+        [letter for (letter, is_used) in zip(letters, images_used) if is_used]
+    )
     try:
-        x = np.load(dir_name + 'image_vector.npy')
-        np.load(dir_name + 'image_names_encoder.npy')
+        x = np.load(dir_name + 'image_vector' + image_sufix + '.npy')
+        np.load(dir_name + 'image_names_encoder' + image_sufix + '.npy')
     except IOError:
         # Setting up the lists for all images
         flair, flair_names = None, None
@@ -116,8 +121,8 @@ def load_images(
                 gado_names,
                 t1_names
         ] if name is not None])
-        np.save(dir_name + 'image_vector_encoder.npy', x)
-        np.save(dir_name + 'image_names_encoder.npy', image_names)
+        np.save(dir_name + 'image_vector_encoder' + image_sufix + '.npy', x)
+        np.save(dir_name + 'image_names_encoder' + image_sufix + '.npy', image_names)
 
     return x
 
