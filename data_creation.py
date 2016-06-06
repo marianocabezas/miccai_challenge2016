@@ -149,7 +149,6 @@ def load_encoder_data(
         use_gado,
         use_t1
     )
-    print x.shape
     y = np.reshape(x, [x.shape[0], -1])
 
     return train_test_split(x, y, test_size=test_size, random_state=random_state)
