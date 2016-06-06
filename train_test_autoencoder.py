@@ -17,7 +17,7 @@ if __name__ == '__main__':
     parser.add_option('-v', '--verbose',
                       action='store_true', dest='verbose', default=False)
     parser.add_option('-c', '--convolution-size',
-                      action='store', dest='convo_size', type='int', nargs=1, default=7)
+                      action='store', dest='convo_size', type='int', nargs=1, default=15)
     parser.add_option('-p', '--pool-size',
                       action='store', dest='pool_size', type='int', nargs=1, default=2)
     parser.add_option('-t', '--test-size',
@@ -27,11 +27,11 @@ if __name__ == '__main__':
     parser.add_option('--use-flair',
                       action='store_true', dest='use_flair', default=True)
     parser.add_option('--use-pd',
-                      action='store_true', dest='use_pd', default=False)
+                      action='store_true', dest='use_pd', default=True)
     parser.add_option('--use-t2',
                       action='store_true', dest='use_t2', default=False)
     parser.add_option('--use-t1',
-                      action='store_true', dest='use_t1', default=False)
+                      action='store_true', dest='use_t1', default=True)
     (options, args) = parser.parse_args()
 
     # Create the data
