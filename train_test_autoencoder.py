@@ -29,7 +29,7 @@ if __name__ == '__main__':
     parser.add_option('--use-pd',
                       action='store_true', dest='use_pd', type='boolean', nargs=1, default=True)
     parser.add_option('--use-t2',
-                      action='store_true', dest='use_t2', type='boolean', nargs=1, default=False)
+                      action='store_true', dest='use_t2', default=False)
     parser.add_option('--use-t1',
                       action='store_true', dest='use_t1', type='boolean', nargs=1, default=True)
     (options, args) = parser.parse_args()
