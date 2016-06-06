@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     net = cPickle.load(open(options.folder + 'net.pkl', 'rb'))
     net.load_params_from(options.folder + 'model_weights.pkl')
-    y_pred = net.predict(X)
+    y_pred = net.predict(X.astype(np.float32))
     print 'Values y_pred (min = %d, max = %d)' % (y_pred.min(), y_pred.max())
 
     y = y_pred.reshape(X.shape)
