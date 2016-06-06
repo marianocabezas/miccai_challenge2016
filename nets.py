@@ -20,7 +20,7 @@ def create_encoder(input_shape, convo_size, pool_size, dir_name):
     encoder = NeuralNet(
         layers=[
             (InputLayer, {'name': 'input', 'shape': input_shape}),
-            # (MaxPool3DDNNLayer, {'name': 'downsample', 'pool_size': pool_size}),
+            (MaxPool3DDNNLayer, {'name': 'downsample', 'pool_size': pool_size}),
             (Conv3DDNNLayer, {
                 'name': 'conv1',
                 'num_filters': 16,
@@ -49,7 +49,7 @@ def create_encoder(input_shape, convo_size, pool_size, dir_name):
                 'filter_size': (convo_size, convo_size, convo_size),
                 'pad': 'full'
             }),
-            # (Unpooling3D, {'name': 'upsample', 'pool_size': pool_size}),
+            (Unpooling3D, {'name': 'upsample', 'pool_size': pool_size}),
             (ReshapeLayer, {'name': 'resampling', 'shape': ([0], -1)})
 
         ],
