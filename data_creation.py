@@ -12,8 +12,6 @@ def train_test_split(data, labels, test_size=0.1, random_state=42):
     # Init (Set the random seed and determine the number of cases for test)
     n_test = int(floor(data.shape[0]*test_size))
 
-    print 'Cases: %d (Train: %d; Test: %d)' % (data.shape[0], data.shape[0] - n_test, n_test)
-
     # We create a random permutation of the data
     # First we permute the data indices, then we shuffle the data and labels
     np.random.seed(random_state)
@@ -67,7 +65,7 @@ def load_and_vectorize(name, dir_name, datatype=np.float32):
                   float(min_shape[2]) / im.shape[2]]) for im in images]
     )
 
-    return data.reshape([data.shape[0], 1, data.shape[1], data.shape[2], data.shape[3]]).astype(datatype), image_names
+    return data.astype(datatype), image_names
 
 
 def load_images(
@@ -98,8 +96,6 @@ def load_images(
         # We load the image modalities for each patient according to the parameters
         if use_flair:
             flair, flair_names = load_and_vectorize(flair_name, dir_name)
-            print 'FLAIR'
-            print flair.shape
         if use_pd:
             pd, pd_names = load_and_vectorize(pd_name, dir_name)
         if use_t2:
@@ -117,7 +113,6 @@ def load_images(
                 gado_names,
                 t1_names
         ] if name is not None])
-        print x.shape
         np.save(dir_name + 'image_vector_encoder.npy', x)
         np.save(dir_name + 'image_names_encoder.npy', image_names)
 
