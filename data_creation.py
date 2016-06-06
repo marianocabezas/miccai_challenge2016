@@ -67,9 +67,6 @@ def load_and_vectorize(name, dir_name, datatype=np.float32):
                   float(min_shape[2]) / im.shape[2]]) for im in images]
     )
 
-    print name
-    print data.shape
-
     return data.reshape([data.shape[0], 1, data.shape[1], data.shape[2], data.shape[3]]).astype(datatype), image_names
 
 
@@ -101,6 +98,8 @@ def load_images(
         # We load the image modalities for each patient according to the parameters
         if use_flair:
             flair, flair_names = load_and_vectorize(flair_name, dir_name)
+            print 'FLAIR'
+            print flair.shape
         if use_pd:
             pd, pd_names = load_and_vectorize(pd_name, dir_name)
         if use_t2:
