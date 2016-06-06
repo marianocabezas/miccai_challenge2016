@@ -35,6 +35,4 @@ if __name__ == '__main__':
 
     # Load the best weights from pickled model
     net.load_params_from('./model_weights.pkl')
-
-    score = net.score(X_test, y_test)
-    print 'Final score %.4f' % score
+    
