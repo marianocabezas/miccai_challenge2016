@@ -29,12 +29,18 @@ def create_encoder(input_shape, convo_size, pool_size, dir_name, number_filters)
                 'filter_size': (convo_size, convo_size, convo_size),
                 'pad': 'valid'
             }),
+            (Conv3DDNNLayer, {
+                'name': 'conv2',
+                'num_filters': number_filters,
+                'filter_size': (convo_size, convo_size, convo_size),
+                'pad': 'valid'
+            }),
             (Pool3DDNNLayer, {
                 'name': 'pool1',
                 'pool_size': pool_size,
                 'mode': 'average_inc_pad'}),
             (Conv3DDNNLayer, {
-                'name': 'conv2',
+                'name': 'conv3',
                 'num_filters': number_filters,
                 'filter_size': (convo_size, convo_size, convo_size),
                 'pad': 'valid'
@@ -45,13 +51,13 @@ def create_encoder(input_shape, convo_size, pool_size, dir_name, number_filters)
                 'mode': 'average_inc_pad'}),
 
             (Conv3DDNNLayer, {
-                'name': 'conv3',
+                'name': 'conv4',
                 'num_filters': number_filters,
                 'filter_size': (convo_size, convo_size, convo_size),
                 'pad': 'valid'
             }),
             (Conv3DDNNLayer, {
-                'name': 'deconv3',
+                'name': 'deconv4',
                 'num_filters': number_filters,
                 'filter_size': (convo_size, convo_size, convo_size),
                 'pad': 'full'
@@ -59,12 +65,18 @@ def create_encoder(input_shape, convo_size, pool_size, dir_name, number_filters)
 
             (Unpooling3D, {'name': 'unpool2', 'pool_size': pool_size}),
             (Conv3DDNNLayer, {
-                'name': 'deconv2',
+                'name': 'deconv3',
                 'num_filters': number_filters,
                 'filter_size': (convo_size, convo_size, convo_size),
                 'pad': 'full'
             }),
             (Unpooling3D, {'name': 'unpool1', 'pool_size': pool_size}),
+            (Conv3DDNNLayer, {
+                'name': 'deconv2',
+                'num_filters': number_filters,
+                'filter_size': (convo_size, convo_size, convo_size),
+                'pad': 'full'
+            }),
             (Conv3DDNNLayer, {
                 'name': 'deconv1',
                 'num_filters': input_shape[1],
