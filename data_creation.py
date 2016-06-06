@@ -43,6 +43,8 @@ def reshape_save_nifti(image, original_name):
             float(original.shape[2]) / image.shape[2]
         ]
     )
+    reshaped *= original.std()
+    reshaped += original.mean()
     reshaped_nii = NiftiImage(reshaped, affine=np.eye(4))
     name_no_ext = re.search(r'(.+?)\.nii.*|\.+', original_name)
     new_name = name_no_ext.groups()[0] + '_reshaped.nii.gz'
