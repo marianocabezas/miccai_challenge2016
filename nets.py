@@ -10,11 +10,11 @@ from layers import Unpooling3D
 from lasagne import updates
 
 
-def create_encoder(input_shape, convo_size, pool_size):
+def create_encoder(input_shape, convo_size, pool_size, dir_name):
 
-    save_weights = SaveWeights('./model_weights.pkl', only_best=True, pickle=False)
-    save_training_history = SaveTrainingHistory('./model_history.pkl')
-    plot_training_history = PlotTrainingHistory('./training_history.png')
+    save_weights = SaveWeights(dir_name + 'model_weights.pkl', only_best=True, pickle=False)
+    save_training_history = SaveTrainingHistory(dir_name + 'model_history.pkl')
+    plot_training_history = PlotTrainingHistory(dir_name + 'training_history.png')
     early_stopping = EarlyStopping(patience=100)
 
     encoder = NeuralNet(

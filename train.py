@@ -28,7 +28,7 @@ if __name__ == '__main__':
     (X_train, X_test, y_train, y_test, idx_train, idx_test) = encoder_data
     np.save(options.folder + 'test_encoder.npy', X_test)
     np.save(options.folder + 'idx_test_encoder.npy', idx_test)
-    net = create_encoder(X_train.shape, options.convo_size, options.pool_size)
+    net = create_encoder(X_train.shape, options.convo_size, options.pool_size, options.folder)
     cPickle.dump(net, open(options.folder + 'net.pkl', 'wb'))
 
     net.fit(X_train, y_train.astype(np.float32))
