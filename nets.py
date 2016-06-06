@@ -11,7 +11,7 @@ from lasagne import updates
 from lasagne import nonlinearities
 
 
-def create_encoder(input_shape, convo_size, pool_size, dir_name):
+def create_encoder(input_shape, convo_size, pool_size, dir_name, number_filters):
 
     save_weights = SaveWeights(dir_name + 'model_weights.pkl', only_best=True, pickle=False)
     save_training_history = SaveTrainingHistory(dir_name + 'model_history.pkl')
@@ -24,7 +24,13 @@ def create_encoder(input_shape, convo_size, pool_size, dir_name):
             (MaxPool3DDNNLayer, {'name': 'downsample', 'pool_size': pool_size}),
             (Conv3DDNNLayer, {
                 'name': 'conv1',
-                'num_filters': 64,
+                'num_filters': number_filters,
+                'filter_size': (convo_size, convo_size, convo_size),
+                'pad': 'valid'
+            }),
+            (Conv3DDNNLayer, {
+                'name': 'conv1',
+                'num_filters': number_filters,
                 'filter_size': (convo_size, convo_size, convo_size),
                 'pad': 'valid'
             }),
@@ -32,18 +38,24 @@ def create_encoder(input_shape, convo_size, pool_size, dir_name):
 
             (Conv3DDNNLayer, {
                 'name': 'conv2',
-                'num_filters': 64,
+                'num_filters': number_filters,
                 'filter_size': (convo_size, convo_size, convo_size),
                 'pad': 'valid'
             }),
             (Conv3DDNNLayer, {
                 'name': 'deconv2',
-                'num_filters': 64,
+                'num_filters': number_filters,
                 'filter_size': (convo_size, convo_size, convo_size),
                 'pad': 'full'
             }),
 
             (Unpooling3D, {'name': 'unpool', 'pool_size': pool_size}),
+            (Conv3DDNNLayer, {
+                'name': 'deconv1',
+                'num_filters': number_filters,
+                'filter_size': (convo_size, convo_size, convo_size),
+                'pad': 'full'
+            }),
             (Conv3DDNNLayer, {
                 'name': 'deconv1',
                 'num_filters': input_shape[1],

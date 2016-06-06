@@ -22,6 +22,8 @@ if __name__ == '__main__':
                       action='store', dest='pool_size', type='int', nargs=1, default=2)
     parser.add_option('-t', '--test-size',
                       action='store', dest='test_size', type='float', nargs=1, default=0.25)
+    parser.add_option('-f', '--number-filters',
+                      action='store', dest='number_filters', type='int', nargs=1, default=64)
     parser.add_option('--use-gado',
                       action='store_true', dest='use_gado', default=False)
     parser.add_option('--use-flair',
@@ -56,7 +58,7 @@ if __name__ == '__main__':
     np.save(options.folder + 'idx_test_encoder.npy', idx_test)
 
     # Train the net and save it
-    net = create_encoder(x_train.shape, options.convo_size, options.pool_size, options.folder)
+    net = create_encoder(x_train.shape, options.convo_size, options.pool_size, options.folder, options.number_filters)
     cPickle.dump(net, open(options.folder + 'net.pkl', 'wb'))
     net.fit(x_train, y_train)
 
