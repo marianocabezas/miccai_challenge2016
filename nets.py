@@ -46,7 +46,7 @@ def create_encoder(input_shape, convo_size, pool_size, dir_name):
             (Unpooling3D, {'name': 'unpool', 'pool_size': pool_size}),
             (Conv3DDNNLayer, {
                 'name': 'deconv1',
-                'num_filters': 5,
+                'num_filters': input_shape[1],
                 'filter_size': (convo_size, convo_size, convo_size),
                 'pad': 'full'
             }),
