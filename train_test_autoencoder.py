@@ -33,11 +33,11 @@ if __name__ == '__main__':
     # Train the net and save it
     net = create_encoder(x_train.shape, options.convo_size, options.pool_size, options.folder)
     cPickle.dump(net, open(options.folder + 'net.pkl', 'wb'))
-    net.fit(x_train, y_train.astype(np.float32))
+    net.fit(x_train, y_train)
 
     # Load image names and test the net
     image_names = np.load(options.folder + 'image_names_encoder.npy')
-    y_pred = net.predict(x_test.astype(np.float32))
+    y_pred = net.predict(x_test)
 
     print 'Values y_pred (min = %d, max = %d)' % (y_pred.min(), y_pred.max())
 
