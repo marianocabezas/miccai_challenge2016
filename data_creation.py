@@ -66,6 +66,7 @@ def load_and_vectorize(name, dir_name, datatype=np.float32):
                  [float(min_shape[0]) / im.shape[0], float(min_shape[1]) / im.shape[1],
                   float(min_shape[2]) / im.shape[2]]) for im in images]
     )
+    print data.shape
 
     return data.reshape([data.shape[0], 1, data.shape[1], data.shape[2], data.shape[3]]).astype(datatype), image_names
 
