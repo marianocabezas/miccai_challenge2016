@@ -22,6 +22,16 @@ if __name__ == '__main__':
                       action='store', dest='pool_size', type='int', nargs=1, default=2)
     parser.add_option('-t', '--test-size',
                       action='store', dest='test_size', type='float', nargs=1, default=0.25)
+    parser.add_option('--use-gado',
+                      action='store_true', dest='use_gado', type='boolean', nargs=1, default=False)
+    parser.add_option('--use-flair',
+                      action='store_true', dest='use_flair', type='boolean', nargs=1, default=True)
+    parser.add_option('--use-pd',
+                      action='store_true', dest='use_pd', type='boolean', nargs=1, default=True)
+    parser.add_option('--use-t2',
+                      action='store_true', dest='use_t2', type='boolean', nargs=1, default=True)
+    parser.add_option('--use-t1',
+                      action='store_true', dest='use_t1', type='boolean', nargs=1, default=True)
     (options, args) = parser.parse_args()
 
     encoder_data = load_encoder_data(test_size=options.test_size, dir_name=options.folder)
