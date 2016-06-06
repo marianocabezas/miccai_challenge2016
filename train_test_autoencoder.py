@@ -61,7 +61,7 @@ if __name__ == '__main__':
     net.fit(x_train, y_train)
 
     # Load image names and test the net
-    image_names = np.load(options.folder + 'image_names_encoder' + image_sufix + '.npy')
+    image_names = np.load(options.folder + 'image_names_encoder.' + image_sufix + '.npy')
     y_pred = net.predict(x_test)
 
     print 'Values y_pred (min = %d, max = %d)' % (y_pred.min(), y_pred.max())
