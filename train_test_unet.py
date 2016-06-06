@@ -2,8 +2,8 @@ from optparse import OptionParser
 import matplotlib
 import numpy as np
 import cPickle
-from data_creation import load_encoder_data, reshape_save_nifti
-from nets import create_encoder
+from data_creation import load_unet_data, reshape_save_nifti
+from nets import create_unet
 matplotlib.use('Agg')
 
 
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     )
 
     # Create the data
-    encoder_data = load_encoder_data(
+    encoder_data = load_unet_data(
         test_size=options.test_size,
         dir_name=options.folder,
         use_flair=options.use_flair,
@@ -54,22 +54,22 @@ if __name__ == '__main__':
         use_t1=options.use_t1
     )
     (x_train, x_test, y_train, y_test, idx_train, idx_test) = encoder_data
-    np.save(options.folder + 'test_encoder.npy', x_test)
-    np.save(options.folder + 'idx_test_encoder.npy', idx_test)
+    np.save(options.folder + 'test_unet.npy', x_test)
+    np.save(options.folder + 'idx_test_unet.npy', idx_test)
 
     # Train the net and save it
-    net = create_encoder(x_train.shape, options.convo_size, options.pool_size, options.folder, options.number_filters)
-    cPickle.dump(net, open(options.folder + 'net.pkl', 'wb'))
+    net = create_unet(x_train.shape, options.convo_size, options.pool_size, options.folder, options.number_filters)
+    cPickle.dump(net, open(options.folder + 'unet.pkl', 'wb'))
     net.fit(x_train, y_train)
 
     # Load image names and test the net
-    image_names = np.load(options.folder + 'image_names_encoder.' + image_sufix + '.npy')
+    image_names = np.load(options.folder + 'image_names_unet.' + image_sufix + '.npy')
     y_pred = net.predict(x_test)
 
     print 'Values y_pred (min = %d, max = %d)' % (y_pred.min(), y_pred.max())
 
     y = y_pred.reshape(x_test.shape)
-    np.save(options.folder + 'encoder_results.npy', y_pred.reshape(x_test.shape))
+    np.save(options.folder + 'unet_results.npy', y_pred.reshape(x_test.shape))
 
     images_names = [(y_im, image_names[:, idx]) for y_im, idx in zip(y, idx_test)]
     niftis = [reshape_save_nifti(im, name) for (ims, names) in images_names for (im, name) in zip(ims, names)]
