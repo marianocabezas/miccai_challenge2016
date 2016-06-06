@@ -16,8 +16,8 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
 
     X = np.load(options.folder + 'test_encoder.npy')
-    idx_test = np.load('idx_test_encoder.npy')
-    image_names = np.load('image_names_encoder.npy')
+    idx_test = np.load(options.folder + 'idx_test_encoder.npy')
+    image_names = np.load(options.folder + 'image_names_encoder.npy')
 
     net = cPickle.load(open(options.folder + 'net.pkl', 'rb'))
     net.load_params_from('./model_weights.pkl')
