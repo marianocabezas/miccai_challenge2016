@@ -20,7 +20,7 @@ if __name__ == '__main__':
     image_names = np.load(options.folder + 'image_names_encoder.npy')
 
     net = cPickle.load(open(options.folder + 'net.pkl', 'rb'))
-    net.load_params_from('./model_weights.pkl')
+    net.load_params_from(options.folder + 'model_weights.pkl')
     y_pred = net.predict(X)
     print 'Values y_pred (min = %d, max = %d)' % (y_pred.min(), y_pred.max())
 

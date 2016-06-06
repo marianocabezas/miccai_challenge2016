@@ -34,5 +34,4 @@ if __name__ == '__main__':
     net.fit(X_train, y_train.astype(np.float32))
 
     # Load the best weights from pickled model
-    net.load_params_from('./model_weights.pkl')
-    
+    net.load_params_from(options.folder + 'model_weights.pkl')
