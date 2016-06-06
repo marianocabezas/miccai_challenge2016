@@ -29,7 +29,7 @@ def create_encoder(input_shape, convo_size, pool_size, dir_name, number_filters)
                 'pad': 'valid'
             }),
             (Conv3DDNNLayer, {
-                'name': 'conv1',
+                'name': 'conv2',
                 'num_filters': number_filters,
                 'filter_size': (convo_size, convo_size, convo_size),
                 'pad': 'valid'
@@ -37,13 +37,13 @@ def create_encoder(input_shape, convo_size, pool_size, dir_name, number_filters)
             (MaxPool3DDNNLayer, {'name': 'pool', 'pool_size': pool_size}),
 
             (Conv3DDNNLayer, {
-                'name': 'conv2',
+                'name': 'conv3',
                 'num_filters': number_filters,
                 'filter_size': (convo_size, convo_size, convo_size),
                 'pad': 'valid'
             }),
             (Conv3DDNNLayer, {
-                'name': 'deconv2',
+                'name': 'deconv3',
                 'num_filters': number_filters,
                 'filter_size': (convo_size, convo_size, convo_size),
                 'pad': 'full'
@@ -51,7 +51,7 @@ def create_encoder(input_shape, convo_size, pool_size, dir_name, number_filters)
 
             (Unpooling3D, {'name': 'unpool', 'pool_size': pool_size}),
             (Conv3DDNNLayer, {
-                'name': 'deconv1',
+                'name': 'deconv2',
                 'num_filters': number_filters,
                 'filter_size': (convo_size, convo_size, convo_size),
                 'pad': 'full'
