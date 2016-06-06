@@ -24,7 +24,7 @@ def create_encoder(input_shape, convo_size, pool_size, dir_name):
             (MaxPool3DDNNLayer, {'name': 'downsample', 'pool_size': pool_size}),
             (Conv3DDNNLayer, {
                 'name': 'conv1',
-                'num_filters': 128,
+                'num_filters': 64,
                 'filter_size': (convo_size, convo_size, convo_size),
                 'pad': 'valid'
             }),
@@ -32,13 +32,13 @@ def create_encoder(input_shape, convo_size, pool_size, dir_name):
 
             (Conv3DDNNLayer, {
                 'name': 'conv2',
-                'num_filters': 128,
+                'num_filters': 64,
                 'filter_size': (convo_size, convo_size, convo_size),
                 'pad': 'valid'
             }),
             (Conv3DDNNLayer, {
                 'name': 'deconv2',
-                'num_filters': 128,
+                'num_filters': 64,
                 'filter_size': (convo_size, convo_size, convo_size),
                 'pad': 'full'
             }),
