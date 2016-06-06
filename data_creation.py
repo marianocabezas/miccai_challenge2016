@@ -4,7 +4,7 @@ import numpy as np
 from scipy import ndimage as nd
 from nibabel import load as load_nii
 from nibabel import save as save_nii
-from nibabel import Nifti2Image as NiftiImage
+from nibabel import Nifti1Image as NiftiImage
 from math import floor
 
 
