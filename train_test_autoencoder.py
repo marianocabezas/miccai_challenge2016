@@ -32,6 +32,7 @@ if __name__ == '__main__':
                       action='store_true', dest='use_t2', default=False)
     parser.add_option('--use-t1',
                       action='store_true', dest='use_t1', default=True)
+
     (options, args) = parser.parse_args()
 
     # Create the data

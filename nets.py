@@ -119,7 +119,7 @@ def create_unet(input_shape, convo_size, pool_size, dir_name):
 
         ],
 
-        regression=True,
+        regression=False,
 
         update=updates.adadelta,
 

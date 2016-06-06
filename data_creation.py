@@ -121,8 +121,8 @@ def load_images(
                 gado_names,
                 t1_names
         ] if name is not None])
-        np.save(dir_name + 'image_vector_encoder' + image_sufix + '.npy', x)
-        np.save(dir_name + 'image_names_encoder' + image_sufix + '.npy', image_names)
+        np.save(dir_name + 'image_vector_encoder.' + image_sufix + '.npy', x)
+        np.save(dir_name + 'image_names_encoder.' + image_sufix + '.npy', image_names)
 
     return x
 
