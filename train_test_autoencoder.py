@@ -27,11 +27,11 @@ if __name__ == '__main__':
     parser.add_option('--use-flair',
                       action='store_true', dest='use_flair', default=True)
     parser.add_option('--use-pd',
-                      action='store_true', dest='use_pd', default=True)
+                      action='store_true', dest='use_pd', default=False)
     parser.add_option('--use-t2',
                       action='store_true', dest='use_t2', default=False)
     parser.add_option('--use-t1',
-                      action='store_true', dest='use_t1', default=True)
+                      action='store_true', dest='use_t1', default=False)
     (options, args) = parser.parse_args()
 
     # Create the data
