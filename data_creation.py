@@ -44,7 +44,7 @@ def reshape_save_nifti(image, original_name):
         ]
     )
     reshaped_nii = NiftiImage(reshaped, affine=np.eye(4))
-    name_no_ext = re.search(r'(.+?)\..|\.+', original_name)
+    name_no_ext = re.search(r'(.+?)\.nii.*|\.+', original_name)
     new_name = name_no_ext.groups()[0] + '_reshaped.nii.gz'
     print original_name
     print new_name
