@@ -35,6 +35,12 @@ if __name__ == '__main__':
 
     (options, args) = parser.parse_args()
 
+    images_used = [options.use_flair, options.use_pd, options.use_t2, options.use_gado, options.use_t1]
+    letters = ['fl', 'pd', 't2', 'gd', 't1']
+    image_sufix = '.'.join(
+        [letter for (letter, is_used) in zip(letters, images_used) if is_used]
+    )
+
     # Create the data
     encoder_data = load_encoder_data(
         test_size=options.test_size,
@@ -55,7 +61,7 @@ if __name__ == '__main__':
     net.fit(x_train, y_train)
 
     # Load image names and test the net
-    image_names = np.load(options.folder + 'image_names_encoder.npy')
+    image_names = np.load(options.folder + 'image_names_encoder' + image_sufix + '.npy')
     y_pred = net.predict(x_test)
 
     print 'Values y_pred (min = %d, max = %d)' % (y_pred.min(), y_pred.max())
