@@ -38,22 +38,22 @@ def create_encoder_string(forward_layers, input_shape, convo_size, pool_size, di
     possible_layers = {
         'i': '(InputLayer, {\'name\': \'input\',\'shape\': input_shape})',
         'c': '(Conv3DDNNLayer, {'
-             '\'name\': \'conv%d\' % (c_index.inc),'
+             '\'name\': \'conv%d\' % (c_index.inc()),'
              '\'num_filters\': number_filters,'
              '\'filter_size\': (convo_size, convo_size, convo_size),'
              '\'pad\': \'valid\'})',
         'a': '(Pool3DDNNLayer, {'
-             '\'name\': \'pool%d\' % (p_index.inc),'
+             '\'name\': \'pool%d\' % (p_index.inc()),'
              '\'pool_size\': pool_size,'
              '\'mode\': \'average_inc_pad\'})',
         'm': '(MaxPool3DDNNLayer, {'
-             '\'name\': \'pool%d\' % (p_index.inc),'
+             '\'name\': \'pool%d\' % (p_index.inc()),'
              '\'pool_size\': pool_size})',
         'u': '(Unpooling3D, {'
-             '\'name\': \'unpool%d\' % (p_index_dec),'
+             '\'name\': \'unpool%d\' % (p_index_dec()),'
              '\'pool_size\': pool_size})',
         'd': '(Conv3DDNNLayer, {'
-             '\'name\': \'deconv%d\' % (c_index_dec),'
+             '\'name\': \'deconv%d\' % (c_index_dec()),'
              '\'num_filters\': number_filters,'
              '\'filter_size\': (convo_size, convo_size, convo_size),'
              '\'pad\': \'full\'})',
