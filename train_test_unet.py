@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
     # Load image names and test the net
     image_names = np.load(options.folder + 'image_names_unet.' + image_sufix + '.npy')
-    y_pred = net.predict(x_test)
+    y_pred = net.predict_proba(x_test)
 
     print 'Values y_pred (min = %d, max = %d)' % (y_pred.min(), y_pred.max())
 

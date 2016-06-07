@@ -194,7 +194,7 @@ def load_unet_data(
                      [float(min_shape[0]) / im.shape[0], float(min_shape[1]) / im.shape[1],
                       float(min_shape[2]) / im.shape[2]]) for im in masks]
         ).astype(np.uint8)
-        np.save('%slabel%d_vector.npy' % (dir_name, rater), y)
+        np.save('%slabels_vector.npy' % (dir_name), y)
 
     x = load_images(
         dir_name,
