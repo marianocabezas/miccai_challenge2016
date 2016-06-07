@@ -179,15 +179,14 @@ def load_unet_data(
         use_t2=True,
         use_gado=True,
         use_t1=True,
-        rater=3,
         min_shape=None
 ):
 
     try:
-        y = np.load('%slabel%d_vector.npy' % (dir_name, rater))
+        y = np.load('%slabel_vector.npy' % (dir_name))
     except IOError:
         patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
-        masks = [load_nii('%s/%s/ManualSegmentation_%d.nii.gz' % (dir_name, patient, rater)).get_data() for patient in
+        masks = [load_nii('%s/%s/Consensus.nii.gz' % (dir_name, patient)).get_data() for patient in
                  patients]
         min_shape = min([im.shape for im in masks])
         y = np.asarray(
