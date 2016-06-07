@@ -74,7 +74,6 @@ def create_encoder_string(forward_layers, input_shape, convo_size, pool_size, di
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
     final_layers = 'i' + forward_layers + back_layers + 'r'
-    print final_layers
 
     save_weights = SaveWeights(dir_name + 'model_weights.pkl', only_best=True, pickle=False)
     save_training_history = SaveTrainingHistory(dir_name + 'model_history.pkl')
