@@ -24,6 +24,10 @@ if __name__ == '__main__':
                       action='store', dest='test_size', type='float', nargs=1, default=0.25)
     parser.add_option('-n', '--number-filters',
                       action='store', dest='number_filters', type='int', nargs=1, default=64)
+    parser.add_option('-l', '--forward-layers',
+                      action='store', dest='layers', type='string', nargs=1, default='ccac')
+    parser.add_option('-i', '--image-size',
+                      action='store', dest='min_shape', type='int', nargs=3, default=None)
     parser.add_option('--use-gado',
                       action='store_true', dest='use_gado', default=False)
     parser.add_option('--use-flair',
