@@ -70,8 +70,8 @@ if __name__ == '__main__':
         x_train.shape,
         options.convo_size,
         options.pool_size,
-        options.folder,
-        options.number_filters
+        options.number_filters,
+        options.folder
     )
     cPickle.dump(net, open(os.path.join(options.folder, 'net.pkl'), 'wb'))
     net.fit(x_train, y_train)

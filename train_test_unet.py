@@ -49,7 +49,7 @@ if __name__ == '__main__':
     )
 
     # Create the data
-    encoder_data = load_unet_data(
+    unet_data = load_unet_data(
         test_size=options.test_size,
         dir_name=options.folder,
         use_flair=options.use_flair,
@@ -58,7 +58,7 @@ if __name__ == '__main__':
         use_gado=options.use_gado,
         use_t1=options.use_t1
     )
-    (x_train, x_test, y_train, y_test, idx_train, idx_test) = encoder_data
+    (x_train, x_test, y_train, y_test, idx_train, idx_test) = unet_data
     np.save(os.path.join(options.folder, 'test_unet.npy'), x_test)
     np.save(os.path.join(options.folder, 'idx_test_unet.npy'), idx_test)
 
@@ -68,8 +68,8 @@ if __name__ == '__main__':
         x_train.shape,
         options.convo_size,
         options.pool_size,
-        options.folder,
-        options.number_filters
+        options.number_filters,
+        options.folder
     )
     cPickle.dump(net, open(os.path.join(options.folder, 'unet.pkl'), 'wb'))
     net.fit(x_train, y_train)

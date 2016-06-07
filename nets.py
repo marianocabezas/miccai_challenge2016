@@ -34,7 +34,7 @@ def get_back_pathway(forward_pathway):
     return back_pathway
 
 
-def get_layers_string(net_layers, input_shape, convo_size, pool_size):
+def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_filters):
     # Index used to numerate the layers
     # While defining this object is not necessary, it helps encapsulate
     # the increment and decrement of the indices corresponding to the layers.
@@ -89,14 +89,14 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size):
     return [eval(possible_layers[l]) for l in net_layers]
 
 
-def create_encoder_string(forward_path, input_shape, convo_size, pool_size, dir_name, number_filters):
+def create_encoder_string(forward_path, input_shape, convo_size, pool_size, number_filters, dir_name):
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
     final_layers = 'i' + forward_path + get_back_pathway(forward_path) + 'r'
 
     encoder = NeuralNet(
-        layers=get_layers_string(final_layers, input_shape, convo_size, pool_size),
+        layers=get_layers_string(final_layers, input_shape, convo_size, pool_size, number_filters),
 
         regression=True,
 
@@ -113,14 +113,14 @@ def create_encoder_string(forward_path, input_shape, convo_size, pool_size, dir_
     return encoder
 
 
-def create_unet_string(forward_path, input_shape, convo_size, pool_size, dir_name, number_filters):
+def create_unet_string(forward_path, input_shape, convo_size, pool_size, number_filters, dir_name):
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
     final_layers = 'i' + forward_path + get_back_pathway(forward_path) + 'r' + 's'
 
     encoder = NeuralNet(
-        layers=get_layers_string(final_layers, input_shape, convo_size, pool_size),
+        layers=get_layers_string(final_layers, input_shape, convo_size, pool_size, number_filters),
 
         regression=True,
 
