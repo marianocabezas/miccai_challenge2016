@@ -31,7 +31,7 @@ def train_test_split(data, labels, test_size=0.1, random_state=42):
     return x_train, x_test, y_train, y_test, idx_train, idx_test
 
 
-def reshape_save_nifti(image, original_name):
+def reshape_to_nifti(image, original_name):
     # Open the original nifti
     original = load_nii(original_name).get_data()
     # Reshape the image and save it
@@ -46,6 +46,12 @@ def reshape_save_nifti(image, original_name):
     reshaped *= original.std()
     reshaped += original.mean()
     reshaped_nii = NiftiImage(reshaped, affine=np.eye(4))
+
+    return reshaped_nii
+
+
+def reshape_save_nifti(image, original_name):
+    reshaped_nii = reshape_to_nifti(image, original_name)
     name_no_ext = re.search(r'(.+?)\.nii.*|\.+', original_name)
     new_name = name_no_ext.groups()[0] + '_reshaped.nii.gz'
     print 'Saving ' + new_name + ' ...'
