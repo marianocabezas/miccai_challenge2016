@@ -54,7 +54,7 @@ def reshape_save_nifti(image, original_name):
     return reshaped_nii
 
 
-def load_and_vectorize(name, dir_name, datatype=np.float32, min_shape=None):
+def load_and_vectorize(name, dir_name, min_shape, datatype=np.float32):
     # Get the names of the images and load them
     patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
     image_names = ['%s/%s/%s' % (dir_name, patient, name) for patient in patients]
@@ -83,7 +83,8 @@ def load_images(
         use_pd,
         use_t2,
         use_gado,
-        use_t1
+        use_t1,
+        min_shape
 ):
 
     images_used = [use_flair, use_pd, use_t2, use_gado, use_t1]
@@ -101,8 +102,6 @@ def load_images(
         t2, t2_names = None, None
         gado, gado_names = None, None
         t1, t1_names = None, None
-
-        min_shape = (142, 142, 142)
 
         # We load the image modalities for each patient according to the parameters
         if use_flair:
@@ -143,7 +142,8 @@ def load_encoder_data(
         use_pd=True,
         use_t2=True,
         use_gado=True,
-        use_t1=True
+        use_t1=True,
+        min_shape=None
 ):
 
     x = load_images(
@@ -157,7 +157,8 @@ def load_encoder_data(
         use_pd,
         use_t2,
         use_gado,
-        use_t1
+        use_t1,
+        min_shape
     )
     y = np.reshape(x, [x.shape[0], -1])
 
@@ -178,7 +179,8 @@ def load_unet_data(
         use_t2=True,
         use_gado=True,
         use_t1=True,
-        rater=3
+        rater=3,
+        min_shape=None
 ):
 
     try:
@@ -206,7 +208,8 @@ def load_unet_data(
         use_pd,
         use_t2,
         use_gado,
-        use_t1
+        use_t1,
+        min_shape
     )
 
     return train_test_split(x, y, test_size=test_size, random_state=random_state)

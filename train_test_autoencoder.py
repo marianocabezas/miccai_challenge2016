@@ -26,6 +26,8 @@ if __name__ == '__main__':
                       action='store', dest='number_filters', type='int', nargs=1, default=64)
     parser.add_option('-l', '--forward-layers',
                       action='store', dest='layers', type='string', nargs=1, default='ccac')
+    parser.add_option('-i', '--image-size',
+                      action='store', dest='image', type='min_shape', nargs=1, default=None)
     parser.add_option('--use-gado',
                       action='store_true', dest='use_gado', default=False)
     parser.add_option('--use-flair',
@@ -53,7 +55,8 @@ if __name__ == '__main__':
         use_pd=options.use_pd,
         use_t2=options.use_t2,
         use_gado=options.use_gado,
-        use_t1=options.use_t1
+        use_t1=options.use_t1,
+        min_shape=options.min_shape
     )
     (x_train, x_test, y_train, y_test, idx_train, idx_test) = encoder_data
     np.save(options.folder + 'test_encoder.npy', x_test)
