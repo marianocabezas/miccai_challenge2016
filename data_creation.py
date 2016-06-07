@@ -54,14 +54,15 @@ def reshape_save_nifti(image, original_name):
     return reshaped_nii
 
 
-def load_and_vectorize(name, dir_name, datatype=np.float32):
+def load_and_vectorize(name, dir_name, datatype=np.float32, min_shape=None):
     # Get the names of the images and load them
     patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
     image_names = ['%s/%s/%s' % (dir_name, patient, name) for patient in patients]
     images = [load_nii(image_name).get_data() for image_name in image_names]
     # Reshape everything to have data of homogenous size (important for training)
     # Also, normalize the data
-    min_shape = min([im.shape for im in images])
+    if min_shape is None:
+        min_shape = min([im.shape for im in images])
     data = np.asarray(
         [nd.zoom((im - im.mean()) / im.std(),
                  [float(min_shape[0]) / im.shape[0], float(min_shape[1]) / im.shape[1],
@@ -103,15 +104,15 @@ def load_images(
 
         # We load the image modalities for each patient according to the parameters
         if use_flair:
-            flair, flair_names = load_and_vectorize(flair_name, dir_name)
+            flair, flair_names = load_and_vectorize(flair_name, dir_name, min_shape=(128, 128, 128))
         if use_pd:
-            pd, pd_names = load_and_vectorize(pd_name, dir_name)
+            pd, pd_names = load_and_vectorize(pd_name, dir_name, min_shape=(128, 128, 128))
         if use_t2:
-            t2, t2_names = load_and_vectorize(t2_name, dir_name)
+            t2, t2_names = load_and_vectorize(t2_name, dir_name, min_shape=(128, 128, 128))
         if use_gado:
-            gado, gado_names = load_and_vectorize(gado_name, dir_name)
+            gado, gado_names = load_and_vectorize(gado_name, dir_name, min_shape=(128, 128, 128))
         if use_t1:
-            t1, t1_names = load_and_vectorize(t1_name, dir_name)
+            t1, t1_names = load_and_vectorize(t1_name, dir_name, min_shape=(128, 128, 128))
 
         x = np.stack([data for data in [flair, pd, t2, gado, t1] if data is not None], axis=1)
         image_names = np.stack([name for name in [
