@@ -102,17 +102,19 @@ def load_images(
         gado, gado_names = None, None
         t1, t1_names = None, None
 
+        min_shape = (142, 142, 142)
+
         # We load the image modalities for each patient according to the parameters
         if use_flair:
-            flair, flair_names = load_and_vectorize(flair_name, dir_name, min_shape=(128, 128, 128))
+            flair, flair_names = load_and_vectorize(flair_name, dir_name, min_shape=min_shape)
         if use_pd:
-            pd, pd_names = load_and_vectorize(pd_name, dir_name, min_shape=(128, 128, 128))
+            pd, pd_names = load_and_vectorize(pd_name, dir_name, min_shape=min_shape)
         if use_t2:
-            t2, t2_names = load_and_vectorize(t2_name, dir_name, min_shape=(128, 128, 128))
+            t2, t2_names = load_and_vectorize(t2_name, dir_name, min_shape=min_shape)
         if use_gado:
-            gado, gado_names = load_and_vectorize(gado_name, dir_name, min_shape=(128, 128, 128))
+            gado, gado_names = load_and_vectorize(gado_name, dir_name, min_shape=min_shape)
         if use_t1:
-            t1, t1_names = load_and_vectorize(t1_name, dir_name, min_shape=(128, 128, 128))
+            t1, t1_names = load_and_vectorize(t1_name, dir_name, min_shape=min_shape)
 
         x = np.stack([data for data in [flair, pd, t2, gado, t1] if data is not None], axis=1)
         image_names = np.stack([name for name in [
