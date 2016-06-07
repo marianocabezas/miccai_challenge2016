@@ -13,9 +13,11 @@ from lasagne import nonlinearities
 
 
 def create_encoder_string(forward_layers, input_shape, convo_size, pool_size, dir_name, number_filters):
-
-    class Index():
-        # Index used to numerate the layers
+    # Index used to numerate the layers
+    # While defining this object is not necessary, it helps encapsulate
+    # the increment and decrement of the indices corresponding to the layers.
+    # Since this object will only be used here, we decided to limit its scope to this function.
+    class Index:
         def __init__(self):
             self.i = 1
 
@@ -54,7 +56,7 @@ def create_encoder_string(forward_layers, input_shape, convo_size, pool_size, di
              '\'filter_size\': (convo_size, convo_size, convo_size),'
              '\'pad\': \'full\'})',
         'f': '(Conv3DDNNLayer, {'
-            '\'name\': \'final\','
+             '\'name\': \'final\','
              '\'num_filters\': input_shape[1],'
              '\'filter_size\': (convo_size, convo_size, convo_size),'
              '\'pad\': \'full\'})',
