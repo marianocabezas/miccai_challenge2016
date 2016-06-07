@@ -2,9 +2,8 @@ from optparse import OptionParser
 import matplotlib
 import numpy as np
 import cPickle
-from data_creation import load_unet_data, reshape_to_nifti
+from data_creation import load_unet_data, reshape_save_nifti_to_dir
 from nets import create_unet
-from nibabel import save as save_nii
 matplotlib.use('Agg')
 
 
@@ -78,4 +77,4 @@ if __name__ == '__main__':
     np.save(options.folder + 'unet_results.npy', y)
 
     images_names = [(y_im, image_names[1, idx]) for y_im, idx in zip(y, idx_test)]
-    [save_nii(reshape_to_nifti(im, name), name[:name.rfind('/')+1] + 'unet_prob.nii.gz') for (im, name) in images_names]
+    [reshape_save_nifti_to_dir(im, name) for (im, name) in images_names]

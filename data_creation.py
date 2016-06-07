@@ -52,8 +52,16 @@ def reshape_to_nifti(image, original_name):
 
 def reshape_save_nifti(image, original_name):
     reshaped_nii = reshape_to_nifti(image, original_name)
-    name_no_ext = re.search(r'(.+?)\.nii.*|\.+', original_name)
-    new_name = name_no_ext.groups()[0] + '_reshaped.nii.gz'
+    new_name = re.search(r'(.+?)\.nii.*|\.+', original_name).groups()[0] + '_reshaped.nii.gz'
+    print 'Saving ' + new_name + ' ...'
+    save_nii(reshaped_nii, new_name)
+    # Return it too, just in case
+    return reshaped_nii
+
+
+def reshape_save_nifti_to_dir(image, original_name):
+    reshaped_nii = reshape_to_nifti(image, original_name)
+    new_name = original_name[:original_name.rfind('/')+1] + 'unet_prob.nii.gz'
     print 'Saving ' + new_name + ' ...'
     save_nii(reshaped_nii, new_name)
     # Return it too, just in case
