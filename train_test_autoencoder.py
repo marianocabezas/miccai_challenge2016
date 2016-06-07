@@ -79,7 +79,8 @@ if __name__ == '__main__':
     image_names = np.load(options.folder + 'image_names_encoder.' + image_sufix + '.npy')
     y_pred = net.predict(x_test)
 
-    print 'Values y_pred (min = %d, max = %d)' % (y_pred.min(), y_pred.max())
+    print 'Shape y: (' + ','.join([str(num) for num in y.shape])
+    print 'Values y (min = %d, max = %d)' % (y_pred.min(), y_pred.max())
 
     y = y_pred.reshape(x_test.shape)
     np.save(options.folder + 'encoder_results.npy', y_pred.reshape(x_test.shape))
