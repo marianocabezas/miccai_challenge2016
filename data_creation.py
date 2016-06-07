@@ -183,7 +183,7 @@ def load_unet_data(
 ):
 
     try:
-        y = np.load('%slabel_vector.npy' % (dir_name))
+        y = np.load('%slabels_vector.npy' % (dir_name))
     except IOError:
         patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
         masks = [load_nii('%s/%s/Consensus.nii.gz' % (dir_name, patient)).get_data() for patient in
