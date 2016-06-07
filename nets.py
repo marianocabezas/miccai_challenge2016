@@ -74,6 +74,7 @@ def create_encoder_string(forward_layers, input_shape, convo_size, pool_size, di
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
     final_layers = 'i' + forward_layers + back_layers + 'r'
+    print final_layers
 
     save_weights = SaveWeights(dir_name + 'model_weights.pkl', only_best=True, pickle=False)
     save_training_history = SaveTrainingHistory(dir_name + 'model_history.pkl')
@@ -136,25 +137,8 @@ def create_encoder(input_shape, convo_size, pool_size, dir_name, number_filters)
                 'filter_size': (convo_size, convo_size, convo_size),
                 'pad': 'valid'
             }),
-            (Pool3DDNNLayer, {
-                'name': 'pool2',
-                'pool_size': pool_size,
-                'mode': 'average_inc_pad'}),
 
-            (Conv3DDNNLayer, {
-                'name': 'conv4',
-                'num_filters': number_filters,
-                'filter_size': (convo_size, convo_size, convo_size),
-                'pad': 'valid'
-            }),
-            (Conv3DDNNLayer, {
-                'name': 'deconv4',
-                'num_filters': number_filters,
-                'filter_size': (convo_size, convo_size, convo_size),
-                'pad': 'full'
-            }),
 
-            (Unpooling3D, {'name': 'unpool2', 'pool_size': pool_size}),
             (Conv3DDNNLayer, {
                 'name': 'deconv3',
                 'num_filters': number_filters,
