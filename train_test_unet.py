@@ -24,7 +24,7 @@ if __name__ == '__main__':
     parser.add_option('-t', '--test-size',
                       action='store', dest='test_size', type='float', nargs=1, default=0.25)
     parser.add_option('-n', '--number-filters',
-                      action='store', dest='number_filters', type='int', nargs=1, default=64)
+                      action='store', dest='number_filters', type='int', nargs=1, default=4)
     parser.add_option('-l', '--forward-layers',
                       action='store', dest='layers', type='string', nargs=1, default='cac')
     parser.add_option('-i', '--image-size',

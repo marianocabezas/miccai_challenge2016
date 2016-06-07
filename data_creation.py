@@ -51,6 +51,9 @@ def reshape_to_nifti(image, original_name):
 
 
 def reshape_save_nifti(image, original_name):
+    # Reshape the image to the original image's size and save it as nifti
+    # In this case, we add "_reshape" no the original image's name to
+    # remark that it comes from an autoencoder
     reshaped_nii = reshape_to_nifti(image, original_name)
     new_name = re.search(r'(.+?)\.nii.*|\.+', original_name).groups()[0] + '_reshaped.nii.gz'
     print 'Saving ' + new_name + ' ...'
@@ -60,8 +63,11 @@ def reshape_save_nifti(image, original_name):
 
 
 def reshape_save_nifti_to_dir(image, original_name):
+    # Reshape the image to the original image's size and save it as nifti
+    # In this case, we save the probability map to the directory of the
+    # original image with the name "unet_prob.nii.gz
     reshaped_nii = reshape_to_nifti(image, original_name)
-    new_name = original_name[:original_name.rfind('/')+1] + 'unet_prob.nii.gz'
+    new_name = os.path.join(original_name[:original_name.rfind('/')], 'unet_prob.nii.gz')
     print 'Saving ' + new_name + ' ...'
     save_nii(reshaped_nii, new_name)
     # Return it too, just in case
