@@ -1,9 +1,10 @@
+import os
 from optparse import OptionParser
 import matplotlib
 import numpy as np
 import cPickle
 from data_creation import load_unet_data, reshape_save_nifti_to_dir
-from nets import create_unet
+from nets import create_unet_string
 matplotlib.use('Agg')
 
 
@@ -25,7 +26,7 @@ if __name__ == '__main__':
     parser.add_option('-n', '--number-filters',
                       action='store', dest='number_filters', type='int', nargs=1, default=64)
     parser.add_option('-l', '--forward-layers',
-                      action='store', dest='layers', type='string', nargs=1, default='ccac')
+                      action='store', dest='layers', type='string', nargs=1, default='cac')
     parser.add_option('-i', '--image-size',
                       action='store', dest='min_shape', type='int', nargs=3, default=None)
     parser.add_option('--use-gado',
@@ -58,23 +59,30 @@ if __name__ == '__main__':
         use_t1=options.use_t1
     )
     (x_train, x_test, y_train, y_test, idx_train, idx_test) = encoder_data
-    np.save(options.folder + 'test_unet.npy', x_test)
-    np.save(options.folder + 'idx_test_unet.npy', idx_test)
+    np.save(os.path.join(options.folder, 'test_unet.npy'), x_test)
+    np.save(os.path.join(options.folder, 'idx_test_unet.npy'), idx_test)
 
     # Train the net and save it
-    net = create_unet(x_train.shape, options.convo_size, options.pool_size, options.folder, options.number_filters)
-    cPickle.dump(net, open(options.folder + 'unet.pkl', 'wb'))
+    net = create_unet_string(
+        options.layers,
+        x_train.shape,
+        options.convo_size,
+        options.pool_size,
+        options.folder,
+        options.number_filters
+    )
+    cPickle.dump(net, open(os.path.join(options.folder, 'unet.pkl'), 'wb'))
     net.fit(x_train, y_train)
 
     # Load image names and test the net
-    image_names = np.load(options.folder + 'image_names_unet.' + image_sufix + '.npy')
+    image_names = np.load(os.path.join(options.folder, 'image_names_unet.' + image_sufix + '.npy'))
     y_pred = net.predict_proba(x_test)
     y = y_pred.reshape(x_test[1, 1, :].shape)
 
     print 'Shape y: (' + ','.join([str(num) for num in y.shape])
     print 'Values y (min = %d, max = %d)' % (y_pred.min(), y_pred.max())
 
-    np.save(options.folder + 'unet_results.npy', y)
+    np.save(os.path.join(options.folder, 'unet_results.npy', y))
 
     images_names = [(y_im, image_names[1, idx]) for y_im, idx in zip(y, idx_test)]
     [reshape_save_nifti_to_dir(im, name) for (im, name) in images_names]

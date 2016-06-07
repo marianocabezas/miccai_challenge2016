@@ -71,7 +71,7 @@ def reshape_save_nifti_to_dir(image, original_name):
 def load_and_vectorize(name, dir_name, min_shape, datatype=np.float32):
     # Get the names of the images and load them
     patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
-    image_names = ['%s/%s/%s' % (dir_name, patient, name) for patient in patients]
+    image_names = [os.path.join(dir_name, patient, name) for patient in patients]
     images = [load_nii(image_name).get_data() for image_name in image_names]
     # Reshape everything to have data of homogenous size (important for training)
     # Also, normalize the data
@@ -107,8 +107,8 @@ def load_images(
         [letter for (letter, is_used) in zip(letters, images_used) if is_used]
     )
     try:
-        x = np.load(dir_name + 'image_vector' + image_sufix + '.npy')
-        np.load(dir_name + 'image_names_encoder' + image_sufix + '.npy')
+        x = np.load(os.path.join(dir_name, 'image_vector' + image_sufix + '.npy'))
+        np.load(os.path.join(dir_name, 'image_names_encoder' + image_sufix + '.npy'))
     except IOError:
         # Setting up the lists for all images
         flair, flair_names = None, None
@@ -137,8 +137,8 @@ def load_images(
                 gado_names,
                 t1_names
         ] if name is not None])
-        np.save(dir_name + 'image_vector_encoder.' + image_sufix + '.npy', x)
-        np.save(dir_name + 'image_names_encoder.' + image_sufix + '.npy', image_names)
+        np.save(os.path.join(dir_name, 'image_vector_encoder.' + image_sufix + '.npy'), x)
+        np.save(os.path.join(dir_name, 'image_names_encoder.' + image_sufix + '.npy'), image_names)
 
     return x
 
@@ -197,10 +197,10 @@ def load_unet_data(
 ):
 
     try:
-        y = np.load('%slabels_vector.npy' % (dir_name))
+        y = np.load(os.path.join(dir_name, 'labels_vector.npy'))
     except IOError:
         patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
-        masks = [load_nii('%s/%s/Consensus.nii.gz' % (dir_name, patient)).get_data() for patient in
+        masks = [load_nii(os.path.join(dir_name, patient, 'Consensus.nii.gz')).get_data() for patient in
                  patients]
         min_shape = min([im.shape for im in masks])
         y = np.asarray(
@@ -208,7 +208,7 @@ def load_unet_data(
                      [float(min_shape[0]) / im.shape[0], float(min_shape[1]) / im.shape[1],
                       float(min_shape[2]) / im.shape[2]]) for im in masks]
         ).astype(np.uint8)
-        np.save('%slabels_vector.npy' % (dir_name), y)
+        np.save(os.path.join(dir_name, 'labels_vector.npy'), y)
 
     x = load_images(
         dir_name,

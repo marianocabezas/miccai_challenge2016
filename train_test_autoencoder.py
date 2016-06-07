@@ -1,3 +1,4 @@
+import os
 from optparse import OptionParser
 import matplotlib
 import numpy as np
@@ -59,8 +60,8 @@ if __name__ == '__main__':
         min_shape=options.min_shape
     )
     (x_train, x_test, y_train, y_test, idx_train, idx_test) = encoder_data
-    np.save(options.folder + 'test_encoder.npy', x_test)
-    np.save(options.folder + 'idx_test_encoder.npy', idx_test)
+    np.save(os.path.join(options.folder, 'test_encoder.npy'), x_test)
+    np.save(os.path.join(options.folder, 'idx_test_encoder.npy'), idx_test)
 
     # Train the net and save it
     # net = create_encoder(x_train.shape, options.convo_size, options.pool_size, options.folder, options.number_filters)
@@ -72,11 +73,11 @@ if __name__ == '__main__':
         options.folder,
         options.number_filters
     )
-    cPickle.dump(net, open(options.folder + 'net.pkl', 'wb'))
+    cPickle.dump(net, open(os.path.join(options.folder, 'net.pkl'), 'wb'))
     net.fit(x_train, y_train)
 
     # Load image names and test the net
-    image_names = np.load(options.folder + 'image_names_encoder.' + image_sufix + '.npy')
+    image_names = np.load(os.path.join(options.folder, 'image_names_encoder.' + image_sufix + '.npy'))
     y_pred = net.predict(x_test)
 
     print 'Shape y: (' + ','.join([str(num) for num in y.shape])
