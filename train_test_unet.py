@@ -48,6 +48,7 @@ if __name__ == '__main__':
         [letter for (letter, is_used) in zip(letters, images_used) if is_used]
     )
 
+    print 'Loading the data for the unet'
     # Create the data
     unet_data = load_unet_data(
         test_size=options.test_size,
@@ -62,6 +63,7 @@ if __name__ == '__main__':
     np.save(os.path.join(options.folder, 'test_unet.npy'), x_test)
     np.save(os.path.join(options.folder, 'idx_test_unet.npy'), idx_test)
 
+    print 'Creating the unet CNN'
     # Train the net and save it
     net = create_unet_string(
         options.layers,
@@ -72,10 +74,14 @@ if __name__ == '__main__':
         options.folder
     )
     cPickle.dump(net, open(os.path.join(options.folder, 'unet.pkl'), 'wb'))
+
+    print 'Training the unet CNN'
     net.fit(x_train, y_train)
 
     # Load image names and test the net
     image_names = np.load(os.path.join(options.folder, 'image_names_unet.' + image_sufix + '.npy'))
+
+    print 'Creating the test probability map'
     y_pred = net.predict_proba(x_test)
     y = y_pred.reshape(x_test[1, 1, :].shape)
 
