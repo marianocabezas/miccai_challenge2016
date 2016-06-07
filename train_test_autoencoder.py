@@ -27,7 +27,7 @@ if __name__ == '__main__':
     parser.add_option('-l', '--forward-layers',
                       action='store', dest='layers', type='string', nargs=1, default='ccac')
     parser.add_option('-i', '--image-size',
-                      action='store', dest='image', type='min_shape', nargs=3, default=None)
+                      action='store', dest='min_shape', type='int', nargs=3, default=None)
     parser.add_option('--use-gado',
                       action='store_true', dest='use_gado', default=False)
     parser.add_option('--use-flair',
