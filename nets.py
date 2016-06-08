@@ -80,7 +80,7 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
              '\'filter_size\': (convo_size, convo_size, convo_size),'
              '\'pad\': \'full\'})',
         'f': '(Conv3DDNNLayer, {'
-             '\'name\': \'\033[33m;1mfinal\033[0m\','
+             '\'name\': \'\033[33;1mfinal\033[0m\','
              '\'num_filters\': input_shape[1],'
              '\'filter_size\': (convo_size, convo_size, convo_size),'
              '\'pad\': \'full\'})',
