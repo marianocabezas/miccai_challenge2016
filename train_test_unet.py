@@ -81,12 +81,12 @@ if __name__ == '__main__':
     # Load image names and test the net
     image_names = np.load(os.path.join(options.folder, 'image_names_unet.' + image_sufix + '.npy'))
 
-    print '\033[92mCreating the test probability map'
+    print '\033[92mCreating the test probability map\033[0m'
     y_pred = net.predict_proba(x_test)
     y = y_pred.reshape(x_test[1, 1, :].shape)
 
-    print '\033[92m\033[1mShape y: (' + ','.join([str(num) for num in y.shape])
-    print '\033[92m\033[1mValues y (min = %d, max = %d)' % (y_pred.min(), y_pred.max())
+    print '\033[92m\033[1mShape y: (' + ','.join([str(num) for num in y.shape]) + '\033[0m'
+    print '\033[92m\033[1mValues y (min = %d, max = %d)' % (y_pred.min(), y_pred.max()) + '\033[0m'
 
     np.save(os.path.join(options.folder, 'unet_results.npy', y))
 
