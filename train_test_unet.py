@@ -42,13 +42,19 @@ if __name__ == '__main__':
 
     (options, args) = parser.parse_args()
 
+    g = '\033[32m'
+    bg = '\033[32;1m'
+    b = '\033[1m'
+    nc = '\033[0m'
+    green_coma = g + ',' + nc
+
     images_used = [options.use_flair, options.use_pd, options.use_t2, options.use_gado, options.use_t1]
     letters = ['fl', 'pd', 't2', 'gd', 't1']
     image_sufix = '.'.join(
         [letter for (letter, is_used) in zip(letters, images_used) if is_used]
     )
 
-    print '\033[32mLoading the data for the \033[1munet CNN\033[0m'
+    print g + 'Loading the data for the ' + b + 'unet CNN' + nc
     # Create the data
     unet_data = load_unet_data(
         test_size=options.test_size,
@@ -63,7 +69,7 @@ if __name__ == '__main__':
     np.save(os.path.join(options.folder, 'test_unet.npy'), x_test)
     np.save(os.path.join(options.folder, 'idx_test_unet.npy'), idx_test)
 
-    print '\033[32mCreating the \033[1munet CNN\033[0m'
+    print g + 'Creating the ' + b + 'unet CNN' + nc
     # Train the net and save it
     net = create_unet_string(
         options.layers,
@@ -75,18 +81,18 @@ if __name__ == '__main__':
     )
     cPickle.dump(net, open(os.path.join(options.folder, 'unet.pkl'), 'wb'))
 
-    print '\033[32mTraining the \033[1munet CNN\033[0m'
+    print g + 'Training the ' + b + 'unet CNN' + nc
     net.fit(x_train, y_train)
 
     # Load image names and test the net
     image_names = np.load(os.path.join(options.folder, 'image_names_unet.' + image_sufix + '.npy'))
 
-    print '\033[32mCreating the test probability map\033[0m'
+    print g + 'Creating the test probability maps' + nc
     y_pred = net.predict_proba(x_test)
     y = y_pred.reshape(x_test[1, 1, :].shape)
 
-    print '\033[32m\033[1mShape\033[0m\033[32m y: (' + ','.join([str(num) for num in y.shape]) + '\033[0m'
-    print '\033[32m\033[1mValues\033[0m\033[32m y (min = %d, max = %d)' % (y_pred.min(), y_pred.max()) + '\033[0m'
+    print bg + 'Shape' + nc + g + ' y: (' + nc + green_coma.join([str(num) for num in y.shape]) + nc
+    print bg + 'Values' + nc + g + ' y (min = ' + nc + str(y.min()) + g + ', max = ' + nc + str(y.max()) + g + ')' + nc
 
     np.save(os.path.join(options.folder, 'unet_results.npy', y))
 

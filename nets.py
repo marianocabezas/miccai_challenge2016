@@ -60,12 +60,12 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
              '\'name\': \'\033[34minput\033[0m\','
              '\'shape\': input_shape})',
         'c': '(Conv3DDNNLayer, {'
-             '\'name\': \'\033[33m\033[1mconv%d\033[0m\' % (c_index.inc()),'
+             '\'name\': \'\033[33mconv%d\033[0m\' % (c_index.inc()),'
              '\'num_filters\': number_filters,'
              '\'filter_size\': (convo_size, convo_size, convo_size),'
              '\'pad\': \'valid\'})',
         'a': '(Pool3DDNNLayer, {'
-             '\'name\': \'\033[36m\033[1mpool%d\033[0m\' % (p_index.inc()),'
+             '\'name\': \'\033[36mpool%d\033[0m\' % (p_index.inc()),'
              '\'pool_size\': pool_size,'
              '\'mode\': \'average_inc_pad\'})',
         'm': '(MaxPool3DDNNLayer, {'
@@ -85,10 +85,10 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
              '\'filter_size\': (convo_size, convo_size, convo_size),'
              '\'pad\': \'full\'})',
         'r': '(ReshapeLayer, {'
-             '\'name\': \'\033[34;1m\033[1mreshape\033[0m\','
+             '\'name\': \'\033[34;1mreshape\033[0m\','
              ' \'shape\': ([0], -1)})',
         's': '(DenseLayer, {'
-             '\'name\':\'\033[34;1m\033[1mout\033[0m\','
+             '\'name\':\'\033[34;1mout\033[0m\','
              ' \'num_units\': reduce(mul, input_shape[2:], 1),'
              ' \'nonlinearity\': nonlinearities.softmax})'
     }
