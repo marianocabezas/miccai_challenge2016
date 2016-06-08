@@ -48,7 +48,7 @@ if __name__ == '__main__':
     nc = '\033[0m'
     green_coma = g + ',' + nc
 
-    print g + 'Loading the data for the ' + b + 'mencoder' + endc
+    print g + 'Loading the data for the ' + b + 'mencoder' + nc
     images_used = [options.use_flair, options.use_pd, options.use_t2, options.use_gado, options.use_t1]
     letters = ['fl', 'pd', 't2', 'gd', 't1']
     image_sufix = '.'.join(
