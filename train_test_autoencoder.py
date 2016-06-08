@@ -84,11 +84,11 @@ if __name__ == '__main__':
     image_names = np.load(os.path.join(options.folder, 'image_names_encoder.' + image_sufix + '.npy'))
     print '\033[92mCreating the encoded images'
     y_pred = net.predict(x_test)
+    y = y_pred.reshape(x_test.shape)
 
     print 'Shape y: (' + ','.join([str(num) for num in y.shape])
     print 'Values y (min = %d, max = %d)' % (y_pred.min(), y_pred.max())
 
-    y = y_pred.reshape(x_test.shape)
     np.save(options.folder + 'encoder_results.npy', y_pred.reshape(x_test.shape))
 
     images_names = [(y_im, image_names[:, idx]) for y_im, idx in zip(y, idx_test)]
