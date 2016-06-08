@@ -150,19 +150,19 @@ def load_images(
 
 
 def load_encoder_data(
+        dir_name,
+        flair_name,
+        pd_name,
+        t2_name,
+        gado_name,
+        t1_name,
+        use_flair,
+        use_pd,
+        use_t2,
+        use_gado,
+        use_t1,
         test_size=0.25,
         random_state=None,
-        dir_name='/home/mariano/DATA/Challenge/',
-        flair_name='FLAIR_preprocessed.nii.gz',
-        pd_name='DP_preprocessed.nii.gz',
-        t2_name='T2_preprocessed.nii.gz',
-        gado_name='GADO_preprocessed.nii.gz',
-        t1_name='T1_preprocessed.nii.gz',
-        use_flair=True,
-        use_pd=True,
-        use_t2=True,
-        use_gado=True,
-        use_t1=True,
         min_shape=None
 ):
 
@@ -186,19 +186,19 @@ def load_encoder_data(
 
 
 def load_unet_data(
+        dir_name,
+        flair_name,
+        pd_name,
+        t2_name,
+        gado_name,
+        t1_name,
+        use_flair,
+        use_pd,
+        use_t2,
+        use_gado,
+        use_t1,
         test_size=0.25,
         random_state=None,
-        dir_name='/home/mariano/DATA/Challenge/',
-        flair_name='FLAIR_preprocessed.nii.gz',
-        pd_name='DP_preprocessed.nii.gz',
-        t2_name='T2_preprocessed.nii.gz',
-        gado_name='GADO_preprocessed.nii.gz',
-        t1_name='T1_preprocessed.nii.gz',
-        use_flair=True,
-        use_pd=True,
-        use_t2=True,
-        use_gado=True,
-        use_t1=True,
         min_shape=None
 ):
 

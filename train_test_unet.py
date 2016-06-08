@@ -31,14 +31,24 @@ if __name__ == '__main__':
                       action='store', dest='min_shape', type='int', nargs=3, default=None)
     parser.add_option('--use-gado',
                       action='store_true', dest='use_gado', default=False)
+    parser.add_option('--gado',
+                      action='store', dest='gado', type='string', default='GADO_preprocessed.nii.gz')
     parser.add_option('--use-flair',
                       action='store_true', dest='use_flair', default=True)
+    parser.add_option('--flair',
+                      action='store', dest='flair', type='string', default='FLAIR_preprocessed.nii.gz')
     parser.add_option('--use-pd',
                       action='store_true', dest='use_pd', default=True)
+    parser.add_option('--pd',
+                      action='store', dest='pd', type='string', default='DP_preprocessed.nii.gz')
     parser.add_option('--use-t2',
                       action='store_true', dest='use_t2', default=True)
+    parser.add_option('--t2',
+                      action='store', dest='t2', type='string', default='T2_preprocessed.nii.gz')
     parser.add_option('--use-t1',
                       action='store_true', dest='use_t1', default=True)
+    parser.add_option('--t1',
+                      action='store', dest='t1', type='string', default='T1_preprocessed.nii.gz')
 
     (options, args) = parser.parse_args()
 
@@ -63,7 +73,12 @@ if __name__ == '__main__':
         use_pd=options.use_pd,
         use_t2=options.use_t2,
         use_gado=options.use_gado,
-        use_t1=options.use_t1
+        use_t1=options.use_t1,
+        flair_name=options.flair,
+        pd_name=options.pd,
+        t2_name=options.t2,
+        gado_name=options.gado,
+        t1_name=options.t1
     )
     (x_train, x_test, y_train, y_test, idx_train, idx_test) = unet_data
     np.save(os.path.join(options.folder, 'test_unet.npy'), x_test)
