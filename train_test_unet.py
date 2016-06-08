@@ -31,22 +31,32 @@ if __name__ == '__main__':
                       action='store', dest='min_shape', type='int', nargs=3, default=None)
     parser.add_option('--use-gado',
                       action='store_true', dest='use_gado', default=False)
+    parser.add_option('--no-gado',
+                      action='store_false', dest='use_gado', default=False)
     parser.add_option('--gado',
                       action='store', dest='gado', type='string', default='GADO_preprocessed.nii.gz')
     parser.add_option('--use-flair',
                       action='store_true', dest='use_flair', default=True)
+    parser.add_option('--no-flair',
+                      action='store_false', dest='use_flair', default=True)
     parser.add_option('--flair',
                       action='store', dest='flair', type='string', default='FLAIR_preprocessed.nii.gz')
     parser.add_option('--use-pd',
                       action='store_true', dest='use_pd', default=True)
+    parser.add_option('--no-pd',
+                      action='store_false', dest='use_pd', default=True)
     parser.add_option('--pd',
                       action='store', dest='pd', type='string', default='DP_preprocessed.nii.gz')
     parser.add_option('--use-t2',
                       action='store_true', dest='use_t2', default=True)
+    parser.add_option('--no-t2',
+                      action='store_false', dest='use_t2', default=True)
     parser.add_option('--t2',
                       action='store', dest='t2', type='string', default='T2_preprocessed.nii.gz')
     parser.add_option('--use-t1',
                       action='store_true', dest='use_t1', default=True)
+    parser.add_option('--no-t1',
+                      action='store_false', dest='use_t1', default=True)
     parser.add_option('--t1',
                       action='store', dest='t1', type='string', default='T1_preprocessed.nii.gz')
 
