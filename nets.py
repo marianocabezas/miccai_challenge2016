@@ -57,19 +57,19 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
     # These are all the possible layers for our autoencoders
     possible_layers = {
         'i': '(InputLayer, {'
-             '\'name\': \'\033[34input\033[0m\','
+             '\'name\': \'\033[34minput\033[0m\','
              '\'shape\': input_shape})',
         'c': '(Conv3DDNNLayer, {'
-             '\'name\': \'\033[33conv%d\033[0m\' % (c_index.inc()),'
+             '\'name\': \'\033[33mconv%d\033[0m\' % (c_index.inc()),'
              '\'num_filters\': number_filters,'
              '\'filter_size\': (convo_size, convo_size, convo_size),'
              '\'pad\': \'valid\'})',
         'a': '(Pool3DDNNLayer, {'
-             '\'name\': \'\033[36avg_pool%d\033[0m\' % (p_index.inc()),'
+             '\'name\': \'\033[36mavg_pool%d\033[0m\' % (p_index.inc()),'
              '\'pool_size\': pool_size,'
              '\'mode\': \'average_inc_pad\'})',
         'm': '(MaxPool3DDNNLayer, {'
-             '\'name\': \'\033[36max_pool%d\033[0m\' % (p_index.inc()),'
+             '\'name\': \'\033[36mmax_pool%d\033[0m\' % (p_index.inc()),'
              '\'pool_size\': pool_size})',
         'u': '(Unpooling3D, {'
              '\'name\': \'\033[46munpool%d\033[0m\' % (p_index.dec()),'
