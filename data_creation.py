@@ -56,7 +56,7 @@ def reshape_save_nifti(image, original_name):
     # remark that it comes from an autoencoder
     reshaped_nii = reshape_to_nifti(image, original_name)
     new_name = re.search(r'(.+?)\.nii.*|\.+', original_name).groups()[0] + '_reshaped.nii.gz'
-    print '\033[32;1mSaving\033[0;32m ' + new_name + ' ...\033[0m'
+    print '\033[32;1mSaving\033[0;32m to \033[0m' + new_name + '\033[32m ...\033[0m'
     save_nii(reshaped_nii, new_name)
     # Return it too, just in case
     return reshaped_nii
@@ -68,7 +68,7 @@ def reshape_save_nifti_to_dir(image, original_name):
     # original image with the name "unet_prob.nii.gz
     reshaped_nii = reshape_to_nifti(image, original_name)
     new_name = os.path.join(original_name[:original_name.rfind('/')], 'unet_prob.nii.gz')
-    print '\033[32;1mSaving\033[0;32m ' + new_name + ' ...\033[0m'
+    print '\033[32;1mSaving\033[0;32m to \033[0m' + new_name + '\033[32m ...\033[0m'
     save_nii(reshaped_nii, new_name)
     # Return it too, just in case
     return reshaped_nii

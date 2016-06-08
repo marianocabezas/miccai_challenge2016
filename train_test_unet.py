@@ -46,7 +46,7 @@ if __name__ == '__main__':
     bg = '\033[32;1m'
     b = '\033[1m'
     nc = '\033[0m'
-    green_coma = g + ',' + nc
+    green_coma = g + ', ' + nc
 
     images_used = [options.use_flair, options.use_pd, options.use_t2, options.use_gado, options.use_t1]
     letters = ['fl', 'pd', 't2', 'gd', 't1']
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     y_pred = net.predict_proba(x_test)
     y = y_pred.reshape(x_test[1, 1, :].shape)
 
-    print bg + 'Shape' + nc + g + ' y: (' + nc + green_coma.join([str(num) for num in y.shape]) + nc
+    print bg + 'Shape' + nc + g + ' y: (' + nc + green_coma.join([str(num) for num in y.shape]) + g + ')' + nc
     print bg + 'Values' + nc + g + ' y (min = ' + nc + str(y.min()) + g + ', max = ' + nc + str(y.max()) + g + ')' + nc
 
     np.save(os.path.join(options.folder, 'unet_results.npy', y))
