@@ -56,7 +56,9 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
 
     # These are all the possible layers for our autoencoders
     possible_layers = {
-        'i': '(InputLayer, {\'name\': \'input\',\'shape\': input_shape})',
+        'i': '(InputLayer, {'
+             '\'name\': \'\033[34minput\033[0m\','
+             '\'shape\': input_shape})',
         'c': '(Conv3DDNNLayer, {'
              '\'name\': \'\033[33m\033[1mconv%d\033[0m\' % (c_index.inc()),'
              '\'num_filters\': number_filters,'
@@ -78,12 +80,17 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
              '\'filter_size\': (convo_size, convo_size, convo_size),'
              '\'pad\': \'full\'})',
         'f': '(Conv3DDNNLayer, {'
-             '\'name\': \'final\','
+             '\'name\': \'\033[33m;1mfinal\033[0m\','
              '\'num_filters\': input_shape[1],'
              '\'filter_size\': (convo_size, convo_size, convo_size),'
              '\'pad\': \'full\'})',
-        'r': '(ReshapeLayer, {\'name\': \'reshape\', \'shape\': ([0], -1)})',
-        's': '(DenseLayer, {\'name\':\'out\', \'num_units\': reduce(mul, input_shape[2:], 1), \'nonlinearity\': nonlinearities.softmax})'
+        'r': '(ReshapeLayer, {'
+             '\'name\': \'\033[34;1m\033[1mreshape\033[0m\','
+             ' \'shape\': ([0], -1)})',
+        's': '(DenseLayer, {'
+             '\'name\':\'\033[34;1m\033[1mout\033[0m\','
+             ' \'num_units\': reduce(mul, input_shape[2:], 1),'
+             ' \'nonlinearity\': nonlinearities.softmax})'
     }
 
     return [eval(possible_layers[l]) for l in net_layers]
