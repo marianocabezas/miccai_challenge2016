@@ -48,7 +48,7 @@ if __name__ == '__main__':
         [letter for (letter, is_used) in zip(letters, images_used) if is_used]
     )
 
-    print '\033[92mLoading the data for the \033[1munet CNN'
+    print '\033[32mLoading the data for the \033[1munet CNN\033[0m'
     # Create the data
     unet_data = load_unet_data(
         test_size=options.test_size,
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     np.save(os.path.join(options.folder, 'test_unet.npy'), x_test)
     np.save(os.path.join(options.folder, 'idx_test_unet.npy'), idx_test)
 
-    print '\033[92mCreating the \033[1munet CNN'
+    print '\033[32mCreating the \033[1munet CNN\033[0m'
     # Train the net and save it
     net = create_unet_string(
         options.layers,
@@ -75,18 +75,18 @@ if __name__ == '__main__':
     )
     cPickle.dump(net, open(os.path.join(options.folder, 'unet.pkl'), 'wb'))
 
-    print '\033[92mTraining the \033[1munet CNN'
+    print '\033[32mTraining the \033[1munet CNN\033[0m'
     net.fit(x_train, y_train)
 
     # Load image names and test the net
     image_names = np.load(os.path.join(options.folder, 'image_names_unet.' + image_sufix + '.npy'))
 
-    print '\033[92mCreating the test probability map\033[0m'
+    print '\033[32mCreating the test probability map\033[0m'
     y_pred = net.predict_proba(x_test)
     y = y_pred.reshape(x_test[1, 1, :].shape)
 
-    print '\033[92m\033[1mShape y: (' + ','.join([str(num) for num in y.shape]) + '\033[0m'
-    print '\033[92m\033[1mValues y (min = %d, max = %d)' % (y_pred.min(), y_pred.max()) + '\033[0m'
+    print '\033[32m\033[1mShape\033[0m\033[32m y: (' + ','.join([str(num) for num in y.shape]) + '\033[0m'
+    print '\033[32m\033[1mValues\033[0m\033[32m y (min = %d, max = %d)' % (y_pred.min(), y_pred.max()) + '\033[0m'
 
     np.save(os.path.join(options.folder, 'unet_results.npy', y))
 
