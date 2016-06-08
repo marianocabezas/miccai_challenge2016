@@ -42,7 +42,13 @@ if __name__ == '__main__':
 
     (options, args) = parser.parse_args()
 
-    print '\033[32mLoading the data for the \033[1mencoder\033[0m'
+    g = '\033[32m'
+    bg = '\033[32;1m'
+    b = '\033[1m'
+    nc = '\033[0m'
+    green_coma = g + ',' + nc
+
+    print g + 'Loading the data for the ' + b + 'mencoder' + endc
     images_used = [options.use_flair, options.use_pd, options.use_t2, options.use_gado, options.use_t1]
     letters = ['fl', 'pd', 't2', 'gd', 't1']
     image_sufix = '.'.join(
@@ -66,7 +72,7 @@ if __name__ == '__main__':
 
     # Train the net and save it
     # net = create_encoder(x_train.shape, options.convo_size, options.pool_size, options.folder, options.number_filters)
-    print '\033[32mCreating the \033[1mencoder\033[0m'
+    print g + 'Creating the ' + b + 'encoder' + nc
     net = create_encoder_string(
         options.layers,
         x_train.shape,
@@ -77,17 +83,17 @@ if __name__ == '__main__':
     )
     cPickle.dump(net, open(os.path.join(options.folder, 'net.pkl'), 'wb'))
 
-    print '\033[32mTraining the \033[1mencoder\033[0m'
+    print g + 'Training the ' + b + 'encoder' + nc
     net.fit(x_train, y_train)
 
     # Load image names and test the net
     image_names = np.load(os.path.join(options.folder, 'image_names_encoder.' + image_sufix + '.npy'))
-    print '\033[32mCreating the encoded images\033[0m'
+    print g + 'Creating the encoded images' + nc
     y_pred = net.predict(x_test)
     y = y_pred.reshape(x_test.shape)
 
-    print '\033[32m\033[1mShape\033[0m\033[32m y: (' + ','.join([str(num) for num in y.shape]) + '\033[0m'
-    print '\033[32m\033[1mValues\033[0m\033[32m y (min = %d, max = %d)' % (y_pred.min(), y_pred.max()) + '\033[0m'
+    print bg + 'Shape' + nc + g + ' y: (' + nc + green_coma.join([str(num) for num in y.shape]) + nc
+    print bg + 'Values' + nc + g + ' y (min = ' + nc + str(y.min()) + g + ', max = ' + nc + str(y.max()) + g + ')' + nc
 
     np.save(options.folder + 'encoder_results.npy', y_pred.reshape(x_test.shape))
 
