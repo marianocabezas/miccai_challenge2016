@@ -4,7 +4,7 @@ import matplotlib
 import numpy as np
 import cPickle
 from data_creation import load_encoder_data, reshape_save_nifti
-from nets import create_encoder_string
+from nets import create_encoder3D_string
 matplotlib.use('Agg')
 
 
@@ -73,7 +73,7 @@ if __name__ == '__main__':
     # Train the net and save it
     # net = create_encoder(x_train.shape, options.convo_size, options.pool_size, options.folder, options.number_filters)
     print g + 'Creating the ' + b + 'encoder' + nc
-    net = create_encoder_string(
+    net = create_encoder3D_string(
         options.layers,
         x_train.shape,
         options.convo_size,

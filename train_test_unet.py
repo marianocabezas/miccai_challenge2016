@@ -4,7 +4,7 @@ import matplotlib
 import numpy as np
 import cPickle
 from data_creation import load_unet_data, reshape_save_nifti_to_dir
-from nets import create_unet_string
+from nets import create_unet3D_string
 matplotlib.use('Agg')
 
 
@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
     print g + 'Creating the ' + b + 'unet CNN' + nc
     # Train the net and save it
-    net = create_unet_string(
+    net = create_unet3D_string(
         options.layers,
         x_train.shape,
         options.convo_size,
