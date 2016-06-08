@@ -65,30 +65,30 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
              '\'filter_size\': (convo_size, convo_size, convo_size),'
              '\'pad\': \'valid\'})',
         'a': '(Pool3DDNNLayer, {'
-             '\'name\': \'\033[36mpool%d\033[0m\' % (p_index.inc()),'
+             '\'name\': \'\033[36mavg_pool%d\033[0m\' % (p_index.inc()),'
              '\'pool_size\': pool_size,'
              '\'mode\': \'average_inc_pad\'})',
         'm': '(MaxPool3DDNNLayer, {'
-             '\'name\': \'pool%d\' % (p_index.inc()),'
+             '\'name\': \'\033[36mmax_pool%d\033[0m\' % (p_index.inc()),'
              '\'pool_size\': pool_size})',
         'u': '(Unpooling3D, {'
-             '\'name\': \'\033[36;1munpool%d\033[0m\' % (p_index.dec()),'
+             '\'name\': \'\033[46munpool%d\033[0m\' % (p_index.dec()),'
              '\'pool_size\': pool_size})',
         'd': '(Conv3DDNNLayer, {'
-             '\'name\': \'\033[33;1mdeconv%d\033[0m\' % (c_index.dec()),'
+             '\'name\': \'\033[43mdeconv%d\033[0m\' % (c_index.dec()),'
              '\'num_filters\': number_filters,'
              '\'filter_size\': (convo_size, convo_size, convo_size),'
              '\'pad\': \'full\'})',
         'f': '(Conv3DDNNLayer, {'
-             '\'name\': \'\033[33;1mfinal\033[0m\','
+             '\'name\': \'\033[43mfinal\033[0m\','
              '\'num_filters\': input_shape[1],'
              '\'filter_size\': (convo_size, convo_size, convo_size),'
              '\'pad\': \'full\'})',
         'r': '(ReshapeLayer, {'
-             '\'name\': \'\033[34;1mreshape\033[0m\','
+             '\'name\': \'\033[44mreshape\033[0m\','
              ' \'shape\': ([0], -1)})',
         's': '(DenseLayer, {'
-             '\'name\':\'\033[34;1mout\033[0m\','
+             '\'name\':\'\033[44mout\033[0m\','
              ' \'num_units\': reduce(mul, input_shape[2:], 1),'
              ' \'nonlinearity\': nonlinearities.softmax})'
     }
