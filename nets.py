@@ -58,22 +58,22 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
     possible_layers = {
         'i': '(InputLayer, {\'name\': \'input\',\'shape\': input_shape})',
         'c': '(Conv3DDNNLayer, {'
-             '\'name\': \'conv%d\' % (c_index.inc()),'
+             '\'name\': \'\033[33mconv%d\033[0m\' % (c_index.inc()),'
              '\'num_filters\': number_filters,'
              '\'filter_size\': (convo_size, convo_size, convo_size),'
              '\'pad\': \'valid\'})',
         'a': '(Pool3DDNNLayer, {'
-             '\'name\': \'pool%d\' % (p_index.inc()),'
+             '\'name\': \'\033[36mpool%d\033[0m\' % (p_index.inc()),'
              '\'pool_size\': pool_size,'
              '\'mode\': \'average_inc_pad\'})',
         'm': '(MaxPool3DDNNLayer, {'
              '\'name\': \'pool%d\' % (p_index.inc()),'
              '\'pool_size\': pool_size})',
         'u': '(Unpooling3D, {'
-             '\'name\': \'unpool%d\' % (p_index.dec()),'
+             '\'name\': \'\033[36;1munpool%d\033[0m\' % (p_index.dec()),'
              '\'pool_size\': pool_size})',
         'd': '(Conv3DDNNLayer, {'
-             '\'name\': \'deconv%d\' % (c_index.dec()),'
+             '\'name\': \'\033[33;1mdeconv%d\033[0m\' % (c_index.dec()),'
              '\'num_filters\': number_filters,'
              '\'filter_size\': (convo_size, convo_size, convo_size),'
              '\'pad\': \'full\'})',
