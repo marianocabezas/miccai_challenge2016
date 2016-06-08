@@ -192,6 +192,7 @@ def load_unet_data(
         t2_name,
         gado_name,
         t1_name,
+        mask_name,
         use_flair,
         use_pd,
         use_t2,
@@ -206,7 +207,7 @@ def load_unet_data(
         y = np.load(os.path.join(dir_name, 'labels_vector.npy'))
     except IOError:
         patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
-        masks = [load_nii(os.path.join(dir_name, patient, 'Consensus.nii.gz')).get_data() for patient in
+        masks = [load_nii(os.path.join(dir_name, patient, mask_name)).get_data() for patient in
                  patients]
         min_shape = min([im.shape for im in masks])
         y = np.asarray(
