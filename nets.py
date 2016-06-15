@@ -86,11 +86,15 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
              '\'pad\': \'full\'})',
         'r': '(ReshapeLayer, {'
              '\'name\': \'\033[44mreshape\033[0m\','
-             ' \'shape\': ([0], -1)})',
+             '\'shape\': ([0], -1)})',
         's': '(DenseLayer, {'
-             '\'name\':\'\033[44mout\033[0m\','
-             ' \'num_units\': reduce(mul, input_shape[2:], 1),'
-             ' \'nonlinearity\': nonlinearities.softmax})'
+             '\'name\':\'\033[44m3d_out\033[0m\','
+             '\'num_units\': reduce(mul, input_shape[2:], 1),'
+             '\'nonlinearity\': nonlinearities.softmax})',
+        'p': '(DenseLayer, {'
+             '\'name\':\'\033[44mpatch_out\033[0m\','
+             '\'num_units\': 2,'
+             '\'nonlinearity\': nonlinearities.softmax})'
     }
 
     return [eval(possible_layers[l]) for l in net_layers]

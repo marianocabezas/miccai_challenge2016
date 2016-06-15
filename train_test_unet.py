@@ -122,7 +122,7 @@ if __name__ == '__main__':
     print bg + 'Shape' + nc + g + ' y: (' + nc + green_coma.join([str(num) for num in y.shape]) + g + ')' + nc
     print bg + 'Values' + nc + g + ' y (min = ' + nc + str(y.min()) + g + ', max = ' + nc + str(y.max()) + g + ')' + nc
 
-    np.save(os.path.join(options.folder, 'unet_results.npy', y))
+    np.save(os.path.join(options.folder, 'unet_results.npy'), y)
 
     images_names = [(y_im, image_names[1, idx]) for y_im, idx in zip(y, idx_test)]
     [reshape_save_nifti_to_dir(im, name) for (im, name) in images_names]
