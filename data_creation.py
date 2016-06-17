@@ -117,7 +117,7 @@ def load_patch_vectors(name, mask_name, dir_name, datatype=np.float32):
     data = lesion_patches + nolesion_patches
     masks = lesion_msk_patches + nolesion_msk_patches
 
-    return data, masks
+    return data, masks, image_names
 
 
 def load_images(
@@ -199,66 +199,42 @@ def load_patches(
     try:
         x = np.load(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.npy'))
         y = np.load(os.path.join(dir_name, 'mask_patches_vector_unet.' + image_sufix + '.npy'))
+        image_names = np.load(os.path.join(dir_name, 'image_names_patches' + image_sufix + '.npy'))
     except IOError:
         # Setting up the lists for all images
-        flair, y_flair = None, None
-        pd, y_pd = None, None
-        t2, y_t2 = None, None
-        gado, y_gado = None, None
-        t1, y_t1 = None, None
+        flair, yflair, flair_names = None, None, None
+        pd, ypd, pd_names = None, None, None
+        t2, yt2, t2_names = None, None, None
+        t1, yt1, t1_names = None, None, None
+        gado, ygado, gado_names = None, None, None
 
         # We load the image modalities for each patient according to the parameters
         if use_flair:
-            flair, y_flair = load_patch_vectors(flair_name, mask_name, dir_name)
+            flair, yflair, flair_names = load_patch_vectors(flair_name, mask_name, dir_name)
         if use_pd:
-            pd, y = load_patch_vectors(pd_name, mask_name, dir_name)
+            pd, ypd, pd_names = load_patch_vectors(pd_name, mask_name, dir_name)
         if use_t2:
-            t2, y = load_patch_vectors(t2_name, mask_name, dir_name)
+            t2, yt2, t2_names = load_patch_vectors(t2_name, mask_name, dir_name)
         if use_t1:
-            t1, y = load_patch_vectors(t1_name, mask_name, dir_name)
+            t1, yt1, t1_names = load_patch_vectors(t1_name, mask_name, dir_name)
         if use_gado:
-            gado, y = load_patch_vectors(gado_name, mask_name, dir_name)
+            gado, ygado, gado_names = load_patch_vectors(gado_name, mask_name, dir_name)
 
-        x = np.stack([data for data in [flair, pd, t2, gado, t1] if data is not None], axis=1)
-        y = np.stack([mask for mask in [y_flair, y_pd, y_t2, y_gado, y_t1] if mask is not None], axis=1)
+        x = np.stack([im for images in [flair, pd, t2, gado, t1] if images is not None for im in images], axis=1)
+        y = np.stack([mask for masks in [yflair, ypd, yt2, ygado, yt1] if masks is not None for mask in masks], axis=1)
+        image_names = np.stack([name for name in [
+            flair_names,
+            pd_names,
+            t2_names,
+            gado_names,
+            t1_names
+        ] if name is not None])
 
         np.save(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.npy'), x)
         np.save(os.path.join(dir_name, 'mask_patches_vector_unet.' + image_sufix + '.npy'), y)
+        np.save(os.path.join(dir_name, 'image_names_patches.' + image_sufix + '.npy'), image_names)
 
-    return x, y
-
-
-def load_patch_unet_data(
-        dir_name,
-        flair_name,
-        pd_name,
-        t2_name,
-        gado_name,
-        t1_name,
-        mask_name,
-        use_flair,
-        use_pd,
-        use_t2,
-        use_gado,
-        use_t1,
-        test_size=0.25,
-        random_state=None,
-        min_shape=None
-):
-    x, y = load_patches(
-        dir_name,
-        mask_name,
-        flair_name,
-        pd_name,
-        t2_name,
-        gado_name,
-        t1_name,
-        use_flair,
-        use_pd,
-        use_t2,
-        use_gado,
-        use_t1,
-    )
+    return x, y, image_names
 
 
 def load_encoder_data(

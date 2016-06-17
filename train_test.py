@@ -4,7 +4,7 @@ import numpy as np
 import cPickle
 from data_creation import load_unet_data, load_encoder_data
 from data_creation import reshape_save_nifti_to_dir, reshape_save_nifti
-from nets import create_unet3D_string, create_encoder3D_string
+from nets import create_unet3D_string, create_encoder3D_string, create_patches3D_string
 
 
 def main():
@@ -179,9 +179,9 @@ def unet_patches3d(options):
     np.save(os.path.join(options.folder, 'test_unet.npy'), x_test)
     np.save(os.path.join(options.folder, 'idx_test_unet.npy'), idx_test)
 
-    print g + 'Creating the ' + b + 'unet CNN' + nc
+    print g + 'Creating the ' + b + 'patch-based unet CNN' + nc
     # Train the net and save it
-    net = create_unet3D_string(
+    net = create_patches3D_string(
         options.layers,
         x_train.shape,
         options.convo_size,
@@ -189,9 +189,9 @@ def unet_patches3d(options):
         options.number_filters,
         options.folder
     )
-    cPickle.dump(net, open(os.path.join(options.folder, 'unet.pkl'), 'wb'))
+    cPickle.dump(net, open(os.path.join(options.folder, 'patches.pkl'), 'wb'))
 
-    print g + 'Training the ' + b + 'unet CNN' + nc
+    print g + 'Training the ' + b + 'patche-based unet CNN' + nc
     net.fit(x_train, y_train)
 
     # Load image names and test the net
