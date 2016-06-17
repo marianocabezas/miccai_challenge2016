@@ -152,8 +152,8 @@ def load_images(
         flair, flair_names = None, None
         pd, pd_names = None, None
         t2, t2_names = None, None
-        gado, gado_names = None, None
         t1, t1_names = None, None
+        gado, gado_names = None, None
 
         # We load the image modalities for each patient according to the parameters
         if use_flair:
@@ -165,12 +165,12 @@ def load_images(
         if use_t2:
             print 'Loading ' + t2_name + ' images'
             t2, t2_names = load_image_vectors(t2_name, dir_name, min_shape=min_shape)
-        if use_gado:
-            print 'Loading ' + gado_name + ' images'
-            gado, gado_names = load_image_vectors(gado_name, dir_name, min_shape=min_shape)
         if use_t1:
             print 'Loading ' + t1_name + ' images'
             t1, t1_names = load_image_vectors(t1_name, dir_name, min_shape=min_shape)
+        if use_gado:
+            print 'Loading ' + gado_name + ' images'
+            gado, gado_names = load_image_vectors(gado_name, dir_name, min_shape=min_shape)
 
         x = np.stack([data for data in [flair, pd, t2, gado, t1] if data is not None], axis=1)
         image_names = np.stack([name for name in [
@@ -220,14 +220,19 @@ def load_patches(
 
         # We load the image modalities for each patient according to the parameters
         if use_flair:
+            print 'Loading ' + flair_name + ' images'
             flair, yflair, flair_names = load_patch_vectors(flair_name, mask_name, dir_name, size)
         if use_pd:
+            print 'Loading ' + pd_name + ' images'
             pd, ypd, pd_names = load_patch_vectors(pd_name, mask_name, dir_name, size)
         if use_t2:
+            print 'Loading ' + t2_name + ' images'
             t2, yt2, t2_names = load_patch_vectors(t2_name, mask_name, dir_name, size)
         if use_t1:
+            print 'Loading ' + t1_name + ' images'
             t1, yt1, t1_names = load_patch_vectors(t1_name, mask_name, dir_name, size)
         if use_gado:
+            print 'Loading ' + gado_name + ' images'
             gado, ygado, gado_names = load_patch_vectors(gado_name, mask_name, dir_name, size)
 
         x = np.stack([im for images in [flair, pd, t2, gado, t1] if images is not None for im in images], axis=1)
