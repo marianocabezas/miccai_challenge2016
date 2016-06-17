@@ -6,7 +6,7 @@ from nibabel import load as load_nii
 from nibabel import save as save_nii
 from nibabel import Nifti1Image as NiftiImage
 from math import floor
-from generate_features import get_mask_voxels, get_patches
+from data_manipulation.generate_features import get_mask_voxels, get_patches
 
 
 def train_test_split(data, labels, test_size=0.1, random_state=42):
