@@ -154,7 +154,7 @@ def load_images(
 
     try:
         x = np.load(os.path.join(dir_name, 'image_vector_encoder.' + image_sufix + '.npy'))
-        np.load(os.path.join(dir_name, 'image_names_encoder' + image_sufix + '.npy'))
+        np.load(os.path.join(dir_name, 'image_names_encoder.' + image_sufix + '.npy'))
     except IOError:
         # Setting up the lists for all images
         flair, flair_names = None, None
@@ -213,7 +213,7 @@ def load_patches(
     try:
         x = np.load(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.npy'))
         y = np.load(os.path.join(dir_name, 'mask_patches_vector_unet.' + image_sufix + '.npy'))
-        image_names = np.load(os.path.join(dir_name, 'image_names_patches' + image_sufix + '.npy'))
+        image_names = np.load(os.path.join(dir_name, 'image_names_patches.' + image_sufix + '.npy'))
     except IOError:
         # Setting up the lists for all images
         flair, yflair, flair_names = None, None, None
@@ -311,9 +311,10 @@ def load_unet_data(
         random_state=None,
         min_shape=None
 ):
+    image_sufix = get_sufix(use_flair, use_pd, use_t2, use_gado, use_t1)
 
     try:
-        y = np.load(os.path.join(dir_name, 'labels_vector.npy'))
+        y = np.load(os.path.join(dir_name, 'mask_vector_unet.' + image_sufix + '.npy'))
     except IOError:
         patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
         masks = [load_nii(os.path.join(dir_name, patient, mask_name)).get_data() for patient in
@@ -324,7 +325,7 @@ def load_unet_data(
                      [float(min_shape[0]) / im.shape[0], float(min_shape[1]) / im.shape[1],
                       float(min_shape[2]) / im.shape[2]]) for im in masks]
         ).astype(np.uint8)
-        np.save(os.path.join(dir_name, 'labels_vector.npy'), y)
+        np.save(os.path.join(dir_name, 'mask_vector_unet.' + image_sufix + '.npy'), y)
 
     x = load_images(
         dir_name,
