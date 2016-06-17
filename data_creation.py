@@ -10,6 +10,20 @@ from data_manipulation.generate_features import get_mask_voxels, get_patches
 from operator import itemgetter
 
 
+def set_patches(image, centers, patches, patch_size=(15, 15, 15)):
+    list_of_tuples = all([isinstance(center, tuple) for center in centers])
+    sizes_match = all([patch_size == patch.shape for patch in patches])
+    if list_of_tuples and sizes_match:
+        patch_half = tuple([idx/2 for idx in patch_size])
+        slices = [
+            [slice(c_idx - p_idx, c_idx + p_idx + 1) for (c_idx, p_idx) in zip(center, patch_half)]
+            for center in centers
+            ]
+        for sl, patch in zip(slices, patches):
+            image[sl] = patch
+    return patches
+
+
 def train_test_split(data, labels, test_size=0.1, random_state=42):
     # Init (Set the random seed and determine the number of cases for test)
     n_test = int(floor(data.shape[0]*test_size))
