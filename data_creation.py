@@ -235,8 +235,8 @@ def load_patches(
 
     try:
         h5f = h5py.File(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.h5'), 'r')
-        x = h5f['patches']
-        y = h5f['masks']
+        x = np.array(h5f['patches'])
+        y = np.array(h5f['masks'])
         h5f.close()
         image_names = np.load(os.path.join(dir_name, 'image_names_patches.' + image_sufix + '.npy'))
     except IOError:
