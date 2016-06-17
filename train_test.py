@@ -2,7 +2,7 @@ import os
 from optparse import OptionParser
 import numpy as np
 import cPickle
-from data_creation import load_unet_data, load_encoder_data
+from data_creation import load_unet_data, load_encoder_data, load_patches
 from data_creation import reshape_save_nifti_to_dir, reshape_save_nifti
 from nets import create_unet3D_string, create_encoder3D_string, create_patches3D_string
 
@@ -160,8 +160,7 @@ def unet_patches3d(options):
 
     print g + 'Loading the data for the ' + b + 'unet CNN' + nc
     # Create the data
-    unet_data = load_unet_data(
-        test_size=options.test_size,
+    (x, y, names) = load_patches(
         dir_name=options.folder,
         use_flair=options.use_flair,
         use_pd=options.use_pd,
@@ -175,9 +174,11 @@ def unet_patches3d(options):
         t1_name=options.t1,
         mask_name=options.mask
     )
-    (x_train, x_test, y_train, y_test, idx_train, idx_test) = unet_data
-    np.save(os.path.join(options.folder, 'test_unet.npy'), x_test)
-    np.save(os.path.join(options.folder, 'idx_test_unet.npy'), idx_test)
+
+    x_train = np.concatenate(x[:-1])
+    y_train = np.concatenate(y[:-1])
+    x_test = np.concatenate(x[-1:])
+    y_test = np.concatenate(y[-1:])
 
     print g + 'Creating the ' + b + 'patch-based unet CNN' + nc
     # Train the net and save it
@@ -191,25 +192,15 @@ def unet_patches3d(options):
     )
     cPickle.dump(net, open(os.path.join(options.folder, 'patches.pkl'), 'wb'))
 
-    print g + 'Training the ' + b + 'patche-based unet CNN' + nc
+    print g + 'Training the ' + b + 'patch-based unet CNN' + nc
     net.fit(x_train, y_train)
-
-    # Load image names and test the net
-    image_names = np.load(os.path.join(options.folder, 'image_names_unet.' + image_sufix + '.npy'))
 
     print g + 'Creating the test probability maps' + nc
     y_pred = net.predict_proba(x_test)
-    y = y_pred.reshape(x_test[1, 1, :].shape)
 
-    print bg + 'Shape' + nc + g + ' y: (' + nc + green_coma.join([str(num) for num in y.shape]) + g + ')' + nc
-    print bg + 'Values' + nc + g + ' y (min = ' + nc + str(y.min()) + g + ', max = ' + nc + str(
-        y.max()) + g + ')' + nc
+    np.save(os.path.join(options.folder, 'patches_results.npy'), y_pred)
 
-    np.save(os.path.join(options.folder, 'unet_results.npy'), y)
-
-    images_names = [(y_im, image_names[1, idx]) for y_im, idx in zip(y, idx_test)]
-    [reshape_save_nifti_to_dir(im, name) for (im, name) in images_names]
-
+    net.score(x_test, y_test)
 
 def autoencoder3d(options):
     g = '\033[32m'
