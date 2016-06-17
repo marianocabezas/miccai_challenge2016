@@ -62,8 +62,22 @@ def main():
                       action='store', dest='t1', type='string', default='T1_preprocessed.nii.gz')
     parser.add_option('--mask',
                       action='store', dest='mask', type='string', default='Consensus.nii.gz')
+    parser.add_option('--unet',
+                      action='store_const', const='unet', dest='select', type='string')
+    parser.add_option('--encoder',
+                      action='store_const', const='encoder', dest='select', type='string')
+    parser.add_option('--patches',
+                      action='store_const', const='patches', dest='select', type='string', default='unet')
 
     (options, args) = parser.parse_args()
+
+    selector = {
+        'unet': unet3d,
+        'patches': unet_patches3d,
+        'encoder': autoencoder3d
+    }
+
+    selector[options.select](options)
 
 
 def unet3d(options):

@@ -6,6 +6,7 @@ from nibabel import load as load_nii
 from nibabel import save as save_nii
 from nibabel import Nifti1Image as NiftiImage
 from math import floor
+from generate_features import get_mask_voxels, get_patches
 
 
 def train_test_split(data, labels, test_size=0.1, random_state=42):
@@ -74,7 +75,7 @@ def reshape_save_nifti_to_dir(image, original_name):
     return reshaped_nii
 
 
-def load_and_vectorize(name, dir_name, min_shape, datatype=np.float32):
+def load_image_vectors(name, dir_name, min_shape, datatype=np.float32):
     # Get the names of the images and load them
     patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
     image_names = [os.path.join(dir_name, patient, name) for patient in patients]
@@ -90,6 +91,33 @@ def load_and_vectorize(name, dir_name, min_shape, datatype=np.float32):
     )
 
     return data.astype(datatype), image_names
+
+
+def load_patch_vectors(name, mask_name, dir_name, datatype=np.float32):
+    # Get the names of the images and load them
+    patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
+    image_names = [os.path.join(dir_name, patient, name) for patient in patients]
+    images = [load_nii(name).get_data() for name in image_names]
+    images_norm = [(im.astype(dtype=datatype) - im[np.nonzero(im)].mean()) / im[np.nonzero(im)].std() for im in images]
+    brain_masks = [image.astype(dtype=np.bool) for image in images]
+    mask_names = [os.path.join(dir_name, patient, mask_name) for patient in patients]
+    lesion_masks = [load_nii(name).get_data().astype(dtype=np.bool) for name in mask_names]
+    nolesion_masks = [np.logical_and(np.logical_not(lesion), brain) for lesion, brain in zip(lesion_masks, brain_masks)]
+
+    # Get all the patches for each image
+    lesion_centers = [get_mask_voxels(mask) for mask in lesion_masks]
+    nolesion_centers = [get_mask_voxels(mask) for mask in nolesion_masks]
+    # FIX: nolesion_small should have the best indices
+    nolesion_red = [center1[:len(center2)] for center1, center2 in zip(nolesion_centers, lesion_centers)]
+    lesion_patches = [np.array(get_patches(image, centers)) for image, centers in zip(images_norm, lesion_centers)]
+    lesion_msk_patches = [np.array(get_patches(image, centers)) for image, centers in zip(lesion_masks, lesion_centers)]
+    nolesion_patches = [np.array(get_patches(image, centers)) for image, centers in zip(images_norm, nolesion_red)]
+    nolesion_msk_patches = [np.array(get_patches(image, centers)) for image, centers in zip(lesion_masks, nolesion_red)]
+
+    data = lesion_patches + nolesion_patches
+    masks = lesion_msk_patches + nolesion_msk_patches
+
+    return data, masks
 
 
 def load_images(
@@ -113,7 +141,7 @@ def load_images(
         [letter for (letter, is_used) in zip(letters, images_used) if is_used]
     )
     try:
-        x = np.load(os.path.join(dir_name, 'image_vector' + image_sufix + '.npy'))
+        x = np.load(os.path.join(dir_name, 'image_vector_encoder.' + image_sufix + '.npy'))
         np.load(os.path.join(dir_name, 'image_names_encoder' + image_sufix + '.npy'))
     except IOError:
         # Setting up the lists for all images
@@ -125,15 +153,15 @@ def load_images(
 
         # We load the image modalities for each patient according to the parameters
         if use_flair:
-            flair, flair_names = load_and_vectorize(flair_name, dir_name, min_shape=min_shape)
+            flair, flair_names = load_image_vectors(flair_name, dir_name, min_shape=min_shape)
         if use_pd:
-            pd, pd_names = load_and_vectorize(pd_name, dir_name, min_shape=min_shape)
+            pd, pd_names = load_image_vectors(pd_name, dir_name, min_shape=min_shape)
         if use_t2:
-            t2, t2_names = load_and_vectorize(t2_name, dir_name, min_shape=min_shape)
+            t2, t2_names = load_image_vectors(t2_name, dir_name, min_shape=min_shape)
         if use_gado:
-            gado, gado_names = load_and_vectorize(gado_name, dir_name, min_shape=min_shape)
+            gado, gado_names = load_image_vectors(gado_name, dir_name, min_shape=min_shape)
         if use_t1:
-            t1, t1_names = load_and_vectorize(t1_name, dir_name, min_shape=min_shape)
+            t1, t1_names = load_image_vectors(t1_name, dir_name, min_shape=min_shape)
 
         x = np.stack([data for data in [flair, pd, t2, gado, t1] if data is not None], axis=1)
         image_names = np.stack([name for name in [
@@ -147,6 +175,90 @@ def load_images(
         np.save(os.path.join(dir_name, 'image_names_encoder.' + image_sufix + '.npy'), image_names)
 
     return x
+
+def load_patches(
+        dir_name,
+        mask_name,
+        flair_name,
+        pd_name,
+        t2_name,
+        gado_name,
+        t1_name,
+        use_flair,
+        use_pd,
+        use_t2,
+        use_gado,
+        use_t1,
+):
+
+    images_used = [use_flair, use_pd, use_t2, use_gado, use_t1]
+    letters = ['fl', 'pd', 't2', 'gd', 't1']
+    image_sufix = '.'.join(
+        [letter for (letter, is_used) in zip(letters, images_used) if is_used]
+    )
+    try:
+        x = np.load(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.npy'))
+        y = np.load(os.path.join(dir_name, 'mask_patches_vector_unet.' + image_sufix + '.npy'))
+    except IOError:
+        # Setting up the lists for all images
+        flair, y_flair = None, None
+        pd, y_pd = None, None
+        t2, y_t2 = None, None
+        gado, y_gado = None, None
+        t1, y_t1 = None, None
+
+        # We load the image modalities for each patient according to the parameters
+        if use_flair:
+            flair, y_flair = load_patch_vectors(flair_name, mask_name, dir_name)
+        if use_pd:
+            pd, y = load_patch_vectors(pd_name, mask_name, dir_name)
+        if use_t2:
+            t2, y = load_patch_vectors(t2_name, mask_name, dir_name)
+        if use_t1:
+            t1, y = load_patch_vectors(t1_name, mask_name, dir_name)
+        if use_gado:
+            gado, y = load_patch_vectors(gado_name, mask_name, dir_name)
+
+        x = np.stack([data for data in [flair, pd, t2, gado, t1] if data is not None], axis=1)
+        y = np.stack([mask for mask in [y_flair, y_pd, y_t2, y_gado, y_t1] if mask is not None], axis=1)
+
+        np.save(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.npy'), x)
+        np.save(os.path.join(dir_name, 'mask_patches_vector_unet.' + image_sufix + '.npy'), y)
+
+    return x, y
+
+
+def load_patch_unet_data(
+        dir_name,
+        flair_name,
+        pd_name,
+        t2_name,
+        gado_name,
+        t1_name,
+        mask_name,
+        use_flair,
+        use_pd,
+        use_t2,
+        use_gado,
+        use_t1,
+        test_size=0.25,
+        random_state=None,
+        min_shape=None
+):
+    x, y = load_patches(
+        dir_name,
+        mask_name,
+        flair_name,
+        pd_name,
+        t2_name,
+        gado_name,
+        t1_name,
+        use_flair,
+        use_pd,
+        use_t2,
+        use_gado,
+        use_t1,
+    )
 
 
 def load_encoder_data(
