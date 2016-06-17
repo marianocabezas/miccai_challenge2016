@@ -172,7 +172,8 @@ def unet_patches3d(options):
         t2_name=options.t2,
         gado_name=options.gado,
         t1_name=options.t1,
-        mask_name=options.mask
+        mask_name=options.mask,
+        size=options.patch_size
     )
 
     x_train = np.concatenate(x[:-1])
