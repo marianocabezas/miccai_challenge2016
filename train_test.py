@@ -93,7 +93,7 @@ def unet3d(options):
         [letter for (letter, is_used) in zip(letters, images_used) if is_used]
     )
 
-    print g + 'Loading the data for the ' + b + 'unet CNN' + nc
+    print g + 'Loading the data for the ' + b + 'patch-based unet CNN' + nc
     # Create the data
     unet_data = load_unet_data(
         test_size=options.test_size,

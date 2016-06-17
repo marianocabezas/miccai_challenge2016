@@ -93,7 +93,7 @@ def load_image_vectors(name, dir_name, min_shape, datatype=np.float32):
     return data.astype(datatype), image_names
 
 
-def load_patch_vectors(name, mask_name, dir_name, datatype=np.float32):
+def load_patch_vectors(name, mask_name, dir_name, size, datatype=np.float32):
     # Get the names of the images and load them
     patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
     image_names = [os.path.join(dir_name, patient, name) for patient in patients]
@@ -109,10 +109,14 @@ def load_patch_vectors(name, mask_name, dir_name, datatype=np.float32):
     nolesion_centers = [get_mask_voxels(mask) for mask in nolesion_masks]
     # FIX: nolesion_small should have the best indices
     nolesion_red = [center1[:len(center2)] for center1, center2 in zip(nolesion_centers, lesion_centers)]
-    lesion_patches = [np.array(get_patches(image, centers)) for image, centers in zip(images_norm, lesion_centers)]
-    lesion_msk_patches = [np.array(get_patches(image, centers)) for image, centers in zip(lesion_masks, lesion_centers)]
-    nolesion_patches = [np.array(get_patches(image, centers)) for image, centers in zip(images_norm, nolesion_red)]
-    nolesion_msk_patches = [np.array(get_patches(image, centers)) for image, centers in zip(lesion_masks, nolesion_red)]
+    lesion_patches = [np.array(get_patches(image, centers, size))
+                      for image, centers in zip(images_norm, lesion_centers)]
+    lesion_msk_patches = [np.array(get_patches(image, centers, size))
+                          for image, centers in zip(lesion_masks, lesion_centers)]
+    nolesion_patches = [np.array(get_patches(image, centers, size))
+                        for image, centers in zip(images_norm, nolesion_red)]
+    nolesion_msk_patches = [np.array(get_patches(image, centers, size))
+                            for image, centers in zip(lesion_masks, nolesion_red)]
 
     data = lesion_patches + nolesion_patches
     masks = lesion_msk_patches + nolesion_msk_patches
@@ -153,14 +157,19 @@ def load_images(
 
         # We load the image modalities for each patient according to the parameters
         if use_flair:
+            print 'Loading ' + flair_name + ' images'
             flair, flair_names = load_image_vectors(flair_name, dir_name, min_shape=min_shape)
         if use_pd:
+            print 'Loading ' + pd_name + ' images'
             pd, pd_names = load_image_vectors(pd_name, dir_name, min_shape=min_shape)
         if use_t2:
+            print 'Loading ' + t2_name + ' images'
             t2, t2_names = load_image_vectors(t2_name, dir_name, min_shape=min_shape)
         if use_gado:
+            print 'Loading ' + gado_name + ' images'
             gado, gado_names = load_image_vectors(gado_name, dir_name, min_shape=min_shape)
         if use_t1:
+            print 'Loading ' + t1_name + ' images'
             t1, t1_names = load_image_vectors(t1_name, dir_name, min_shape=min_shape)
 
         x = np.stack([data for data in [flair, pd, t2, gado, t1] if data is not None], axis=1)
@@ -189,6 +198,7 @@ def load_patches(
         use_t2,
         use_gado,
         use_t1,
+        size
 ):
 
     images_used = [use_flair, use_pd, use_t2, use_gado, use_t1]
@@ -210,15 +220,15 @@ def load_patches(
 
         # We load the image modalities for each patient according to the parameters
         if use_flair:
-            flair, yflair, flair_names = load_patch_vectors(flair_name, mask_name, dir_name)
+            flair, yflair, flair_names = load_patch_vectors(flair_name, mask_name, dir_name, size)
         if use_pd:
-            pd, ypd, pd_names = load_patch_vectors(pd_name, mask_name, dir_name)
+            pd, ypd, pd_names = load_patch_vectors(pd_name, mask_name, dir_name, size)
         if use_t2:
-            t2, yt2, t2_names = load_patch_vectors(t2_name, mask_name, dir_name)
+            t2, yt2, t2_names = load_patch_vectors(t2_name, mask_name, dir_name, size)
         if use_t1:
-            t1, yt1, t1_names = load_patch_vectors(t1_name, mask_name, dir_name)
+            t1, yt1, t1_names = load_patch_vectors(t1_name, mask_name, dir_name, size)
         if use_gado:
-            gado, ygado, gado_names = load_patch_vectors(gado_name, mask_name, dir_name)
+            gado, ygado, gado_names = load_patch_vectors(gado_name, mask_name, dir_name, size)
 
         x = np.stack([im for images in [flair, pd, t2, gado, t1] if images is not None for im in images], axis=1)
         y = np.stack([mask for masks in [yflair, ypd, yt2, ygado, yt1] if masks is not None for mask in masks], axis=1)
