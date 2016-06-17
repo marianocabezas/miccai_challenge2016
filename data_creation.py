@@ -7,6 +7,7 @@ from nibabel import save as save_nii
 from nibabel import Nifti1Image as NiftiImage
 from math import floor
 from data_manipulation.generate_features import get_mask_voxels, get_patches
+from operator import itemgetter
 
 
 def train_test_split(data, labels, test_size=0.1, random_state=42):
@@ -111,7 +112,7 @@ def load_patch_vectors(name, mask_name, dir_name, size, random_state=42, datatyp
     np.random.seed(random_state)
     indices = [np.random.permutation(range(0, len(centers1))).tolist()[:len(centers2)]
                for centers1, centers2 in zip(nolesion_centers, lesion_centers)]
-    nolesion_small = [centers[idx] for centers, idx in zip(nolesion_centers, indices)]
+    nolesion_small = [itemgetter(*idx)(centers) for centers, idx in zip(nolesion_centers, indices)]
     lesion_patches = [np.array(get_patches(image, centers, size))
                       for image, centers in zip(images_norm, lesion_centers)]
     lesion_msk_patches = [np.array(get_patches(image, centers, size))

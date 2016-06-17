@@ -100,7 +100,7 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
     return [eval(possible_layers[l]) for l in net_layers]
 
 
-def create_encoder3D_string(forward_path, input_shape, convo_size, pool_size, number_filters, dir_name):
+def create_encoder3d_string(forward_path, input_shape, convo_size, pool_size, number_filters, dir_name):
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
@@ -124,7 +124,7 @@ def create_encoder3D_string(forward_path, input_shape, convo_size, pool_size, nu
     return encoder
 
 
-def create_unet3D_string(forward_path, input_shape, convo_size, pool_size, number_filters, dir_name):
+def create_unet3d_string(forward_path, input_shape, convo_size, pool_size, number_filters, dir_name):
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
@@ -148,7 +148,7 @@ def create_unet3D_string(forward_path, input_shape, convo_size, pool_size, numbe
     return encoder
 
 
-def create_patches3D_string(forward_path, input_shape, convo_size, pool_size, number_filters, dir_name):
+def create_patches3d_string(forward_path, input_shape, convo_size, pool_size, number_filters, dir_name):
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function

@@ -5,7 +5,7 @@ import cPickle
 from data_creation import load_unet_data, load_encoder_data, load_patches
 from data_creation import reshape_save_nifti_to_dir, reshape_save_nifti
 from data_creation import get_sufix
-from nets import create_unet3D_string, create_encoder3D_string, create_patches3D_string
+from nets import create_unet3d_string, create_encoder3d_string, create_patches3d_string
 
 
 def main():
@@ -81,6 +81,16 @@ def main():
     selector[options.select](options)
 
 
+def color_codes():
+    codes = {'g': '\033[32m',
+             'bg': '\033[32;1m',
+             'b': '\033[1m',
+             'nc': '\033[0m',
+             'gc': '\033[32m, \033[0m'
+             }
+    return codes
+
+
 def autoencoder3d(options):
     c = color_codes()
 
@@ -109,7 +119,7 @@ def autoencoder3d(options):
     # Train the net and save it
     # net = create_encoder(x_train.shape, options.convo_size, options.pool_size, options.folder, options.number_filters)
     print c['g'] + 'Creating the ' + c['b'] + 'encoder' + c['nc']
-    net = create_encoder3D_string(
+    net = create_encoder3d_string(
         options.layers,
         x_train.shape,
         options.convo_size,
@@ -140,15 +150,6 @@ def autoencoder3d(options):
     [reshape_save_nifti(im, name) for (ims, names) in images_names for (im, name) in zip(ims, names)]
 
 
-def color_codes():
-    codes = {'g': '\033[32m',
-            'bg': '\033[32;1m',
-            'b': '\033[1m',
-            'nc': '\033[0m',
-            'gc': '\033[32m, \033[0m'
-            }
-    return codes
-
 def unet3d(options):
     c = color_codes()
 
@@ -176,7 +177,7 @@ def unet3d(options):
 
     print c['b'] + 'Creating the ' + c['b'] + 'unet CNN' + c['nc']
     # Train the net and save it
-    net = create_unet3D_string(
+    net = create_unet3d_string(
         options.layers,
         x_train.shape,
         options.convo_size,
@@ -236,7 +237,7 @@ def unet_patches3d(options):
 
     print c['g'] + 'Creating the ' + c['b'] + 'patch-based unet CNN' + c['nc']
     # Train the net and save it
-    net = create_patches3D_string(
+    net = create_patches3d_string(
         options.layers,
         x_train.shape,
         options.convo_size,
@@ -259,5 +260,3 @@ def unet_patches3d(options):
 
 if __name__ == '__main__':
     main()
-
-
