@@ -8,6 +8,7 @@ from nibabel import Nifti1Image as NiftiImage
 from math import floor
 from data_manipulation.generate_features import get_mask_voxels, get_patches
 from operator import itemgetter
+import h5py
 
 
 def set_patches(image, centers, patches, patch_size=(15, 15, 15)):
@@ -233,8 +234,12 @@ def load_patches(
     image_sufix = get_sufix(use_flair, use_pd, use_t2, use_gado, use_t1)
 
     try:
-        x = np.load(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.npy'))
-        y = np.load(os.path.join(dir_name, 'mask_patches_vector_unet.' + image_sufix + '.npy'))
+        h5f = h5py.File(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.npy'), 'r')
+        x = h5f['patches']
+        y = h5f['masks']
+        h5f.close()
+        #x = np.load(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.npy'))
+        #y = np.load(os.path.join(dir_name, 'mask_patches_vector_unet.' + image_sufix + '.npy'))
         image_names = np.load(os.path.join(dir_name, 'image_names_patches.' + image_sufix + '.npy'))
     except IOError:
         # Setting up the lists for all images
@@ -275,8 +280,12 @@ def load_patches(
             t1_names
         ] if name is not None])
 
-        np.save(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.npy'), x)
-        np.save(os.path.join(dir_name, 'mask_patches_vector_unet.' + image_sufix + '.npy'), y)
+        h5f = h5py.File(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.npy', 'w'))
+        h5f.create_dataset('patches', data=x)
+        h5f.create_dataset('masks', data=x)
+        h5f.close()
+        #np.save(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.npy'), x)
+        #np.save(os.path.join(dir_name, 'mask_patches_vector_unet.' + image_sufix + '.npy'), y)
         np.save(os.path.join(dir_name, 'image_names_patches.' + image_sufix + '.npy'), image_names)
 
     return x, y, image_names
