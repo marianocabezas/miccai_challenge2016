@@ -280,7 +280,7 @@ def load_patches(
 
         h5f = h5py.File(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.h5', 'w'))
         h5f.create_dataset('patches', data=x)
-        h5f.create_dataset('masks', data=x)
+        h5f.create_dataset('masks', data=y)
         h5f.close()
         np.save(os.path.join(dir_name, 'image_names_patches.' + image_sufix + '.npy'), image_names)
 
