@@ -94,6 +94,12 @@ def load_image_vectors(name, dir_name, min_shape, datatype=np.float32):
     return data.astype(datatype), image_names
 
 
+def load_patch_batch(image, batch_size, size, datatype=np.float32):
+    lesion_centers = get_mask_voxels(image.astype(np.bool))
+    for i in range(0, len(lesion_centers), batch_size):
+        yield np.array(get_patches(image, lesion_centers[i:i+batch_size], size))
+
+
 def load_patch_vectors(name, mask_name, dir_name, size, random_state=42, datatype=np.float32):
     # Get the names of the images and load them
     patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
