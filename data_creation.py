@@ -109,7 +109,7 @@ def load_patch_vectors(name, mask_name, dir_name, size, random_state=42, datatyp
     nolesion_centers = [get_mask_voxels(mask) for mask in nolesion_masks]
     # FIX: nolesion_small should have the best indices
     np.random.seed(random_state)
-    indices = [np.random.permutation(range(0, centers1.shape[0])).tolist()[:len(centers2)]
+    indices = [np.random.permutation(range(0, len(centers1))).tolist()[:len(centers2)]
                for centers1, centers2 in zip(nolesion_centers, lesion_centers)]
     nolesion_small = [centers[idx] for centers, idx in zip(nolesion_centers, indices)]
     lesion_patches = [np.array(get_patches(image, centers, size))
