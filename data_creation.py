@@ -127,6 +127,13 @@ def load_patch_vectors(name, mask_name, dir_name, size, random_state=42, datatyp
     return data, masks, image_names
 
 
+def get_sufix(use_flair, use_pd, use_t2, use_t1, use_gado):
+    images_used = [use_flair, use_pd, use_t2, use_t1, use_gado]
+    letters = ['fl', 'pd', 't2', 't1', 'gd']
+
+    return '.'.join([letter for (letter, is_used) in zip(letters, images_used) if is_used])
+
+
 def load_images(
         dir_name,
         flair_name,
@@ -142,11 +149,8 @@ def load_images(
         min_shape
 ):
 
-    images_used = [use_flair, use_pd, use_t2, use_gado, use_t1]
-    letters = ['fl', 'pd', 't2', 'gd', 't1']
-    image_sufix = '.'.join(
-        [letter for (letter, is_used) in zip(letters, images_used) if is_used]
-    )
+    image_sufix = get_sufix(use_flair, use_pd, use_t2, use_gado, use_t1)
+
     try:
         x = np.load(os.path.join(dir_name, 'image_vector_encoder.' + image_sufix + '.npy'))
         np.load(os.path.join(dir_name, 'image_names_encoder' + image_sufix + '.npy'))
@@ -203,12 +207,8 @@ def load_patches(
         use_t1,
         size
 ):
+    image_sufix = get_sufix(use_flair, use_pd, use_t2, use_gado, use_t1)
 
-    images_used = [use_flair, use_pd, use_t2, use_gado, use_t1]
-    letters = ['fl', 'pd', 't2', 'gd', 't1']
-    image_sufix = '.'.join(
-        [letter for (letter, is_used) in zip(letters, images_used) if is_used]
-    )
     try:
         x = np.load(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.npy'))
         y = np.load(os.path.join(dir_name, 'mask_patches_vector_unet.' + image_sufix + '.npy'))

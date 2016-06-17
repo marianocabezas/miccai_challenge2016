@@ -4,6 +4,7 @@ import numpy as np
 import cPickle
 from data_creation import load_unet_data, load_encoder_data, load_patches
 from data_creation import reshape_save_nifti_to_dir, reshape_save_nifti
+from data_creation import get_sufix
 from nets import create_unet3D_string, create_encoder3D_string, create_patches3D_string
 
 
@@ -80,143 +81,11 @@ def main():
     selector[options.select](options)
 
 
-def unet3d(options):
-    g = '\033[32m'
-    bg = '\033[32;1m'
-    b = '\033[1m'
-    nc = '\033[0m'
-    green_coma = g + ', ' + nc
-
-    images_used = [options.use_flair, options.use_pd, options.use_t2, options.use_gado, options.use_t1]
-    letters = ['fl', 'pd', 't2', 'gd', 't1']
-    image_sufix = '.'.join(
-        [letter for (letter, is_used) in zip(letters, images_used) if is_used]
-    )
-
-    print g + 'Loading the data for the ' + b + 'patch-based unet CNN' + nc
-    # Create the data
-    unet_data = load_unet_data(
-        test_size=options.test_size,
-        dir_name=options.folder,
-        use_flair=options.use_flair,
-        use_pd=options.use_pd,
-        use_t2=options.use_t2,
-        use_gado=options.use_gado,
-        use_t1=options.use_t1,
-        flair_name=options.flair,
-        pd_name=options.pd,
-        t2_name=options.t2,
-        gado_name=options.gado,
-        t1_name=options.t1,
-        mask_name=options.mask
-    )
-    (x_train, x_test, y_train, y_test, idx_train, idx_test) = unet_data
-    np.save(os.path.join(options.folder, 'test_unet.npy'), x_test)
-    np.save(os.path.join(options.folder, 'idx_test_unet.npy'), idx_test)
-
-    print g + 'Creating the ' + b + 'unet CNN' + nc
-    # Train the net and save it
-    net = create_unet3D_string(
-        options.layers,
-        x_train.shape,
-        options.convo_size,
-        options.pool_size,
-        options.number_filters,
-        options.folder
-    )
-    cPickle.dump(net, open(os.path.join(options.folder, 'unet.pkl'), 'wb'))
-
-    print g + 'Training the ' + b + 'unet CNN' + nc
-    net.fit(x_train, y_train)
-
-    # Load image names and test the net
-    image_names = np.load(os.path.join(options.folder, 'image_names_unet.' + image_sufix + '.npy'))
-
-    print g + 'Creating the test probability maps' + nc
-    y_pred = net.predict_proba(x_test)
-    y = y_pred.reshape(x_test[1, 1, :].shape)
-
-    print bg + 'Shape' + nc + g + ' y: (' + nc + green_coma.join([str(num) for num in y.shape]) + g + ')' + nc
-    print bg + 'Values' + nc + g + ' y (min = ' + nc + str(y.min()) + g + ', max = ' + nc + str(y.max()) + g + ')' + nc
-
-    np.save(os.path.join(options.folder, 'unet_results.npy'), y)
-
-    images_names = [(y_im, image_names[1, idx]) for y_im, idx in zip(y, idx_test)]
-    [reshape_save_nifti_to_dir(im, name) for (im, name) in images_names]
-
-
-def unet_patches3d(options):
-    g = '\033[32m'
-    bg = '\033[32;1m'
-    b = '\033[1m'
-    nc = '\033[0m'
-    green_coma = g + ', ' + nc
-
-    images_used = [options.use_flair, options.use_pd, options.use_t2, options.use_gado, options.use_t1]
-    letters = ['fl', 'pd', 't2', 'gd', 't1']
-    image_sufix = '.'.join(
-        [letter for (letter, is_used) in zip(letters, images_used) if is_used]
-    )
-
-    print g + 'Loading the data for the ' + b + 'unet CNN' + nc
-    # Create the data
-    (x, y, names) = load_patches(
-        dir_name=options.folder,
-        use_flair=options.use_flair,
-        use_pd=options.use_pd,
-        use_t2=options.use_t2,
-        use_gado=options.use_gado,
-        use_t1=options.use_t1,
-        flair_name=options.flair,
-        pd_name=options.pd,
-        t2_name=options.t2,
-        gado_name=options.gado,
-        t1_name=options.t1,
-        mask_name=options.mask,
-        size=options.patch_size
-    )
-
-    x_train = np.concatenate(x[:-1])
-    y_train = np.concatenate(y[:-1])
-    x_test = np.concatenate(x[-1:])
-    y_test = np.concatenate(y[-1:])
-
-    print g + 'Creating the ' + b + 'patch-based unet CNN' + nc
-    # Train the net and save it
-    net = create_patches3D_string(
-        options.layers,
-        x_train.shape,
-        options.convo_size,
-        options.pool_size,
-        options.number_filters,
-        options.folder
-    )
-    cPickle.dump(net, open(os.path.join(options.folder, 'patches.pkl'), 'wb'))
-
-    print g + 'Training the ' + b + 'patch-based unet CNN' + nc
-    net.fit(x_train, y_train)
-
-    print g + 'Creating the test probability maps' + nc
-    y_pred = net.predict_proba(x_test)
-
-    np.save(os.path.join(options.folder, 'patches_results.npy'), y_pred)
-
-    net.score(x_test, y_test)
-
 def autoencoder3d(options):
-    g = '\033[32m'
-    bg = '\033[32;1m'
-    b = '\033[1m'
-    nc = '\033[0m'
-    green_coma = g + ', ' + nc
+    c = color_codes()
 
-    print g + 'Loading the data for the ' + b + 'encoder' + nc
-    images_used = [options.use_flair, options.use_pd, options.use_t2, options.use_gado, options.use_t1]
-    letters = ['fl', 'pd', 't2', 'gd', 't1']
-    image_sufix = '.'.join(
-        [letter for (letter, is_used) in zip(letters, images_used) if is_used]
-    )
-
+    print c['g'] + 'Loading the data for the ' + c['b'] + 'encoder' + c['nc']
+    image_sufix = get_sufix(options.use_flair, options.use_pd, options.use_t2, options.use_gado, options.use_t1)
     # Create the data
     encoder_data = load_encoder_data(
         test_size=options.test_size,
@@ -239,7 +108,7 @@ def autoencoder3d(options):
 
     # Train the net and save it
     # net = create_encoder(x_train.shape, options.convo_size, options.pool_size, options.folder, options.number_filters)
-    print g + 'Creating the ' + b + 'encoder' + nc
+    print c['g'] + 'Creating the ' + c['b'] + 'encoder' + c['nc']
     net = create_encoder3D_string(
         options.layers,
         x_train.shape,
@@ -250,22 +119,142 @@ def autoencoder3d(options):
     )
     cPickle.dump(net, open(os.path.join(options.folder, 'net.pkl'), 'wb'))
 
-    print g + 'Training the ' + b + 'encoder' + nc
+    print c['g'] + 'Training the ' + c['b'] + 'encoder' + c['nc']
     net.fit(x_train, y_train)
 
     # Load image names and test the net
     image_names = np.load(os.path.join(options.folder, 'image_names_encoder.' + image_sufix + '.npy'))
-    print g + 'Creating the encoded images' + nc
+    print c['g'] + 'Creating the encoded images' + c['nc']
     y_pred = net.predict(x_test)
     y = y_pred.reshape(x_test.shape)
 
-    print bg + 'Shape' + nc + g + ' y: (' + nc + green_coma.join([str(num) for num in y.shape]) + g + ')' + nc
-    print bg + 'Values' + nc + g + ' y (min = ' + nc + str(y.min()) + g + ', max = ' + nc + str(y.max()) + g + ')' + nc
+    shape_str = c['nc'] + c['gc'].join([str(num) for num in y.shape]) + c['g']
+    minmax_str = 'min = ' + c['nc'] + str(y.min()) + c['g'] + ', max = ' + c['nc'] + str(y.max()) + c['g']
+
+    print c['bg'] + 'Shape' + c['nc'] + c['g'] + ' y: (' + shape_str + ')' + c['nc']
+    print c['bg'] + 'Values' + c['nc'] + c['g'] + ' y (' + minmax_str + ')' + c['nc']
 
     np.save(options.folder + 'encoder_results.npy', y_pred.reshape(x_test.shape))
 
     images_names = [(y_im, image_names[:, idx]) for y_im, idx in zip(y, idx_test)]
-    niftis = [reshape_save_nifti(im, name) for (ims, names) in images_names for (im, name) in zip(ims, names)]
+    [reshape_save_nifti(im, name) for (ims, names) in images_names for (im, name) in zip(ims, names)]
+
+
+def color_codes():
+    codes = {'g': '\033[32m',
+            'bg': '\033[32;1m',
+            'b': '\033[1m',
+            'nc': '\033[0m',
+            'gc': '\033[32m, \033[0m'
+            }
+    return codes
+
+def unet3d(options):
+    c = color_codes()
+
+    print c['g'] + 'Loading the data for the ' + c['b'] + 'patch-based unet CNN' + c['nc']
+    image_sufix = get_sufix(options.use_flair, options.use_pd, options.use_t2, options.use_gado, options.use_t1)
+    # Create the data
+    unet_data = load_unet_data(
+        test_size=options.test_size,
+        dir_name=options.folder,
+        use_flair=options.use_flair,
+        use_pd=options.use_pd,
+        use_t2=options.use_t2,
+        use_gado=options.use_gado,
+        use_t1=options.use_t1,
+        flair_name=options.flair,
+        pd_name=options.pd,
+        t2_name=options.t2,
+        gado_name=options.gado,
+        t1_name=options.t1,
+        mask_name=options.mask
+    )
+    (x_train, x_test, y_train, y_test, idx_train, idx_test) = unet_data
+    np.save(os.path.join(options.folder, 'test_unet.npy'), x_test)
+    np.save(os.path.join(options.folder, 'idx_test_unet.npy'), idx_test)
+
+    print c['b'] + 'Creating the ' + c['b'] + 'unet CNN' + c['nc']
+    # Train the net and save it
+    net = create_unet3D_string(
+        options.layers,
+        x_train.shape,
+        options.convo_size,
+        options.pool_size,
+        options.number_filters,
+        options.folder
+    )
+    cPickle.dump(net, open(os.path.join(options.folder, 'unet.pkl'), 'wb'))
+
+    print c['g'] + 'Training the ' + c['b'] + 'unet CNN' + c['nc']
+    net.fit(x_train, y_train)
+
+    # Load image names and test the net
+    image_names = np.load(os.path.join(options.folder, 'image_names_unet.' + image_sufix + '.npy'))
+
+    print c['g'] + 'Creating the test probability maps' + c['nc']
+    y_pred = net.predict_proba(x_test)
+    y = y_pred.reshape(x_test[1, 1, :].shape)
+
+    shape_str = c['nc'] + c['gc'].join([str(num) for num in y.shape]) + c['g']
+    minmax_str = 'min = ' + c['nc'] + str(y.min()) + c['g'] + ', max = ' + c['nc'] + str(y.max()) + c['g']
+
+    print c['bg'] + 'Shape' + c['nc'] + c['g'] + ' y: (' + shape_str + ')' + c['nc']
+    print c['bg'] + 'Values' + c['nc'] + c['g'] + ' y (' + minmax_str + ')' + c['nc']
+
+    np.save(os.path.join(options.folder, 'unet_results.npy'), y)
+
+    images_names = [(y_im, image_names[1, idx]) for y_im, idx in zip(y, idx_test)]
+    [reshape_save_nifti_to_dir(im, name) for (im, name) in images_names]
+
+
+def unet_patches3d(options):
+    c = color_codes()
+
+    print c['g'] + 'Loading the data for the ' + c['b'] + 'unet CNN' + c['nc']
+    # Create the data
+    (x, y, names) = load_patches(
+        dir_name=options.folder,
+        use_flair=options.use_flair,
+        use_pd=options.use_pd,
+        use_t2=options.use_t2,
+        use_gado=options.use_gado,
+        use_t1=options.use_t1,
+        flair_name=options.flair,
+        pd_name=options.pd,
+        t2_name=options.t2,
+        gado_name=options.gado,
+        t1_name=options.t1,
+        mask_name=options.mask,
+        size=options.patch_size
+    )
+
+    x_train = np.concatenate(x[:-1])
+    y_train = np.concatenate(y[:-1])
+    x_test = np.concatenate(x[-1:])
+    y_test = np.concatenate(y[-1:])
+
+    print c['g'] + 'Creating the ' + c['b'] + 'patch-based unet CNN' + c['nc']
+    # Train the net and save it
+    net = create_patches3D_string(
+        options.layers,
+        x_train.shape,
+        options.convo_size,
+        options.pool_size,
+        options.number_filters,
+        options.folder
+    )
+    cPickle.dump(net, open(os.path.join(options.folder, 'patches.pkl'), 'wb'))
+
+    print c['g'] + 'Training the ' + c['b'] + 'patch-based unet CNN' + c['b']
+    net.fit(x_train, y_train)
+
+    print c['g'] + 'Creating the test probability maps' + c['b']
+    y_pred = net.predict_proba(x_test)
+
+    np.save(os.path.join(options.folder, 'patches_results.npy'), y_pred)
+
+    net.score(x_test, y_test)
 
 
 if __name__ == '__main__':
