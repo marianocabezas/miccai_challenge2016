@@ -247,8 +247,10 @@ def load_patches(
             print 'Loading ' + gado_name + ' images'
             gado, ygado, gado_names = load_patch_vectors(gado_name, mask_name, dir_name, size, random_state)
 
-        x = np.stack([im for images in [flair, pd, t2, gado, t1] if images is not None for im in images], axis=1)
-        y = np.stack([mask for masks in [yflair, ypd, yt2, ygado, yt1] if masks is not None for mask in masks], axis=1)
+        data = [images for images in [flair, pd, t2, gado, t1] if images is not None]
+        labels = [masks for masks in [yflair, ypd, yt2, ygado, yt1] if masks is not None]
+        x = [np.stack(images, axis=1) for images in zip(*data)]
+        y = [np.stack(masks, axis=1) for masks in zip(*labels)]
         image_names = np.stack([name for name in [
             flair_names,
             pd_names,
