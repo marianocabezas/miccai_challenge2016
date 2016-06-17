@@ -214,6 +214,7 @@ def load_images(
 
     return x
 
+
 def load_patches(
         dir_name,
         mask_name,
