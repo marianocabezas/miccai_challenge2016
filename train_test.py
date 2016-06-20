@@ -25,7 +25,7 @@ def main():
     parser.add_argument('--gado', action='store', dest='gado', default='GADO_preprocessed.nii.gz')
     parser.add_argument('--use-flair', action='store_true', dest='use_flair')
     parser.add_argument('--no-flair', action='store_false', dest='use_flair', default=True)
-    parser.add_argument('--flair', action='store', dest='flair', type='string', default='FLAIR_preprocessed.nii.gz')
+    parser.add_argument('--flair', action='store', dest='flair', default='FLAIR_preprocessed.nii.gz')
     parser.add_argument('--use-pd', action='store_true', dest='use_pd')
     parser.add_argument('--no-pd', action='store_false', dest='use_pd', default=True)
     parser.add_argument('--pd', action='store', dest='pd', default='DP_preprocessed.nii.gz')
