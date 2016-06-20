@@ -236,7 +236,9 @@ def load_patches(
     try:
         h5f = h5py.File(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.h5'), 'r')
         x = np.array(h5f['patches'])
+        x = np.split(x, x.shape[0])
         y = np.array(h5f['masks'])
+        y = np.split(x, y.shape[0])
         h5f.close()
         image_names = np.load(os.path.join(dir_name, 'image_names_patches.' + image_sufix + '.npy'))
     except IOError:
@@ -279,8 +281,8 @@ def load_patches(
         ] if name is not None])
 
         h5f = h5py.File(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.h5'), 'w')
-        h5f.create_dataset('patches', data=x)
-        h5f.create_dataset('masks', data=y)
+        h5f.create_dataset('patches', data=np.stack(x))
+        h5f.create_dataset('masks', data=np.stack(y))
         h5f.close()
         np.save(os.path.join(dir_name, 'image_names_patches.' + image_sufix + '.npy'), image_names)
 
