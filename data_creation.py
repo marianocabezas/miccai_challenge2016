@@ -245,7 +245,7 @@ def load_patches(
         x_joint = np.array(h5f['patches'])
         y_joint = np.array(h5f['masks'])
         h5f.close()
-        slice_indices =  cPickle.load(open(os.path.join(dir_name, 'patches_shapes_unet.' + image_sufix + '.pkl'), 'rb'))
+        slice_indices = cPickle.load(open(os.path.join(dir_name, 'patches_shapes_unet.' + image_sufix + '.pkl'), 'rb'))
         x = [x_joint[ini:end] for ini, end in slice_indices]
         y = [y_joint[ini:end] for ini, end in slice_indices]
         image_names = np.load(os.path.join(dir_name, 'image_names_patches.' + image_sufix + '.npy'))
@@ -253,8 +253,8 @@ def load_patches(
         # We'll use this function later on to compute indices
         def cumsum(it):
             total = 0
-            for x in it:
-                total += x
+            for val in it:
+                total += val
                 yield total
         # Setting up the lists for all images
         flair, yflair, flair_names = None, None, None
@@ -288,9 +288,12 @@ def load_patches(
             gc.collect()
 
         data = [images for images in [flair, pd, t2, gado, t1] if images is not None]
+        flair, pd, t2, t1, gado = None
         labels = [masks for masks in [yflair, ypd, yt2, ygado, yt1] if masks is not None]
+        yflair, ypd, yt2, yt1, ygado = None
         x = [np.stack(images, axis=1) for images in zip(*data)]
         y = [np.stack(masks, axis=1) for masks in zip(*labels)]
+        images, masks = None
         image_names = np.stack([name for name in [
             flair_names,
             pd_names,
