@@ -288,6 +288,7 @@ def load_patches(
             t1_names
         ] if name is not None])
 
+        print 'Storing the patches to disk'
         batch_length = list(cumsum([0] + [batch.shape[0] for batch in x]))
         slice_indices = zip(batch_length[:-1], batch_length[1:])
         cPickle.dump(slice_indices, open(os.path.join(dir_name, 'patches_shapes_unet.' + image_sufix + '.pkl'), 'wb'))
