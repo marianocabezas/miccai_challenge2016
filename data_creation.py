@@ -1,5 +1,6 @@
 import os
 import re
+import gc
 import numpy as np
 from scipy import ndimage as nd
 from nibabel import load as load_nii
@@ -190,18 +191,23 @@ def load_images(
         if use_flair:
             print 'Loading ' + flair_name + ' images'
             flair, flair_names = load_image_vectors(flair_name, dir_name, min_shape=min_shape)
+            gc.collect()
         if use_pd:
             print 'Loading ' + pd_name + ' images'
             pd, pd_names = load_image_vectors(pd_name, dir_name, min_shape=min_shape)
+            gc.collect()
         if use_t2:
             print 'Loading ' + t2_name + ' images'
             t2, t2_names = load_image_vectors(t2_name, dir_name, min_shape=min_shape)
+            gc.collect()
         if use_t1:
             print 'Loading ' + t1_name + ' images'
             t1, t1_names = load_image_vectors(t1_name, dir_name, min_shape=min_shape)
+            gc.collect()
         if use_gado:
             print 'Loading ' + gado_name + ' images'
             gado, gado_names = load_image_vectors(gado_name, dir_name, min_shape=min_shape)
+            gc.collect()
 
         x = np.stack([data for data in [flair, pd, t2, gado, t1] if data is not None], axis=1)
         image_names = np.stack([name for name in [
@@ -263,18 +269,23 @@ def load_patches(
         if use_flair:
             print 'Loading ' + flair_name + ' images'
             flair, yflair, flair_names = load_patch_vectors(flair_name, mask_name, dir_name, size, random_state)
+            gc.collect()
         if use_pd:
             print 'Loading ' + pd_name + ' images'
             pd, ypd, pd_names = load_patch_vectors(pd_name, mask_name, dir_name, size, random_state)
+            gc.collect()
         if use_t2:
             print 'Loading ' + t2_name + ' images'
             t2, yt2, t2_names = load_patch_vectors(t2_name, mask_name, dir_name, size, random_state)
+            gc.collect()
         if use_t1:
             print 'Loading ' + t1_name + ' images'
             t1, yt1, t1_names = load_patch_vectors(t1_name, mask_name, dir_name, size, random_state)
+            gc.collect()
         if use_gado:
             print 'Loading ' + gado_name + ' images'
             gado, ygado, gado_names = load_patch_vectors(gado_name, mask_name, dir_name, size, random_state)
+            gc.collect()
 
         data = [images for images in [flair, pd, t2, gado, t1] if images is not None]
         labels = [masks for masks in [yflair, ypd, yt2, ygado, yt1] if masks is not None]
@@ -287,6 +298,7 @@ def load_patches(
             gado_names,
             t1_names
         ] if name is not None])
+        gc.collect()
 
         print 'Storing the patches to disk'
         batch_length = list(cumsum([0] + [batch.shape[0] for batch in x]))
@@ -294,7 +306,9 @@ def load_patches(
         cPickle.dump(slice_indices, open(os.path.join(dir_name, 'patches_shapes_unet.' + image_sufix + '.pkl'), 'wb'))
         h5f = h5py.File(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.h5'), 'w')
         h5f.create_dataset('patches', data=np.concatenate(x))
+        gc.collect()
         h5f.create_dataset('masks', data=np.concatenate(y))
+        gc.collect()
         h5f.close()
         np.save(os.path.join(dir_name, 'image_names_patches.' + image_sufix + '.npy'), image_names)
 
