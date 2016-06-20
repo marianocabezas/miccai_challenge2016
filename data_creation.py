@@ -288,12 +288,12 @@ def load_patches(
             gc.collect()
 
         data = [images for images in [flair, pd, t2, gado, t1] if images is not None]
-        flair, pd, t2, t1, gado = None
+        flair, pd, t2, t1, gado = None, None, None, None, None
         labels = [masks for masks in [yflair, ypd, yt2, ygado, yt1] if masks is not None]
-        yflair, ypd, yt2, yt1, ygado = None
+        yflair, ypd, yt2, yt1, ygado = None, None, None, None, None
         x = [np.stack(images, axis=1) for images in zip(*data)]
         y = [np.stack(masks, axis=1) for masks in zip(*labels)]
-        images, masks = None
+        images, masks = None, None
         image_names = np.stack([name for name in [
             flair_names,
             pd_names,
