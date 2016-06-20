@@ -9,6 +9,7 @@ from math import floor
 from data_manipulation.generate_features import get_mask_voxels, get_patches
 from operator import itemgetter
 import h5py
+import cPickle
 
 
 def set_patches(image, centers, patches, patch_size=(15, 15, 15)):
@@ -235,13 +236,20 @@ def load_patches(
 
     try:
         h5f = h5py.File(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.h5'), 'r')
-        x = np.array(h5f['patches'])
-        x = np.split(x, x.shape[0])
-        y = np.array(h5f['masks'])
-        y = np.split(x, y.shape[0])
+        x_joint = np.array(h5f['patches'])
+        y_joint = np.array(h5f['masks'])
         h5f.close()
+        slice_indices =  cPickle.load(open(os.path.join(dir_name, 'patches_shapes_unet.' + image_sufix + '.pkl'), 'rb'))
+        x = [x_joint[ini:end] for ini, end in slice_indices]
+        y = [y_joint[ini:end] for ini, end in slice_indices]
         image_names = np.load(os.path.join(dir_name, 'image_names_patches.' + image_sufix + '.npy'))
     except IOError:
+        # We'll use this function later on to compute indices
+        def cumsum(it):
+            total = 0
+            for x in it:
+                total += x
+                yield total
         # Setting up the lists for all images
         flair, yflair, flair_names = None, None, None
         pd, ypd, pd_names = None, None, None
@@ -280,9 +288,12 @@ def load_patches(
             t1_names
         ] if name is not None])
 
+        batch_length = list(cumsum([0] + [batch.shape[0] for batch in x]))
+        slice_indices = [(ini, end-1) for ini, end in zip(batch_length[:-1], batch_length[1:])]
+        cPickle.dump(slice_indices, open(os.path.join(dir_name, 'patches_shapes_unet.' + image_sufix + '.pkl'), 'wb'))
         h5f = h5py.File(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.h5'), 'w')
-        h5f.create_dataset('patches', data=np.stack(x))
-        h5f.create_dataset('masks', data=np.stack(y))
+        h5f.create_dataset('patches', data=np.concatenate(x))
+        h5f.create_dataset('masks', data=np.concatenate(y))
         h5f.close()
         np.save(os.path.join(dir_name, 'image_names_patches.' + image_sufix + '.npy'), image_names)
 
