@@ -297,8 +297,10 @@ def load_patches(
         gc.collect()
         print 'Stacking the numpy arrays'
         x = [np.stack(images, axis=1) for images in zip(*data)]
+        data = None
+        gc.collect()
         y = [np.stack(masks, axis=1) for masks in zip(*labels)]
-        data, labels = None, None
+        labels = None
         gc.collect()
         image_names = np.stack([name for name in [
             flair_names,
