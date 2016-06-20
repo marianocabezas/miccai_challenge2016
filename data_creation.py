@@ -289,7 +289,7 @@ def load_patches(
         ] if name is not None])
 
         batch_length = list(cumsum([0] + [batch.shape[0] for batch in x]))
-        slice_indices = [(ini, end-1) for ini, end in zip(batch_length[:-1], batch_length[1:])]
+        slice_indices = zip(batch_length[:-1], batch_length[1:])
         cPickle.dump(slice_indices, open(os.path.join(dir_name, 'patches_shapes_unet.' + image_sufix + '.pkl'), 'wb'))
         h5f = h5py.File(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.h5'), 'w')
         h5f.create_dataset('patches', data=np.concatenate(x))
