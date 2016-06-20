@@ -13,7 +13,7 @@ def main():
     parser = argparse.ArgumentParser(description='Test different nets with 3D data.')
     parser.add_argument('-f', '--folder', dest='folder', default='/home/mariano/DATA/Challenge/')
     parser.add_argument('-v', '--verbose', action='store_true', dest='verbose', default=False)
-    parser.add_argument('-c', '--convolution-size', action='store', dest='convo_size', type='int', nargs=1, default=3)
+    parser.add_argument('-c', '--convolution-size', action='store', dest='convo_size', type=int, nargs=1, default=3)
     parser.add_argument('-p', '--pool-size', action='store', dest='pool_size', type=int, nargs=1, default=2)
     parser.add_argument('-t', '--test-size', action='store', dest='test_size', type=float, nargs=1, default=0.25)
     parser.add_argument('-n', '--number-filters', action='store', dest='number_filters', type=int, nargs=1, default=4)
