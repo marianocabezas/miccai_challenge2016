@@ -287,13 +287,19 @@ def load_patches(
             gado, ygado, gado_names = load_patch_vectors(gado_name, mask_name, dir_name, size, random_state)
             gc.collect()
 
+        print 'Creating data vector'
         data = [images for images in [flair, pd, t2, gado, t1] if images is not None]
         flair, pd, t2, t1, gado = None, None, None, None, None
+        gc.collect()
+        print 'Creating labels vector'
         labels = [masks for masks in [yflair, ypd, yt2, ygado, yt1] if masks is not None]
         yflair, ypd, yt2, yt1, ygado = None, None, None, None, None
+        gc.collect()
+        print 'Stacking the numpy arrays'
         x = [np.stack(images, axis=1) for images in zip(*data)]
         y = [np.stack(masks, axis=1) for masks in zip(*labels)]
-        images, masks = None, None
+        data, labels = None, None
+        gc.collect()
         image_names = np.stack([name for name in [
             flair_names,
             pd_names,
@@ -301,7 +307,6 @@ def load_patches(
             gado_names,
             t1_names
         ] if name is not None])
-        gc.collect()
 
         print 'Storing the patches to disk'
         batch_length = list(cumsum([0] + [batch.shape[0] for batch in x]))
