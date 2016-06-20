@@ -41,7 +41,6 @@ def main():
     parser.add_argument('--patches', action='store_const', const='patches', dest='select', default='unet')
 
     args = parser.parse_args()
-    print args
 
     selector = {
         'unet': unet3d,
