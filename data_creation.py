@@ -278,7 +278,7 @@ def load_patches(
             t1_names
         ] if name is not None])
 
-        h5f = h5py.File(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.h5', 'w'))
+        h5f = h5py.File(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.h5'), 'w')
         h5f.create_dataset('patches', data=x)
         h5f.create_dataset('masks', data=y)
         h5f.close()
