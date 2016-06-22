@@ -235,10 +235,10 @@ def unet_patches3d(options):
     # cPickle.dump(net, open(os.path.join(options['folder'], 'patches.pkl'), 'wb'))
 
     print c['g'] + 'Training the ' + c['b'] + 'patch-based unet CNN' + c['nc']
-    net.fit(x_train, y_train)
+    net.fit(x_train, y_train.reshape([y_train.shape[0], -1]))
 
     print c['g'] + 'Computing the score' + c['nc']
-    net.score(x_test, y_test)
+    net.score(x_test, y_test.reshape([y_test.shape[0], -1]))
 
     print c['g'] + 'Creating the test probability maps' + c['nc']
     y_pred = net.predict_proba(x_test)
