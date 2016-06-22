@@ -272,12 +272,13 @@ def unet_patches3d_detection(options):
     )
 
     x_train = np.concatenate(x[:-1])
-    y = y[:, y.shape[0]/2+1, y.shape[1]/2+1, y.shape[2]/2+1]
     y_train = np.concatenate(y[:-1])
+    y_train = y_train[:, y_train.shape[0] / 2 + 1, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1]
     print 'Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
     print 'Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')'
     x_test = np.concatenate(x[-1:])
     y_test = np.concatenate(y[-1:])
+    y_test = y_test[:, y_test.shape[0] / 2 + 1, y_test.shape[1] / 2 + 1, y_test.shape[2] / 2 + 1]
     print 'Testing vector shape = (' + ','.join([str(length) for length in x_test.shape]) + ')'
     print 'Testing labels shape = (' + ','.join([str(length) for length in y_test.shape]) + ')'
 
