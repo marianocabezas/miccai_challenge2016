@@ -223,7 +223,7 @@ def unet_patches3d(options):
 
     print c['g'] + 'Creating the ' + c['b'] + 'patch-based unet CNN' + c['nc']
     # Train the net and save it
-    net = create_patches3d_string(
+    net = create_unet3d_string(
         ''.join(options['layers']),
         x_train.shape,
         options['convo_size'],
@@ -233,13 +233,13 @@ def unet_patches3d(options):
     )
     cPickle.dump(net, open(os.path.join(options['folder'], 'patches.pkl'), 'wb'))
 
-    print c['g'] + 'Training the ' + c['b'] + 'patch-based unet CNN' + c['b']
+    print c['g'] + 'Training the ' + c['b'] + 'patch-based unet CNN' + c['nc']
     net.fit(x_train, y_train)
 
-    print c['g'] + 'Computing the score' + c['b']
+    print c['g'] + 'Computing the score' + c['nc']
     net.score(x_test, y_test)
 
-    print c['g'] + 'Creating the test probability maps' + c['b']
+    print c['g'] + 'Creating the test probability maps' + c['nc']
     y_pred = net.predict_proba(x_test)
 
     np.save(os.path.join(options['folder'], 'patches_results.npy'), y_pred)
