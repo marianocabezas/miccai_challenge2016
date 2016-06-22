@@ -93,7 +93,7 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
              '\'nonlinearity\': nonlinearities.softmax})',
         'p': '(DenseLayer, {'
              '\'name\':\'\033[32mpatch_out\033[0m\','
-             '\'num_units\': 2,'
+             '\'num_units\': 1,'
              '\'nonlinearity\': nonlinearities.softmax})'
     }
 
