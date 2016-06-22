@@ -5,7 +5,8 @@ import cPickle
 from data_creation import load_unet_data, load_encoder_data, load_patches
 from data_creation import reshape_save_nifti_to_dir, reshape_save_nifti
 from data_creation import get_sufix
-from nets import create_unet3d_string, create_encoder3d_string, create_patches3d_string
+from nets import create_unet3d_string, create_encoder3d_string
+# from nets import create_patches3d_string
 
 
 def main():
@@ -218,7 +219,7 @@ def unet_patches3d(options):
     print 'Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
     y_train = np.concatenate(y[:-1])
     x_test = np.concatenate(x[-1:])
-    print 'Testing vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
+    print 'Testing vector shape = (' + ','.join([str(length) for length in x_test.shape]) + ')'
     y_test = np.concatenate(y[-1:])
 
     print c['g'] + 'Creating the ' + c['b'] + 'patch-based unet CNN' + c['nc']
@@ -231,7 +232,7 @@ def unet_patches3d(options):
         options['number_filters'],
         options['folder']
     )
-    cPickle.dump(net, open(os.path.join(options['folder'], 'patches.pkl'), 'wb'))
+    # cPickle.dump(net, open(os.path.join(options['folder'], 'patches.pkl'), 'wb'))
 
     print c['g'] + 'Training the ' + c['b'] + 'patch-based unet CNN' + c['nc']
     net.fit(x_train, y_train)
