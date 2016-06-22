@@ -5,8 +5,7 @@ import cPickle
 from data_creation import load_unet_data, load_encoder_data, load_patches
 from data_creation import reshape_save_nifti_to_dir, reshape_save_nifti
 from data_creation import get_sufix
-from nets import create_unet3d_string, create_encoder3d_string
-# from nets import create_patches3d_string
+from nets import create_unet3d_string, create_encoder3d_string, create_patches3d_string
 
 
 def main():
@@ -284,7 +283,7 @@ def unet_patches3d_detection(options):
 
     print c['g'] + 'Creating the ' + c['b'] + 'patch-based unet CNN' + c['nc']
     # Train the net and save it
-    net = create_unet3d_string(
+    net = create_patches3d_string(
         ''.join(options['layers']),
         x_train.shape,
         options['convo_size'],
