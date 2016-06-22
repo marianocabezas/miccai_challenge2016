@@ -194,7 +194,7 @@ def unet3d(options):
 def unet_patches3d(options):
     c = color_codes()
     for key, value in options.iteritems():
-        print key + ' = ' + value
+        print key + ' = ' + str(value)
 
     print c['g'] + 'Loading the data for the ' + c['b'] + 'unet CNN' + c['nc']
     # Create the data
