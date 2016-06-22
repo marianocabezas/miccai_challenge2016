@@ -239,16 +239,18 @@ def load_patches(
         size
 ):
     image_sufix = get_sufix(use_flair, use_pd, use_t2, use_gado, use_t1)
+    size_sufix = '.'.join([length for length in size])
+    sufixes = image_sufix + '.' + size_sufix
 
     try:
-        h5f = h5py.File(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.h5'), 'r')
+        h5f = h5py.File(os.path.join(dir_name, 'patches_vector_unet.' + sufixes + '.h5'), 'r')
         x_joint = np.array(h5f['patches'])
         y_joint = np.array(h5f['masks'])
         h5f.close()
-        slice_indices = cPickle.load(open(os.path.join(dir_name, 'patches_shapes_unet.' + image_sufix + '.pkl'), 'rb'))
+        slice_indices = cPickle.load(open(os.path.join(dir_name, 'patches_shapes_unet.' + sufixes + '.pkl'), 'rb'))
         x = [x_joint[ini:end] for ini, end in slice_indices]
         y = [y_joint[ini:end] for ini, end in slice_indices]
-        image_names = np.load(os.path.join(dir_name, 'image_names_patches.' + image_sufix + '.npy'))
+        image_names = np.load(os.path.join(dir_name, 'image_names_patches.' + sufixes + '.npy'))
     except IOError:
         # We'll use this function later on to compute indices
         def cumsum(it):
@@ -313,14 +315,14 @@ def load_patches(
         print 'Storing the patches to disk'
         batch_length = list(cumsum([0] + [batch.shape[0] for batch in x]))
         slice_indices = zip(batch_length[:-1], batch_length[1:])
-        cPickle.dump(slice_indices, open(os.path.join(dir_name, 'patches_shapes_unet.' + image_sufix + '.pkl'), 'wb'))
-        h5f = h5py.File(os.path.join(dir_name, 'patches_vector_unet.' + image_sufix + '.h5'), 'w')
+        cPickle.dump(slice_indices, open(os.path.join(dir_name, 'patches_shapes_unet.' + sufixes + '.pkl'), 'wb'))
+        h5f = h5py.File(os.path.join(dir_name, 'patches_vector_unet.' + sufixes + '.h5'), 'w')
         h5f.create_dataset('patches', data=np.concatenate(x))
         gc.collect()
         h5f.create_dataset('masks', data=np.concatenate(y))
         gc.collect()
         h5f.close()
-        np.save(os.path.join(dir_name, 'image_names_patches.' + image_sufix + '.npy'), image_names)
+        np.save(os.path.join(dir_name, 'image_names_patches.' + sufixes + '.npy'), image_names)
 
     return x, y, image_names
 

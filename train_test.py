@@ -135,6 +135,8 @@ def unet3d(options):
         options['use_gado'],
         options['use_t1']
     )
+    size_sufix = '.'.join([length for length in options['size']])
+    sufixes = image_sufix + '.' + size_sufix
 
     print c['g'] + 'Loading the data for the ' + c['b'] + 'patch-based unet CNN' + c['nc']
     # Create the data
@@ -173,7 +175,7 @@ def unet3d(options):
     net.fit(x_train, y_train)
 
     # Load image names and test the net
-    image_names = np.load(os.path.join(options['folder'], 'image_names_unet.' + image_sufix + '.npy'))
+    image_names = np.load(os.path.join(options['folder'], 'image_names_unet.' + sufixes + '.npy'))
 
     print c['g'] + 'Creating the test probability maps' + c['nc']
     y_pred = net.predict_proba(x_test)
