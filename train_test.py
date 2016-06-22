@@ -216,11 +216,13 @@ def unet_patches3d(options):
     )
 
     x_train = np.concatenate(x[:-1])
-    print 'Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
     y_train = np.concatenate(y[:-1])
+    print 'Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
+    print 'Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')'
     x_test = np.concatenate(x[-1:])
-    print 'Testing vector shape = (' + ','.join([str(length) for length in x_test.shape]) + ')'
     y_test = np.concatenate(y[-1:])
+    print 'Testing vector shape = (' + ','.join([str(length) for length in x_test.shape]) + ')'
+    print 'Testing labels shape = (' + ','.join([str(length) for length in y_test.shape]) + ')'
 
     print c['g'] + 'Creating the ' + c['b'] + 'patch-based unet CNN' + c['nc']
     # Train the net and save it
