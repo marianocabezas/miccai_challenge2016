@@ -13,11 +13,11 @@ def main():
     parser = argparse.ArgumentParser(description='Test different nets with 3D data.')
     parser.add_argument('-f', '--folder', dest='folder', default='/home/mariano/DATA/Challenge/')
     parser.add_argument('-v', '--verbose', action='store_true', dest='verbose', default=False)
-    parser.add_argument('-c', '--convolution-size', action='store', dest='convo_size', type=int, nargs=1, default=3)
-    parser.add_argument('-p', '--pool-size', action='store', dest='pool_size', type=int, nargs=1, default=2)
-    parser.add_argument('-t', '--test-size', action='store', dest='test_size', type=float, nargs=1, default=0.25)
-    parser.add_argument('-n', '--number-filters', action='store', dest='number_filters', type=int, nargs=1, default=4)
-    parser.add_argument('-l', '--forward-layers', action='store', dest='layers', nargs=1, default='cac')
+    parser.add_argument('-c', '--convolution-size', action='store', dest='convo_size', type=int, default=3)
+    parser.add_argument('-p', '--pool-size', action='store', dest='pool_size', type=int, default=2)
+    parser.add_argument('-t', '--test-size', action='store', dest='test_size', type=float, default=0.25)
+    parser.add_argument('-n', '--number-filters', action='store', dest='number_filters', type=int, default=4)
+    parser.add_argument('-l', '--forward-layers', action='store', dest='layers', default='cac')
     parser.add_argument('-w', '--win-size', action='store', dest='patch_size', type=int, nargs=3, default=(9, 9, 9))
     parser.add_argument('-i', '--image-size', action='store', dest='min_shape', type=int, nargs=3, default=None)
     parser.add_argument('--use-gado', action='store_true', dest='use_gado', default=False)
@@ -86,7 +86,7 @@ def autoencoder3d(options):
         t2_name=options['t2'],
         gado_name=options['gado'],
         t1_name=options['t1'],
-        min_shape=options['min_shape']
+        min_shape=tuple(options['min_shape']) if options['min_shape'] is not None else None
     )
     (x_train, x_test, y_train, y_test, idx_train, idx_test) = encoder_data
     np.save(os.path.join(options['folder'], 'test_encoder.npy'), x_test)
