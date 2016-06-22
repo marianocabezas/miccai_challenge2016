@@ -6,6 +6,7 @@ from nolearn_utils.hooks import (
     SaveTrainingHistory, PlotTrainingHistory,
     EarlyStopping
 )
+from lasagne import objectives
 from lasagne.layers import InputLayer, ReshapeLayer, DenseLayer
 from lasagne.layers.dnn import Conv3DDNNLayer, MaxPool3DDNNLayer, Pool3DDNNLayer
 from layers import Unpooling3D
@@ -201,9 +202,10 @@ def create_unet3d_string(forward_path, input_shape, convo_size, pool_size, numbe
     encoder = NeuralNet(
         layers=get_layers_string(final_layers, input_shape, convo_size, pool_size, number_filters),
 
-        regression=True,
+        regression=False,
+        objective_loss_function=objectives.categorical_crossentropy,
 
-        update=updates.adadelta,
+         update=updates.adadelta,
         # update=updates.adam,
         # update_learning_rate=1e-3,
 
@@ -225,7 +227,8 @@ def create_patches3d_string(forward_path, input_shape, convo_size, pool_size, nu
     encoder = NeuralNet(
         layers=get_layers_string(final_layers, input_shape, convo_size, pool_size, number_filters),
 
-        regression=True,
+        regression=False,
+        objective_loss_function=objectives.categorical_crossentropy,
 
         update=updates.adadelta,
         # update=updates.adam,
