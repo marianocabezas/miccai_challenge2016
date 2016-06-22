@@ -37,15 +37,17 @@ def main():
     parser.add_argument('--no-t1', action='store_false', dest='use_t1', default=True)
     parser.add_argument('--t1', action='store', dest='t1', default='T1_preprocessed.nii.gz')
     parser.add_argument('--mask', action='store', dest='mask', default='Consensus.nii.gz')
-    parser.add_argument('--unet', action='store_const', const='unet', dest='select')
-    parser.add_argument('--encoder', action='store_const', const='encoder', dest='select')
-    parser.add_argument('--patches', action='store_const', const='patches', dest='select', default='unet')
+    parser.add_argument('--unet', action='store_const', const='unet', dest='select', default='unet')
+    parser.add_argument('--encoder', action='store_const', const='encoder', dest='select', default='unet')
+    parser.add_argument('--patches-seg', action='store_const', const='patches-seg', dest='select', default='unet')
+    parser.add_argument('--patches-det', action='store_const', const='patches-det', dest='select', default='unet')
 
     args = parser.parse_args()
 
     selector = {
         'unet': unet3d,
-        'patches': unet_patches3d,
+        'patches-seg': unet_patches3d_segmentation,
+        'patches-det': unet_patches3d_detection,
         'encoder': autoencoder3d
     }
 
@@ -194,7 +196,7 @@ def unet3d(options):
     [reshape_save_nifti_to_dir(im, name) for (im, name) in images_names]
 
 
-def unet_patches3d(options):
+def unet_patches3d_segmentation(options):
     c = color_codes()
 
     print c['g'] + 'Loading the data for the ' + c['b'] + 'unet CNN' + c['nc']
@@ -246,6 +248,62 @@ def unet_patches3d(options):
     y_pred = net.predict_proba(x_test)
 
     np.save(os.path.join(options['folder'], 'patches_results.npy'), y_pred)
+
+
+def unet_patches3d_detection(options):
+    c = color_codes()
+
+    print c['g'] + 'Loading the data for the ' + c['b'] + 'unet CNN' + c['nc']
+    # Create the data
+    (x, y, names) = load_patches(
+        dir_name=options['folder'],
+        use_flair=options['use_flair'],
+        use_pd=options['use_pd'],
+        use_t2=options['use_t2'],
+        use_gado=options['use_gado'],
+        use_t1=options['use_t1'],
+        flair_name=options['flair'],
+        pd_name=options['pd'],
+        t2_name=options['t2'],
+        gado_name=options['gado'],
+        t1_name=options['t1'],
+        mask_name=options['mask'],
+        size=tuple(options['patch_size'])
+    )
+
+    x_train = np.concatenate(x[:-1])
+    y = y[:, y.shape[0]/2+1, y.shape[1]/2+1, y.shape[2]/2+1]
+    y_train = np.concatenate(y[:-1])
+    print 'Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
+    print 'Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')'
+    x_test = np.concatenate(x[-1:])
+    y_test = np.concatenate(y[-1:])
+    print 'Testing vector shape = (' + ','.join([str(length) for length in x_test.shape]) + ')'
+    print 'Testing labels shape = (' + ','.join([str(length) for length in y_test.shape]) + ')'
+
+    print c['g'] + 'Creating the ' + c['b'] + 'patch-based unet CNN' + c['nc']
+    # Train the net and save it
+    net = create_unet3d_string(
+        ''.join(options['layers']),
+        x_train.shape,
+        options['convo_size'],
+        options['pool_size'],
+        options['number_filters'],
+        options['folder']
+    )
+    # cPickle.dump(net, open(os.path.join(options['folder'], 'patches.pkl'), 'wb'))
+
+    print c['g'] + 'Training the ' + c['b'] + 'patch-based unet CNN' + c['nc']
+    net.fit(x_train, y_train.reshape([y_train.shape[0], -1]))
+
+    print c['g'] + 'Computing the score' + c['nc']
+    net.score(x_test, y_test.reshape([y_test.shape[0], -1]))
+
+    print c['g'] + 'Creating the test probability maps' + c['nc']
+    y_pred = net.predict_proba(x_test)
+
+    np.save(os.path.join(options['folder'], 'patches_results.npy'), y_pred)
+
 
 if __name__ == '__main__':
     main()
