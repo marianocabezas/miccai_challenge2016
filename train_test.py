@@ -214,9 +214,8 @@ def unet_patches3d(options):
         size=tuple(options['patch_size'])
     )
 
-    print 'Training vector shape = (' + ','.join([length for length in x.shape]) + ')'
-
     x_train = np.concatenate(x[:-1])
+    print 'Training vector shape = (' + ','.join([length for length in x_train.shape]) + ')'
     y_train = np.concatenate(y[:-1])
     x_test = np.concatenate(x[-1:])
     y_test = np.concatenate(y[-1:])
