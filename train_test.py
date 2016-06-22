@@ -139,19 +139,19 @@ def unet3d(options):
     print c['g'] + 'Loading the data for the ' + c['b'] + 'patch-based unet CNN' + c['nc']
     # Create the data
     unet_data = load_unet_data(
-        test_size=options['test_size'],
-        dir_name=options['folder'],
-        use_flair=options['use_flair'],
-        use_pd=options['use_pd'],
-        use_t2=options['use_t2'],
-        use_gado=options['use_gado'],
-        use_t1=options['use_t1'],
-        flair_name=options['flair'],
-        pd_name=options['pd'],
-        t2_name=options['t2'],
-        gado_name=options['gado'],
-        t1_name=options['t1'],
-        mask_name=options['mask']
+        test_size=options['test_size'][0],
+        dir_name=options['folder'][0],
+        use_flair=options['use_flair'][0],
+        use_pd=options['use_pd'][0],
+        use_t2=options['use_t2'][0],
+        use_gado=options['use_gado'][0],
+        use_t1=options['use_t1'][0],
+        flair_name=options['flair'][0],
+        pd_name=options['pd'][0],
+        t2_name=options['t2'][0],
+        gado_name=options['gado'][0],
+        t1_name=options['t1'][0],
+        mask_name=options['mask'][0]
     )
     (x_train, x_test, y_train, y_test, idx_train, idx_test) = unet_data
     np.save(os.path.join(options['folder'], 'test_unet.npy'), x_test)
@@ -160,10 +160,10 @@ def unet3d(options):
     print c['b'] + 'Creating the ' + c['b'] + 'unet CNN' + c['nc']
     # Train the net and save it
     net = create_unet3d_string(
-        options['layers'],
+        str(options['layers'][0]),
         x_train.shape,
-        options['convo_size'],
-        options['pool_size'],
+        options['convo_size'][0],
+        options['pool_size'][0],
         options['number_filters'],
         options['folder']
     )
@@ -197,19 +197,19 @@ def unet_patches3d(options):
     print c['g'] + 'Loading the data for the ' + c['b'] + 'unet CNN' + c['nc']
     # Create the data
     (x, y, names) = load_patches(
-        dir_name=options['folder'],
-        use_flair=options['use_flair'],
-        use_pd=options['use_pd'],
-        use_t2=options['use_t2'],
-        use_gado=options['use_gado'],
-        use_t1=options['use_t1'],
-        flair_name=options['flair'],
-        pd_name=options['pd'],
-        t2_name=options['t2'],
-        gado_name=options['gado'],
-        t1_name=options['t1'],
-        mask_name=options['mask'],
-        size=options['patch_size']
+        dir_name=options['folder'][0],
+        use_flair=options['use_flair'][0],
+        use_pd=options['use_pd'][0],
+        use_t2=options['use_t2'][0],
+        use_gado=options['use_gado'][0],
+        use_t1=options['use_t1'][0],
+        flair_name=options['flair'][0],
+        pd_name=options['pd'][0],
+        t2_name=options['t2'][0],
+        gado_name=options['gado'][0],
+        t1_name=options['t1'][0],
+        mask_name=options['mask'][0],
+        size=tuple(options['patch_size'])
     )
 
     x_train = np.concatenate(x[:-1])
@@ -220,12 +220,12 @@ def unet_patches3d(options):
     print c['g'] + 'Creating the ' + c['b'] + 'patch-based unet CNN' + c['nc']
     # Train the net and save it
     net = create_patches3d_string(
-        options['layers'],
+        options['layers'][0],
         x_train.shape,
-        options['convo_size'],
-        options['pool_size'],
-        options['number_filters'],
-        options['folder']
+        options['convo_size'][0],
+        options['pool_size'][0],
+        options['number_filters'][0],
+        options['folder'][0]
     )
     cPickle.dump(net, open(os.path.join(options['folder'], 'patches.pkl'), 'wb'))
 
