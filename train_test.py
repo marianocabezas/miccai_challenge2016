@@ -242,7 +242,7 @@ def unet_patches3d_segmentation(options):
     net.fit(x_train, y_train.reshape([y_train.shape[0], -1]))
 
     print c['g'] + 'Computing the score' + c['nc']
-    net.score(x_test, y_test.reshape([y_test.shape[0], -1]))
+    print net.score(x_test, y_test.reshape([y_test.shape[0], -1]))
 
     print c['g'] + 'Creating the test probability maps' + c['nc']
     y_pred = net.predict_proba(x_test)
@@ -297,7 +297,7 @@ def unet_patches3d_detection(options):
     net.fit(x_train, y_train.reshape([y_train.shape[0], -1]))
 
     print c['g'] + 'Computing the score' + c['nc']
-    net.score(x_test, y_test.reshape([y_test.shape[0], -1]))
+    print net.score(x_test, y_test.reshape([y_test.shape[0], -1]))
 
     print c['g'] + 'Creating the test probability maps' + c['nc']
     y_pred = net.predict_proba(x_test)
