@@ -261,50 +261,44 @@ def load_patches(
                 total += val
                 yield total
         # Setting up the lists for all images
-        flair, yflair, flair_names = None, None, None
-        pd, ypd, pd_names = None, None, None
-        t2, yt2, t2_names = None, None, None
-        t1, yt1, t1_names = None, None, None
-        gado, ygado, gado_names = None, None, None
+        flair, flair_names = None, None
+        pd, pd_names = None, None
+        t2, t2_names = None, None
+        t1, t1_names = None, None
+        gado, gado_names = None, None
+        y = None
 
         random_state = np.random.randint(1)
 
         # We load the image modalities for each patient according to the parameters
         if use_flair:
             print 'Loading ' + flair_name + ' images'
-            flair, yflair, flair_names = load_patch_vectors(flair_name, mask_name, dir_name, size, random_state)
+            flair, y, flair_names = load_patch_vectors(flair_name, mask_name, dir_name, size, random_state)
             gc.collect()
         if use_pd:
             print 'Loading ' + pd_name + ' images'
-            pd, ypd, pd_names = load_patch_vectors(pd_name, mask_name, dir_name, size, random_state)
+            pd, y, pd_names = load_patch_vectors(pd_name, mask_name, dir_name, size, random_state)
             gc.collect()
         if use_t2:
             print 'Loading ' + t2_name + ' images'
-            t2, yt2, t2_names = load_patch_vectors(t2_name, mask_name, dir_name, size, random_state)
+            t2, y, t2_names = load_patch_vectors(t2_name, mask_name, dir_name, size, random_state)
             gc.collect()
         if use_t1:
             print 'Loading ' + t1_name + ' images'
-            t1, yt1, t1_names = load_patch_vectors(t1_name, mask_name, dir_name, size, random_state)
+            t1, y, t1_names = load_patch_vectors(t1_name, mask_name, dir_name, size, random_state)
             gc.collect()
         if use_gado:
             print 'Loading ' + gado_name + ' images'
-            gado, ygado, gado_names = load_patch_vectors(gado_name, mask_name, dir_name, size, random_state)
+            gado, y, gado_names = load_patch_vectors(gado_name, mask_name, dir_name, size, random_state)
             gc.collect()
 
         print 'Creating data vector'
         data = [images for images in [flair, pd, t2, gado, t1] if images is not None]
         flair, pd, t2, t1, gado = None, None, None, None, None
         gc.collect()
-        print 'Creating labels vector'
-        labels = [masks for masks in [yflair, ypd, yt2, ygado, yt1] if masks is not None]
-        yflair, ypd, yt2, yt1, ygado = None, None, None, None, None
-        gc.collect()
         print 'Stacking the numpy arrays'
         x = [np.stack(images, axis=1) for images in zip(*data)]
         data = None
-        gc.collect()
-        y = [np.stack(masks, axis=1) for masks in zip(*labels)]
-        labels = None
         gc.collect()
         image_names = np.stack([name for name in [
             flair_names,
