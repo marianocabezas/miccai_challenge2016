@@ -96,7 +96,7 @@ def autoencoder3d(options):
     # net = create_encoder(x_train.shape, options.convo_size, options.pool_size, options.folder, options.number_filters)
     print c['g'] + 'Creating the ' + c['b'] + 'encoder' + c['nc']
     net = create_encoder3d_string(
-        options['layers'],
+        ''.join(options['layers']),
         x_train.shape,
         options['convo_size'],
         options['pool_size'],
@@ -160,7 +160,7 @@ def unet3d(options):
     print c['b'] + 'Creating the ' + c['b'] + 'unet CNN' + c['nc']
     # Train the net and save it
     net = create_unet3d_string(
-        str(options['layers']),
+        ''.join(options['layers']),
         x_train.shape,
         options['convo_size'],
         options['pool_size'],
@@ -193,8 +193,6 @@ def unet3d(options):
 
 def unet_patches3d(options):
     c = color_codes()
-    for key, value in options.iteritems():
-        print key + ' = ' + str(value)
 
     print c['g'] + 'Loading the data for the ' + c['b'] + 'unet CNN' + c['nc']
     # Create the data
@@ -222,7 +220,7 @@ def unet_patches3d(options):
     print c['g'] + 'Creating the ' + c['b'] + 'patch-based unet CNN' + c['nc']
     # Train the net and save it
     net = create_patches3d_string(
-        options['layers'],
+        ''.join(options['layers']),
         x_train.shape,
         options['convo_size'],
         options['pool_size'],
