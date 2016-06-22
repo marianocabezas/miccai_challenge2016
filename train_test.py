@@ -218,6 +218,7 @@ def unet_patches3d(options):
     print 'Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
     y_train = np.concatenate(y[:-1])
     x_test = np.concatenate(x[-1:])
+    print 'Testing vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
     y_test = np.concatenate(y[-1:])
 
     print c['g'] + 'Creating the ' + c['b'] + 'patch-based unet CNN' + c['nc']
@@ -235,13 +236,13 @@ def unet_patches3d(options):
     print c['g'] + 'Training the ' + c['b'] + 'patch-based unet CNN' + c['b']
     net.fit(x_train, y_train)
 
+    print c['g'] + 'Computing the score' + c['b']
+    net.score(x_test, y_test)
+
     print c['g'] + 'Creating the test probability maps' + c['b']
     y_pred = net.predict_proba(x_test)
 
     np.save(os.path.join(options['folder'], 'patches_results.npy'), y_pred)
-
-    net.score(x_test, y_test)
-
 
 if __name__ == '__main__':
     main()
