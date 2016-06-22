@@ -239,7 +239,7 @@ def load_patches(
         size
 ):
     image_sufix = get_sufix(use_flair, use_pd, use_t2, use_gado, use_t1)
-    size_sufix = '.'.join([length for length in size])
+    size_sufix = '.'.join([str(length) for length in size])
     sufixes = image_sufix + '.' + size_sufix
 
     try:
