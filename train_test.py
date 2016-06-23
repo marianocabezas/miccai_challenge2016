@@ -202,8 +202,11 @@ def unet_patches3d_detection(options):
         size=tuple(options['patch_size'])
     )
 
-    x_train = np.concatenate(x[:-1]).astype(dtype=np.float32)
-    y_train = np.concatenate(y[:-1]).astype(dtype=np.int32)
+    seed = np.random.randint(np.iinfo(np.int32).max)
+    np.random.seed(seed)
+    x_train = np.random.permutation(np.concatenate(x[:-1]).astype(dtype=np.float32))
+    np.random.seed(seed)
+    y_train = np.random.permutation(np.concatenate(y[:-1]).astype(dtype=np.int32))
     y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
     print 'Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
     y_train_shape = ','.join([str(length) for length in y_train.shape])
