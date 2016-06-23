@@ -273,8 +273,8 @@ def unet_patches3d_detection(options):
     x_train = np.concatenate(x[:-1])
     y_train = np.concatenate(y[:-1])
     y_train = np.stack(
-        y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1],
-        1-y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1],
+        [y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1],
+         1-y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]],
         axis=1
     )
     print 'Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
@@ -282,8 +282,8 @@ def unet_patches3d_detection(options):
     x_test = np.concatenate(x[-1:])
     y_test = np.concatenate(y[-1:])
     y_test = np.stack(
-        y_test[:, y_test.shape[1] / 2 + 1, y_test.shape[2] / 2 + 1, y_test.shape[3] / 2 + 1],
-        1 - y_test[:, y_test.shape[1] / 2 + 1, y_test.shape[2] / 2 + 1, y_test.shape[3] / 2 + 1],
+        [y_test[:, y_test.shape[1] / 2 + 1, y_test.shape[2] / 2 + 1, y_test.shape[3] / 2 + 1],
+         1 - y_test[:, y_test.shape[1] / 2 + 1, y_test.shape[2] / 2 + 1, y_test.shape[3] / 2 + 1]],
         axis=1
     )
     print 'Testing vector shape = (' + ','.join([str(length) for length in x_test.shape]) + ')'
