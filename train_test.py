@@ -2,9 +2,10 @@ import os
 import argparse
 import numpy as np
 import cPickle
-from data_creation import load_unet_data, load_encoder_data, load_patches
-from data_creation import reshape_save_nifti_to_dir, reshape_save_nifti
+from data_creation import load_encoder_data, load_patches
+from data_creation import reshape_save_nifti
 from data_creation import get_sufix
+from data_creation import leave_one_out
 from nets import create_unet3d_string, create_encoder3d_string, create_patches3d_string
 
 
@@ -202,44 +203,45 @@ def unet_patches3d_detection(options):
         size=tuple(options['patch_size'])
     )
 
-    seed = np.random.randint(np.iinfo(np.int32).max)
-    np.random.seed(seed)
-    x_train = np.random.permutation(np.concatenate(x[:-1]).astype(dtype=np.float32))
-    np.random.seed(seed)
-    y_train = np.random.permutation(np.concatenate(y[:-1]).astype(dtype=np.int32))
-    y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
-    print 'Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
-    y_train_shape = ','.join([str(length) for length in y_train.shape])
-    y_train_values = str(y_train.min()) + ',' + str(y_train.max())
-    print 'Training labels shape = (' + y_train_shape + '); values = (' + y_train_values + ')'
-    x_test = np.concatenate(x[-1:]).astype(dtype=np.float32)
-    y_test = np.concatenate(y[-1:]).astype(dtype=np.int32)
-    y_test = y_test[:, y_test.shape[1] / 2 + 1, y_test.shape[2] / 2 + 1, y_test.shape[3] / 2 + 1]
-    print 'Testing vector shape = (' + ','.join([str(length) for length in x_test.shape]) + ')'
-    print 'Testing labels shape = (' + ','.join([str(length) for length in y_test.shape]) + ')'
+    for x_train, y_train, i in leave_one_out(x, y):
+        seed = np.random.randint(np.iinfo(np.int32).max)
+        np.random.seed(seed)
+        x_train = np.random.permutation(np.concatenate(x_train).astype(dtype=np.float32))
+        np.random.seed(seed)
+        y_train = np.random.permutation(np.concatenate(y_train).astype(dtype=np.int32))
+        y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
+        print 'Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
+        y_train_shape = ','.join([str(length) for length in y_train.shape])
+        y_train_values = str(y_train.min()) + ',' + str(y_train.max())
+        print 'Training labels shape = (' + y_train_shape + '); values = (' + y_train_values + ')'
+        x_test = np.concatenate(x[i]).astype(dtype=np.float32)
+        y_test = np.concatenate(y[i]).astype(dtype=np.int32)
+        y_test = y_test[:, y_test.shape[1] / 2 + 1, y_test.shape[2] / 2 + 1, y_test.shape[3] / 2 + 1]
+        print 'Testing vector shape = (' + ','.join([str(length) for length in x_test.shape]) + ')'
+        print 'Testing labels shape = (' + ','.join([str(length) for length in y_test.shape]) + ')'
 
-    print c['g'] + 'Creating the ' + c['b'] + 'patch-based unet CNN' + c['nc']
-    # Train the net and save it
-    net = create_patches3d_string(
-        ''.join(options['layers']),
-        x_train.shape,
-        options['convo_size'],
-        options['pool_size'],
-        options['number_filters'],
-        options['folder']
-    )
-    # cPickle.dump(net, open(os.path.join(options['folder'], 'patches.pkl'), 'wb'))
+        print c['g'] + 'Creating the ' + c['b'] + 'patch-based unet CNN' + c['nc']
+        # Train the net and save it
+        net = create_patches3d_string(
+            ''.join(options['layers']),
+            x_train.shape,
+            options['convo_size'],
+            options['pool_size'],
+            options['number_filters'],
+            options['folder']
+        )
+        # cPickle.dump(net, open(os.path.join(options['folder'], 'patches.pkl'), 'wb'))
 
-    print c['g'] + 'Training the ' + c['b'] + 'patch-based unet CNN' + c['nc']
-    net.fit(x_train, y_train)
+        print c['g'] + 'Training the ' + c['b'] + 'patch-based unet CNN' + c['nc']
+        net.fit(x_train, y_train)
 
-    print c['g'] + 'Computing the score' + c['nc']
-    print net.score(x_test, y_test)
+        print c['g'] + 'Computing the score' + c['nc']
+        print net.score(x_test, y_test)
 
-    print c['g'] + 'Creating the test probability maps' + c['nc']
-    y_pred = net.predict_proba(x_test)
+        print c['g'] + 'Creating the test probability maps' + c['nc']
+        y_pred = net.predict_proba(x_test)
 
-    np.save(os.path.join(options['folder'], 'patches_results.npy'), y_pred)
+        np.save(os.path.join(options['folder'], 'patches_results.npy'), y_pred)
 
 
 if __name__ == '__main__':

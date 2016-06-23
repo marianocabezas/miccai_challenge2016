@@ -13,20 +13,6 @@ import h5py
 import cPickle
 
 
-def set_patches(image, centers, patches, patch_size=(15, 15, 15)):
-    list_of_tuples = all([isinstance(center, tuple) for center in centers])
-    sizes_match = all([patch_size == patch.shape for patch in patches])
-    if list_of_tuples and sizes_match:
-        patch_half = tuple([idx/2 for idx in patch_size])
-        slices = [
-            [slice(c_idx - p_idx, c_idx + p_idx + 1) for (c_idx, p_idx) in zip(center, patch_half)]
-            for center in centers
-            ]
-        for sl, patch in zip(slices, patches):
-            image[sl] = patch
-    return patches
-
-
 def train_test_split(data, labels, test_size=0.1, random_state=42):
     # Init (Set the random seed and determine the number of cases for test)
     n_test = int(floor(data.shape[0]*test_size))
@@ -48,6 +34,25 @@ def train_test_split(data, labels, test_size=0.1, random_state=42):
     idx_test = indices[-n_test:]
 
     return x_train, x_test, y_train, y_test, idx_train, idx_test
+
+
+def leave_one_out(data_list, labels_list):
+    for i in range(0, len(data_list)):
+        yield data_list[:i] + data_list[i+1:], labels_list[:i] + labels_list[i+1:], i
+
+
+def set_patches(image, centers, patches, patch_size=(15, 15, 15)):
+    list_of_tuples = all([isinstance(center, tuple) for center in centers])
+    sizes_match = all([patch_size == patch.shape for patch in patches])
+    if list_of_tuples and sizes_match:
+        patch_half = tuple([idx/2 for idx in patch_size])
+        slices = [
+            [slice(c_idx - p_idx, c_idx + p_idx + 1) for (c_idx, p_idx) in zip(center, patch_half)]
+            for center in centers
+            ]
+        for sl, patch in zip(slices, patches):
+            image[sl] = patch
+    return patches
 
 
 def reshape_to_nifti(image, original_name):
