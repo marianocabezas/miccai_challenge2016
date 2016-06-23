@@ -2,7 +2,7 @@ import os
 import argparse
 import numpy as np
 import cPickle
-from data_creation import load_encoder_data, load_patches
+from data_creation import load_encoder_data, load_patches, load_patch_batch
 from data_creation import reshape_save_nifti
 from data_creation import get_sufix
 from data_creation import leave_one_out
@@ -184,6 +184,15 @@ def unet_patches3d_segmentation(options):
 
 def unet_patches3d_detection(options):
     c = color_codes()
+    image_sufix = get_sufix(
+        options['use_flair'],
+        options['use_pd'],
+        options['use_t2'],
+        options['use_gado'],
+        options['use_t1']
+    )
+    size_sufix = '.'.join([str(length) for length in tuple(options['patch_size'])])
+    sufixes = image_sufix + '.' + size_sufix
 
     print c['g'] + 'Loading the data for the ' + c['b'] + 'unet CNN' + c['nc']
     # Create the data
@@ -211,16 +220,10 @@ def unet_patches3d_detection(options):
         y_train = np.random.permutation(np.concatenate(y_train).astype(dtype=np.int32))
         y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
         print 'Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
-        y_train_shape = ','.join([str(length) for length in y_train.shape])
-        y_train_values = str(y_train.min()) + ',' + str(y_train.max())
-        print 'Training labels shape = (' + y_train_shape + '); values = (' + y_train_values + ')'
-        x_test = np.concatenate(x[i]).astype(dtype=np.float32)
-        y_test = np.concatenate(y[i]).astype(dtype=np.int32)
-        y_test = y_test[:, y_test.shape[1] / 2 + 1, y_test.shape[2] / 2 + 1, y_test.shape[3] / 2 + 1]
-        print 'Testing vector shape = (' + ','.join([str(length) for length in x_test.shape]) + ')'
-        print 'Testing labels shape = (' + ','.join([str(length) for length in y_test.shape]) + ')'
+        print 'Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')'
 
         print c['g'] + 'Creating the ' + c['b'] + 'patch-based unet CNN' + c['nc']
+
         # Train the net and save it
         net = create_patches3d_string(
             ''.join(options['layers']),
@@ -230,18 +233,15 @@ def unet_patches3d_detection(options):
             options['number_filters'],
             options['folder']
         )
-        # cPickle.dump(net, open(os.path.join(options['folder'], 'patches.pkl'), 'wb'))
+        cPickle.dump(net, open(os.path.join(options['folder'], 'patches' + sufixes +  str(i),'.pkl'), 'wb'))
 
         print c['g'] + 'Training the ' + c['b'] + 'patch-based unet CNN' + c['nc']
         net.fit(x_train, y_train)
 
-        print c['g'] + 'Computing the score' + c['nc']
-        print net.score(x_test, y_test)
-
-        print c['g'] + 'Creating the test probability maps' + c['nc']
-        y_pred = net.predict_proba(x_test)
-
-        np.save(os.path.join(options['folder'], 'patches_results.npy'), y_pred)
+        # print c['g'] + 'Creating the test probability maps' + c['nc']
+        # y_pred = net.predict_proba(x_test)
+        for batch, centers in load_patch_batch(names[:,0]):
+            y_pred = net.predict_proba(batch)
 
 
 if __name__ == '__main__':
