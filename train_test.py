@@ -181,7 +181,7 @@ def unet3d(options):
 
     print c['g'] + 'Creating the test probability maps' + c['nc']
     y_pred = net.predict_proba(x_test)
-    y = y_pred.reshape(x_test[1, 1, :].shape)
+    y = y_pred.reshape(x_test[0, 0, :].shape)
 
     shape_str = c['nc'] + c['gc'].join([str(num) for num in y.shape]) + c['g']
     minmax_str = 'min = ' + c['nc'] + str(y.min()) + c['g'] + ', max = ' + c['nc'] + str(y.max()) + c['g']

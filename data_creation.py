@@ -386,7 +386,7 @@ def load_unet_data(
                  patients]
         min_shape = min([im.shape for im in masks])
         y = np.asarray(
-            [nd.zoom((im - im.mean()) / im.std(),
+            [nd.zoom(im,
                      [float(min_shape[0]) / im.shape[0], float(min_shape[1]) / im.shape[1],
                       float(min_shape[2]) / im.shape[2]]) for im in masks]
         ).astype(np.uint8)
