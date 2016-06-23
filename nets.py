@@ -160,7 +160,7 @@ def create_patches3d_string(forward_path, input_shape, convo_size, pool_size, nu
         layers=get_layers_string(final_layers, input_shape, convo_size, pool_size, number_filters),
 
         regression=False,
-        objective_loss_function=objectives.categorical_crossentropy(),
+        objective_loss_function=objectives.categorical_crossentropy,
 
         update=updates.adadelta,
         # update=updates.adam,
