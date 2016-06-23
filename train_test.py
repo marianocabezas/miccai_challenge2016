@@ -149,12 +149,12 @@ def unet_patches3d_segmentation(options):
         size=tuple(options['patch_size'])
     )
 
-    x_train = np.concatenate(x[:-1])
-    y_train = np.concatenate(y[:-1])
+    x_train = np.concatenate(x[:-1]).astype(dtype=np.float32)
+    y_train = np.concatenate(y[:-1]).astype(dtype=np.int32)
     print 'Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
     print 'Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')'
-    x_test = np.concatenate(x[-1:])
-    y_test = np.concatenate(y[-1:])
+    x_test = np.concatenate(x[-1:]).astype(dtype=np.float32)
+    y_test = np.concatenate(y[-1:]).astype(dtype=np.int32)
     print 'Testing vector shape = (' + ','.join([str(length) for length in x_test.shape]) + ')'
     print 'Testing labels shape = (' + ','.join([str(length) for length in y_test.shape]) + ')'
 
