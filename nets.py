@@ -160,7 +160,7 @@ def get_layers_string_paths(forward_layers, backward_layers, input_shape, convo_
              '\'nonlinearity\': nonlinearities.softmax})',
         'p': '(DenseLayer, {'
              '\'name\':\'\033[32mpatch_out\033[0m\','
-             '\'num_units\': 2,'
+             '\'num_units\': 1,'
              '\'nonlinearity\': nonlinearities.softmax})'
     }
 
@@ -228,8 +228,7 @@ def create_patches3d_string(forward_path, input_shape, convo_size, pool_size, nu
         layers=get_layers_string(final_layers, input_shape, convo_size, pool_size, number_filters),
 
         regression=False,
-        # objective_loss_function=objectives.binary_crossentropy,
-        objective_loss_function=objectives.categorical_crossentropy,
+        objective_loss_function=objectives.binary_crossentropy,
 
         update=updates.adadelta,
         # update=updates.adam,
