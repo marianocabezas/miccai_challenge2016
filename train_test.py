@@ -44,7 +44,6 @@ def main():
     args = parser.parse_args()
 
     selector = {
-        'unet': unet3d,
         'patches-seg': unet_patches3d_segmentation,
         'patches-det': unet_patches3d_detection,
         'encoder': autoencoder3d
