@@ -233,7 +233,7 @@ def unet_patches3d_detection(options):
             options['number_filters'],
             options['folder']
         )
-        cPickle.dump(net, open(os.path.join(options['folder'], 'patches' + sufixes +  str(i),'.pkl'), 'wb'))
+        cPickle.dump(net, open(os.path.join(options['folder'], 'patches.' + sufixes +  str(i) + '.pkl'), 'wb'))
 
         print c['g'] + 'Training the ' + c['b'] + 'patch-based unet CNN' + c['nc']
         net.fit(x_train, y_train)
