@@ -247,7 +247,7 @@ def unet_patches3d_detection(options):
             [x, y, z] = np.stack(centers, axis=1)
             image[x, y, z] = y_pred[:, 1]
 
-        image_nii.get_data[:] = image
+        image_nii.get_data()[:] = image
         image_nii.to_filename(os.path.join(options['folder'], 'test' + str(i) + '.nii.gz'))
 
 
