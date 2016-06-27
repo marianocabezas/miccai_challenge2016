@@ -145,10 +145,7 @@ def load_patch_vectors(name, mask_name, dir_name, size, rois=None, random_state=
     # Normalize the images
     images_norm = [(im.astype(dtype=datatype) - im[np.nonzero(im)].mean()) / im[np.nonzero(im)].std() for im in images]
     # Create the masks
-    if rois:
-        brain_masks = [np.logical_and(image.astype(dtype=np.bool), roi) for (image, roi) in zip(images, rois)]
-    else:
-        brain_masks = [image.astype(dtype=np.bool) for image in images]
+    brain_masks = rois if rois else [image.astype(dtype=np.bool) for image in images]
     mask_names = [os.path.join(dir_name, patient, mask_name) for patient in patients]
     lesion_masks = [load_nii(name).get_data().astype(dtype=np.bool) for name in mask_names]
     nolesion_masks = [np.logical_and(np.logical_not(lesion), brain) for lesion, brain in zip(lesion_masks, brain_masks)]
