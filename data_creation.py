@@ -98,6 +98,14 @@ def reshape_save_nifti_to_dir(image, original_name):
     return reshaped_nii
 
 
+def load_thresholded_images(name, dir_name, threshold=3, datatype=np.float32):
+    patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
+    image_names = [os.path.join(dir_name, patient, name) for patient in patients]
+    images = [load_nii(image_name).get_data() for image_name in image_names]
+    images_norm = [(im.astype(dtype=datatype) - im[np.nonzero(im)].mean()) / im[np.nonzero(im)].std() for im in images]
+    return [image > threshold for image in images_norm]
+
+
 def load_image_vectors(name, dir_name, min_shape, datatype=np.float32):
     # Get the names of the images and load them
     patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
@@ -126,7 +134,7 @@ def load_patch_batch(image_names, batch_size, size, datatype=np.float32):
         ), centers
 
 
-def load_patch_vectors(name, mask_name, dir_name, size, random_state=42, datatype=np.float32):
+def load_patch_vectors(name, mask_name, dir_name, size, rois=None, random_state=42, datatype=np.float32):
     # Get the names of the images and load them
     patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
     image_names = [os.path.join(dir_name, patient, name) for patient in patients]
@@ -134,7 +142,10 @@ def load_patch_vectors(name, mask_name, dir_name, size, random_state=42, datatyp
     # Normalize the images
     images_norm = [(im.astype(dtype=datatype) - im[np.nonzero(im)].mean()) / im[np.nonzero(im)].std() for im in images]
     # Create the masks
-    brain_masks = [image.astype(dtype=np.bool) for image in images]
+    if rois:
+        brain_masks = [np.logical_and(image.astype(dtype=np.bool), roi) for (image, roi) in zip(images, rois)]
+    else:
+        brain_masks = [image.astype(dtype=np.bool) for image in images]
     mask_names = [os.path.join(dir_name, patient, mask_name) for patient in patients]
     lesion_masks = [load_nii(name).get_data().astype(dtype=np.bool) for name in mask_names]
     nolesion_masks = [np.logical_and(np.logical_not(lesion), brain) for lesion, brain in zip(lesion_masks, brain_masks)]
@@ -279,25 +290,26 @@ def load_patches(
         random_state = np.random.randint(1)
 
         # We load the image modalities for each patient according to the parameters
+        rois = load_thresholded_images(flair_name, dir_name)
         if use_flair:
             print 'Loading ' + flair_name + ' images'
-            flair, y, flair_names = load_patch_vectors(flair_name, mask_name, dir_name, size, random_state)
+            flair, y, flair_names = load_patch_vectors(flair_name, mask_name, dir_name, size, rois, random_state)
             gc.collect()
         if use_pd:
             print 'Loading ' + pd_name + ' images'
-            pd, y, pd_names = load_patch_vectors(pd_name, mask_name, dir_name, size, random_state)
+            pd, y, pd_names = load_patch_vectors(pd_name, mask_name, dir_name, size, rois, random_state)
             gc.collect()
         if use_t2:
             print 'Loading ' + t2_name + ' images'
-            t2, y, t2_names = load_patch_vectors(t2_name, mask_name, dir_name, size, random_state)
+            t2, y, t2_names = load_patch_vectors(t2_name, mask_name, dir_name, size, rois, random_state)
             gc.collect()
         if use_t1:
             print 'Loading ' + t1_name + ' images'
-            t1, y, t1_names = load_patch_vectors(t1_name, mask_name, dir_name, size, random_state)
+            t1, y, t1_names = load_patch_vectors(t1_name, mask_name, dir_name, size, rois, random_state)
             gc.collect()
         if use_gado:
             print 'Loading ' + gado_name + ' images'
-            gado, y, gado_names = load_patch_vectors(gado_name, mask_name, dir_name, size, random_state)
+            gado, y, gado_names = load_patch_vectors(gado_name, mask_name, dir_name, size, rois, random_state)
             gc.collect()
 
         print 'Creating data vector'
