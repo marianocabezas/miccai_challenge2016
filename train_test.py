@@ -242,7 +242,7 @@ def unet_patches3d_detection(options):
 
         print c['g'] + 'Creating the test probability maps' + c['nc']
         image = load_nii(names[0, 0]).get_data()
-        for batch, centers in load_patch_batch(names[:,0]):
+        for batch, centers in load_patch_batch(names[:,0], 20000, tuple(options['patch_size'])):
             y_pred = net.predict_proba(batch)
             [x, y, z] = np.stack(centers, axis=1)
             image[x, y, z] = y_pred
