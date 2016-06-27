@@ -2,6 +2,8 @@ import os
 import re
 import gc
 import numpy as np
+from numpy import logical_and as land
+from numpy import logical_not as lnot
 from scipy import ndimage as nd
 from nibabel import load as load_nii
 from nibabel import save as save_nii
@@ -134,13 +136,13 @@ def load_patch_vectors(name, mask_name, dir_name, size, random_state=42, datatyp
     # Normalize the images
     images_norm = [(im.astype(dtype=datatype) - im[np.nonzero(im)].mean()) / im[np.nonzero(im)].std() for im in images]
     # Create the masks
-    brain_masks = [image.astype(dtype=np.bool) for image in images]
+    brains = [(image > 3) for image in images_norm]
     mask_names = [os.path.join(dir_name, patient, mask_name) for patient in patients]
-    lesion_masks = [load_nii(name).get_data().astype(dtype=np.bool) for name in mask_names]
-    nolesion_masks = [np.logical_and(np.logical_not(lesion), brain) for lesion, brain in zip(lesion_masks, brain_masks)]
+    lesions = [load_nii(name).get_data().astype(dtype=np.bool) for name in mask_names]
+    nolesion_masks = [land(lnot(lesion), brain.astype(dtype=np.bool)) for lesion, brain in zip(lesions, brains)]
 
     # Get all the patches for each image
-    lesion_centers = [get_mask_voxels(mask) for mask in lesion_masks]
+    lesion_centers = [get_mask_voxels(mask) for mask in lesions]
     nolesion_centers = [get_mask_voxels(mask) for mask in nolesion_masks]
     # FIX: nolesion_small should have the best indices
     np.random.seed(random_state)
@@ -150,11 +152,11 @@ def load_patch_vectors(name, mask_name, dir_name, size, random_state=42, datatyp
     lesion_patches = [np.array(get_patches(image, centers, size))
                       for image, centers in zip(images_norm, lesion_centers)]
     lesion_msk_patches = [np.array(get_patches(image, centers, size))
-                          for image, centers in zip(lesion_masks, lesion_centers)]
+                          for image, centers in zip(lesions, lesion_centers)]
     nolesion_patches = [np.array(get_patches(image, centers, size))
                         for image, centers in zip(images_norm, nolesion_small)]
     nolesion_msk_patches = [np.array(get_patches(image, centers, size))
-                            for image, centers in zip(lesion_masks, nolesion_small)]
+                            for image, centers in zip(lesions, nolesion_small)]
 
     data = lesion_patches + nolesion_patches
     masks = lesion_msk_patches + nolesion_msk_patches
