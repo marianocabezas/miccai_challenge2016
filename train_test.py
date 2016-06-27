@@ -245,7 +245,7 @@ def unet_patches3d_detection(options):
         for batch, centers in load_patch_batch(names[:,0], 20000, tuple(options['patch_size'])):
             y_pred = net.predict_proba(batch)
             [x, y, z] = np.stack(centers, axis=1)
-            image[x, y, z] = y_pred
+            image[x, y, z] = y_pred[:,1]
 
         save_nii(image, os.path.join(options['folder'], 'test' + str(i) + '.nii.gz'))
 
