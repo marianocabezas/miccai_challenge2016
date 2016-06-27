@@ -128,7 +128,7 @@ def load_patch_batch(image_names, batch_size, size, datatype=np.float32):
         ), centers
 
 
-def load_patch_vectors(name, mask_name, dir_name, size, random_state=42, datatype=np.float32):
+def load_patch_vectors(name, mask_name, dir_name, size, threshold=3, random_state=42, datatype=np.float32):
     # Get the names of the images and load them
     patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
     image_names = [os.path.join(dir_name, patient, name) for patient in patients]
@@ -136,10 +136,10 @@ def load_patch_vectors(name, mask_name, dir_name, size, random_state=42, datatyp
     # Normalize the images
     images_norm = [(im.astype(dtype=datatype) - im[np.nonzero(im)].mean()) / im[np.nonzero(im)].std() for im in images]
     # Create the masks
-    brains = [(image > 2) for image in images_norm]
+    brains = [(image > threshold) for image in images_norm]
     mask_names = [os.path.join(dir_name, patient, mask_name) for patient in patients]
     lesions = [load_nii(name).get_data().astype(dtype=np.bool) for name in mask_names]
-    nolesion_masks = [land(lnot(lesion), brain.astype(dtype=np.bool)) for lesion, brain in zip(lesions, brains)]
+    nolesion_masks = [land(lnot(lesion), brain) for lesion, brain in zip(lesions, brains)]
 
     # Get all the patches for each image
     lesion_centers = [get_mask_voxels(mask) for mask in lesions]
