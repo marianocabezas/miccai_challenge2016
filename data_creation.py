@@ -103,7 +103,11 @@ def load_thresholded_images(name, dir_name, threshold=2, datatype=np.float32):
     image_names = [os.path.join(dir_name, patient, name) for patient in patients]
     images = [load_nii(image_name).get_data() for image_name in image_names]
     images_norm = [(im.astype(dtype=datatype) - im[np.nonzero(im)].mean()) / im[np.nonzero(im)].std() for im in images]
-    return [image > threshold for image in images_norm]
+    rois = [image > threshold for image in images_norm]
+    for roi, image in zip(rois, images_norm):
+        print 'Mask voxels = ' + str(np.sum(roi[:])) +\
+              '(min = ' + str(images_norm.min()) + ', max = ' + str(images_norm.max()) + ')'
+    return rois
 
 
 def load_image_vectors(name, dir_name, min_shape, datatype=np.float32):
@@ -291,8 +295,6 @@ def load_patches(
 
         # We load the image modalities for each patient according to the parameters
         rois = load_thresholded_images(flair_name, dir_name)
-        for roi in rois:
-            print 'Mask voxels = ' + str(np.sum(roi[:]))
         if use_flair:
             print 'Loading ' + flair_name + ' images'
             flair, y, flair_names = load_patch_vectors(flair_name, mask_name, dir_name, size, rois, random_state)
