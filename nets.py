@@ -14,7 +14,7 @@ from lasagne import updates
 from lasagne import nonlinearities
 
 
-def get_epoch_finished(dir_name, patience=100):
+def get_epoch_finished(dir_name, patience=10):
     return [
         SaveWeights(dir_name + 'model_weights.pkl', only_best=True, pickle=False),
         SaveTrainingHistory(dir_name + 'model_history.pkl'),
