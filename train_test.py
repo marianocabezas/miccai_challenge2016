@@ -3,12 +3,11 @@ import argparse
 import numpy as np
 import cPickle
 from data_creation import load_encoder_data, load_patches, load_patch_batch
-from data_creation import reshape_save_nifti, set_patches
+from data_creation import reshape_save_nifti
 from data_creation import get_sufix
 from data_creation import leave_one_out
 from nets import create_unet3d_string, create_encoder3d_string, create_patches3d_string
 from nibabel import load as load_nii
-from nibabel import save as save_nii
 
 
 def main():
@@ -235,19 +234,21 @@ def unet_patches3d_detection(options):
             options['number_filters'],
             options['folder']
         )
-        cPickle.dump(net, open(os.path.join(options['folder'], 'patches.' + sufixes +  str(i) + '.pkl'), 'wb'))
+        cPickle.dump(net, open(os.path.join(options['folder'], 'patches.' + sufixes + str(i) + '.pkl'), 'wb'))
 
         print c['g'] + 'Training the ' + c['b'] + 'patch-based unet CNN' + c['nc']
         net.fit(x_train, y_train)
 
         print c['g'] + 'Creating the test probability maps' + c['nc']
-        image = load_nii(names[0, 0]).get_data()
-        for batch, centers in load_patch_batch(names[:,0], 20000, tuple(options['patch_size'])):
+        image_nii = load_nii(names[0, 0])
+        image = image_nii.get_data()
+        for batch, centers in load_patch_batch(names[:, 0], 20000, tuple(options['patch_size'])):
             y_pred = net.predict_proba(batch)
             [x, y, z] = np.stack(centers, axis=1)
-            image[x, y, z] = y_pred[:,1]
+            image[x, y, z] = y_pred[:, 1]
 
-        save_nii(image, os.path.join(options['folder'], 'test' + str(i) + '.nii.gz'))
+        image_nii.set_data(image)
+        image_nii.to_filename(os.path.join(options['folder'], 'test' + str(i) + '.nii.gz'))
 
 
 if __name__ == '__main__':
