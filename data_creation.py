@@ -105,8 +105,7 @@ def load_thresholded_images(name, dir_name, threshold=2, datatype=np.float32):
     images_norm = [(im.astype(dtype=datatype) - im[np.nonzero(im)].mean()) / im[np.nonzero(im)].std() for im in images]
     rois = [image > threshold for image in images_norm]
     for roi, image in zip(rois, images_norm):
-        print 'Mask voxels = ' + str(np.sum(roi[:])) +\
-              '(min = ' + str(images_norm.min()) + ', max = ' + str(images_norm.max()) + ')'
+        print 'Mask size = ' + str(np.sum(roi[:])) + '(min = ' + str(image.min()) + ', max = ' + str(image.max()) + ')'
     return rois
 
 
