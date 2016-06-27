@@ -98,7 +98,7 @@ def reshape_save_nifti_to_dir(image, original_name):
     return reshaped_nii
 
 
-def load_thresholded_images(name, dir_name, threshold=3, datatype=np.float32):
+def load_thresholded_images(name, dir_name, threshold=2, datatype=np.float32):
     patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
     image_names = [os.path.join(dir_name, patient, name) for patient in patients]
     images = [load_nii(image_name).get_data() for image_name in image_names]
