@@ -7,7 +7,7 @@ from nolearn_utils.hooks import (
     EarlyStopping
 )
 from lasagne import objectives
-from lasagne.layers import InputLayer, ReshapeLayer, DenseLayer, DropoutLayer
+from lasagne.layers import InputLayer, ReshapeLayer, DenseLayer, DropoutLayer, ElemwiseSumLayer
 from lasagne.layers.dnn import Conv3DDNNLayer, MaxPool3DDNNLayer, Pool3DDNNLayer
 from layers import Unpooling3D
 from lasagne import updates
@@ -35,76 +35,94 @@ def get_back_pathway(forward_pathway):
     return back_pathway
 
 
-def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_filters, shortcuts=False):
-    # Index used to numerate the layers
-    # While defining this object is not necessary, it helps encapsulate
-    # the increment and decrement of the indices corresponding to the layers.
-    # Since this object will only be used here, we decided to limit its scope to this function.
-    class Index:
-        def __init__(self):
-            self.i = 1
+def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_filters):
+    previous_layer = InputLayer(name='input', shape=input_shape)
+    convolutions = dict()
+    c_index = 1
+    p_index = 1
+    c_size = (convo_size, convo_size, convo_size)
+    for layer in net_layers[1:]:
+        if layer == 'c':
+            conv_layer = Conv3DDNNLayer(
+                incoming=previous_layer,
+                name='\033[34mconv%d\033[0m' % c_index,
+                num_filters=number_filters,
+                filter_size=c_size,
+                pad='valid')
+            convolutions['conv%d' % c_index] = conv_layer
+            previous_layer = conv_layer
+            c_index += 1
+        elif layer == 'a':
+            previous_layer = Pool3DDNNLayer(
+                incoming=previous_layer,
+                name='\033[31mavg_pool%d\033[0m' % p_index,
+                pool_size=pool_size,
+                mode='average_inc_pad'
+            )
+            p_index += 1
+        elif layer == 'm':
+            previous_layer = MaxPool3DDNNLayer(
+                incoming=previous_layer,
+                name='\033[31mmax_pool%d\033[0m' % p_index,
+                pool_size=pool_size
+            )
+            p_index += 1
+        elif layer == 'u':
+            previous_layer = Unpooling3D(
+                incoming=previous_layer,
+                name='\033[35munpool%d\033[0m' % p_index,
+                pool_size=pool_size
+            )
+        elif layer == 's':
+            previous_layer = ElemwiseSumLayer(
+                incomings=[convolutions['conv%d' % (c_index - 1)], previous_layer],
+                name='short%d' % (c_index - 1)
+            )
+        elif layer == 'd':
+            c_index -= 1
+            previous_layer = Conv3DDNNLayer(
+                incoming=previous_layer,
+                name='\033[36mdeconv%d\033[0m' % c_index,
+                num_filters=number_filters,
+                filter_size=c_size,
+                pad='full'
+            )
+        elif layer == 'o':
+            previous_layer = DropoutLayer(
+                incoming=previous_layer,
+                name='drop%d' % (c_index - 1)
+            )
+        elif layer == 'f':
+            c_index -= 1
+            previous_layer = Conv3DDNNLayer(
+                incoming=previous_layer,
+                name='\033[36mfinal\033[0m',
+                num_filters=input_shape[1],
+                filter_size=c_size,
+                pad='full'
+            )
+        elif layer == 'r':
+            previous_layer = ReshapeLayer(
+                incoming=previous_layer,
+                name='\033[32mreshape\033[0m',
+                shape=([0], -1)
+            )
+        elif layer == 'S':
+            previous_layer = DenseLayer(
+                incoming=previous_layer,
+                name='\033[32m3d_out\033[0m',
+                num_units=reduce(mul, input_shape[2:], 1),
+                nonlinearity=nonlinearities.softmax
+            )
+        elif layer == 'C':
+            previous_layer = DenseLayer(
+                incoming=previous_layer,
+                name='\033[32mclass_out\033[0m',
+                num_units=2,
+                nonlinearity=nonlinearities.softmax
+            )
 
-        def inc(self):
-            self.i += 1
-            return self.i - 1
-
-        def dec(self):
-            self.i -= 1
-            return self.i
-
-        def status(self):
-            return self.i
-
-    c_index = Index()
-    p_index = Index()
-    o_index = Index()
-
-    # These are all the possible layers for our autoencoders
-    possible_layers = {
-        'i': '(InputLayer, {'
-             '\'name\': \'\033[30minput\033[0m\','
-             '\'shape\': input_shape})',
-        'c': '(Conv3DDNNLayer, {'
-             '\'name\': \'\033[34mconv%d\033[0m\' % (c_index.status()),'
-             '\'num_filters\': number_filters,'
-             '\'filter_size\': (convo_size, convo_size, convo_size),'
-             '\'pad\': \'valid\'})',
-        'a': '(Pool3DDNNLayer, {'
-             '\'name\': \'\033[31mavg_pool%d\033[0m\' % (p_index.status()),'
-             '\'pool_size\': pool_size,'
-             '\'mode\': \'average_inc_pad\'})',
-        'm': '(MaxPool3DDNNLayer, {'
-             '\'name\': \'\033[31mmax_pool%d\033[0m\' % (p_index.status()),'
-             '\'pool_size\': pool_size})',
-        'u': '(Unpooling3D, {'
-             '\'name\': \'\033[35munpool%d\033[0m\' % (p_index.status()),'
-             '\'pool_size\': pool_size})',
-        'd': '(Conv3DDNNLayer, {'
-             '\'name\': \'\033[36mdeconv%d\033[0m\' % (c_index.status()),'
-             '\'num_filters\': number_filters,'
-             '\'filter_size\': (convo_size, convo_size, convo_size),'
-             '\'pad\': \'full\'})',
-        'o': '(DropoutLayer, {'
-             '\'name\': \'\033[36mdrop%d\033[0m\' % (o_index.status())})',
-        'f': '(Conv3DDNNLayer, {'
-             '\'name\': \'\033[36mfinal\033[0m\','
-             '\'num_filters\': input_shape[1],'
-             '\'filter_size\': (convo_size, convo_size, convo_size),'
-             '\'pad\': \'full\'})',
-        'r': '(ReshapeLayer, {'
-             '\'name\': \'\033[32mreshape\033[0m\','
-             '\'shape\': ([0], -1)})',
-        's': '(DenseLayer, {'
-             '\'name\':\'\033[32m3d_out\033[0m\','
-             '\'num_units\': reduce(mul, input_shape[2:], 1),'
-             '\'nonlinearity\': nonlinearities.softmax})',
-        'p': '(DenseLayer, {'
-             '\'name\':\'\033[32mclass_out\033[0m\','
-             '\'num_units\': 2,'
-             '\'nonlinearity\': nonlinearities.softmax})'
-    }
-
-    return [eval(possible_layers[l]) for l in net_layers]
+    return previous_layer
 
 
 def create_classifier_net(layers, input_shape, convo_size, pool_size, number_filters, dir_name):
@@ -129,7 +147,7 @@ def create_cnn3d_det_string(cnn_path, input_shape, convo_size, pool_size, number
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
-    final_layers = 'i' + cnn_path.replace('c', 'co') + 'r' + 'p'
+    final_layers = 'i' + cnn_path.replace('c', 'co') + 'r' + 'C'
 
     return create_classifier_net(final_layers, input_shape, convo_size, pool_size, number_filters, dir_name)
 
@@ -138,7 +156,7 @@ def create_unet3d_seg_string(forward_path, input_shape, convo_size, pool_size, n
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
-    final_layers = 'i' + forward_path + get_back_pathway(forward_path) + 'r' + 's'
+    final_layers = 'i' + forward_path + get_back_pathway(forward_path) + 'r' + 'S'
 
     return create_classifier_net(final_layers, input_shape, convo_size, pool_size, number_filters, dir_name)
 
@@ -147,7 +165,7 @@ def create_unet3d_det_string(forward_path, input_shape, convo_size, pool_size, n
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
-    final_layers = 'i' + forward_path + get_back_pathway(forward_path) + 'r' + 'p'
+    final_layers = 'i' + forward_path + get_back_pathway(forward_path) + 'r' + 'C'
 
     return create_classifier_net(final_layers, input_shape, convo_size, pool_size, number_filters, dir_name)
 
