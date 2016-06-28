@@ -6,7 +6,8 @@ from data_creation import load_encoder_data, load_patches, load_patch_batch
 from data_creation import reshape_save_nifti
 from data_creation import get_sufix
 from data_creation import leave_one_out
-from nets import create_unet3d_seg_string, create_encoder3d_string, create_unet3d_det_string, create_cnn3d_det_string
+from nets import create_unet3d_seg_string, create_unet3d_det_string, create_unet3d_shortcuts_det_string
+from nets import create_encoder3d_string, create_cnn3d_det_string
 from nibabel import load as load_nii
 
 
@@ -42,6 +43,7 @@ def main():
     parser.add_argument('--encoder', action='store_const', const='encoder', dest='select', default='unet')
     parser.add_argument('--patches-seg', action='store_const', const='patches-seg', dest='select', default='unet')
     parser.add_argument('--patches-det', action='store_const', const='patches-det', dest='select', default='unet')
+    parser.add_argument('--patches-short', action='store_const', const='patches-short', dest='select', default='unet')
     parser.add_argument('--patches-cnn', action='store_const', const='patches-cnn', dest='select', default='unet')
 
     args = parser.parse_args()
@@ -49,11 +51,14 @@ def main():
     selector = {
         'patches-seg': unet_patches3d_segmentation,
         'patches-det': unet_patches3d_detection,
+        'patches-short': unet_patches3d_shortcuts_detection,
         'patches-cnn': cnn_patches3d_detection,
         'encoder': autoencoder3d
     }
 
-    selector[vars(args)['select']](vars(args))
+    options = vars(args)
+
+    selector[options['select']](options)
 
 
 def color_codes():
@@ -189,6 +194,10 @@ def unet_patches3d_detection(options):
     patches_network_detection(options, 'unet')
 
 
+def unet_patches3d_shortcuts_detection(options):
+    patches_network_detection(options, 'unet-short')
+
+
 def cnn_patches3d_detection(options):
     patches_network_detection(options, 'cnn')
 
@@ -238,7 +247,8 @@ def patches_network_detection(options, mode):
         # Train the net and save it
         net_types = {
             'cnn': create_cnn3d_det_string,
-            'unet': create_unet3d_det_string
+            'unet': create_unet3d_det_string,
+            'unet-short': create_unet3d_shortcuts_det_string
         }
         net = net_types[mode](
             ''.join(options['layers']),

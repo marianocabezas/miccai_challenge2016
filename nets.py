@@ -171,6 +171,15 @@ def create_unet3d_det_string(forward_path, input_shape, convo_size, pool_size, n
     return create_classifier_net(final_layers, input_shape, convo_size, pool_size, number_filters, dir_name)
 
 
+def create_unet3d_shortcuts_det_string(forward_path, input_shape, convo_size, pool_size, number_filters, dir_name):
+    # We create the final string defining the net with the necessary input and reshape layers
+    # We assume that the user will never put these parameters as part of the net definition when
+    # calling the main python function
+    final_layers = 'i' + forward_path + get_back_pathway(forward_path).replace('d', 'sd') + 'r' + 'C'
+
+    return create_classifier_net(final_layers, input_shape, convo_size, pool_size, number_filters, dir_name)
+
+
 def create_encoder3d_string(forward_path, input_shape, convo_size, pool_size, number_filters, dir_name):
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
