@@ -272,7 +272,7 @@ def patches_network_detection(options, mode):
             image[x, y, z] = y_pred[:, 1]
 
         image_nii.get_data()[:] = image
-        image_nii.to_filename(os.path.join(options['folder'], mode + '_test' + str(i) + '.nii.gz'))
+        image_nii.to_filename(os.path.join(options['folder'], mode + '.c' + str(i) + '.' + sufixes + '.nii.gz'))
 
 
 
