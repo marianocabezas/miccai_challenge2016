@@ -205,7 +205,7 @@ def patches_network_detection(options, mode):
     size_sufix = '.'.join([str(length) for length in tuple(options['patch_size'])])
     sufixes = image_sufix + '.' + size_sufix
 
-    print c['g'] + 'Loading the data for the ' + c['b'] + 'unet CNN' + c['nc']
+    print c['g'] + 'Loading the data for the patch-based ' + c['b'] + mode + c['nc']
     # Create the data
     (x, y, names) = load_patches(
         dir_name=options['folder'],
@@ -233,7 +233,7 @@ def patches_network_detection(options, mode):
         print 'Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
         print 'Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')'
 
-        print c['g'] + 'Creating the ' + c['b'] + 'patch-based unet CNN' + c['nc']
+        print c['g'] + 'Creating the ' + c['b'] + 'patch-based ' + c['b'] + mode + c['nc']
 
         # Train the net and save it
         net_types = {
@@ -250,7 +250,7 @@ def patches_network_detection(options, mode):
         )
         cPickle.dump(net, open(os.path.join(options['folder'], 'patches.' + sufixes + str(i) + '.pkl'), 'wb'))
 
-        print c['g'] + 'Training the ' + c['b'] + 'patch-based unet CNN' + c['nc']
+        print c['g'] + 'Training the ' + c['b'] + 'patch-based ' + c['b'] + mode + c['nc']
         net.fit(x_train, y_train)
 
         print c['g'] + 'Creating the test probability maps' + c['nc']
@@ -262,7 +262,7 @@ def patches_network_detection(options, mode):
             image[x, y, z] = y_pred[:, 1]
 
         image_nii.get_data()[:] = image
-        image_nii.to_filename(os.path.join(options['folder'], 'cnn_test' + str(i) + '.nii.gz'))
+        image_nii.to_filename(os.path.join(options['folder'], mode + '_test' + str(i) + '.nii.gz'))
 
 
 
