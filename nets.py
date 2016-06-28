@@ -126,7 +126,8 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
 
 
 def create_classifier_net(layers, input_shape, convo_size, pool_size, number_filters, dir_name):
-    NeuralNet(
+    return NeuralNet(
+
         layers=get_layers_string(layers, input_shape, convo_size, pool_size, number_filters),
 
         regression=False,
