@@ -7,7 +7,7 @@ from nolearn_utils.hooks import (
     EarlyStopping
 )
 from lasagne import objectives
-from lasagne.layers import InputLayer, ReshapeLayer, DenseLayer
+from lasagne.layers import InputLayer, ReshapeLayer, DenseLayer, DropoutLayer
 from lasagne.layers.dnn import Conv3DDNNLayer, MaxPool3DDNNLayer, Pool3DDNNLayer
 from layers import Unpooling3D
 from lasagne import updates
@@ -52,8 +52,12 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
             self.i -= 1
             return self.i
 
+        def status(self):
+            return self.i
+
     c_index = Index()
     p_index = Index()
+    o_index = Index()
 
     # These are all the possible layers for our autoencoders
     possible_layers = {
@@ -63,29 +67,33 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
               '\'shape\': input_shape})'),
         'c': ('\'conv%d\' % c_index.inc()',
               '(Conv3DDNNLayer, {'
-              '\'name\': \'\033[34mconv%d\033[0m\' % (c_index.inc()),'
+              '\'name\': \'\033[34mconv%d\033[0m\' % (c_index.status()),'
               '\'num_filters\': number_filters,'
               '\'filter_size\': (convo_size, convo_size, convo_size),'
               '\'pad\': \'valid\'})'),
         'a': ('\'avg_pool%d\' % p_index.inc()',
               '(Pool3DDNNLayer, {'
-              '\'name\': \'\033[31mavg_pool%d\033[0m\' % (p_index.inc()),'
+              '\'name\': \'\033[31mavg_pool%d\033[0m\' % (p_index.status()),'
               '\'pool_size\': pool_size,'
               '\'mode\': \'average_inc_pad\'})'),
         'm': ('\'max_pool%d\' % p_index.inc()',
               '(MaxPool3DDNNLayer, {'
-              '\'name\': \'\033[31mmax_pool%d\033[0m\' % (p_index.inc()),'
+              '\'name\': \'\033[31mmax_pool%d\033[0m\' % (p_index.status()),'
               '\'pool_size\': pool_size})'),
         'u': ('\'unpool%d\' % p_index.dec()',
               '(Unpooling3D, {'
-              '\'name\': \'\033[35munpool%d\033[0m\' % (p_index.dec()),'
+              '\'name\': \'\033[35munpool%d\033[0m\' % (p_index.status()),'
               '\'pool_size\': pool_size})'),
         'd': ('\'deconv%d\' % c_index.dec()',
               '(Conv3DDNNLayer, {'
-              '\'name\': \'\033[36mdeconv%d\033[0m\' % (c_index.dec()),'
+              '\'name\': \'\033[36mdeconv%d\033[0m\' % (c_index.status()),'
               '\'num_filters\': number_filters,'
               '\'filter_size\': (convo_size, convo_size, convo_size),'
               '\'pad\': \'full\'})'),
+        'o': ('\'drop%d\' % (o_index.inc())',
+              '(DropoutLayer, {'
+              '\'name\': \'\033[36mdrop%d\033[0m\' % (o_index.status())})'
+              ),
         'f': ('final',
               '(Conv3DDNNLayer, {'
               '\'name\': \'\033[36mfinal\033[0m\','
@@ -109,7 +117,7 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
     }
 
     layers_list_no_short = [eval(possible_layers[l][1]) for l in net_layers]
-    layers_names = dict([(eval(possible_layers[l][0]), eval(possible_layers[l][1])) for l in net_layers])
+    '''layers_names = dict([(eval(possible_layers[l][0]), eval(possible_layers[l][1])) for l in net_layers])
 
     if shortcuts:
         c_index.__init__()
@@ -121,9 +129,9 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
                 p_index.inc()
             if layer == 'd':
                 i = c_index.dec()
+    '''
 
-
-    return layers_dict if shortcuts else layers_list_no_short
+    return layers_list_no_short
 
 
 def create_classifier_net(layers, input_shape, convo_size, pool_size, number_filters, dir_name):
@@ -148,7 +156,7 @@ def create_cnn3d_det_string(cnn_path, input_shape, convo_size, pool_size, number
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
-    final_layers = 'i' + cnn_path + 'r' + 'p'
+    final_layers = 'i' + cnn_path.replace('c', 'co') + 'r' + 'p'
 
     return create_classifier_net(final_layers, input_shape, convo_size, pool_size, number_filters, dir_name)
 
