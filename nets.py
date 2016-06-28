@@ -35,7 +35,7 @@ def get_back_pathway(forward_pathway):
     return back_pathway
 
 
-def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_filters):
+def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_filters, shortcuts=False):
     # Index used to numerate the layers
     # While defining this object is not necessary, it helps encapsulate
     # the increment and decrement of the indices corresponding to the layers.
@@ -57,48 +57,48 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
 
     # These are all the possible layers for our autoencoders
     possible_layers = {
-        'i': '(InputLayer, {'
+        'i': ('input', '(InputLayer, {'
              '\'name\': \'\033[30minput\033[0m\','
-             '\'shape\': input_shape})',
-        'c': '(Conv3DDNNLayer, {'
+             '\'shape\': input_shape})'),
+        'c': ('\'conv%d\' % c_index.inc()', '(Conv3DDNNLayer, {'
              '\'name\': \'\033[34mconv%d\033[0m\' % (c_index.inc()),'
              '\'num_filters\': number_filters,'
              '\'filter_size\': (convo_size, convo_size, convo_size),'
-             '\'pad\': \'valid\'})',
-        'a': '(Pool3DDNNLayer, {'
+             '\'pad\': \'valid\'})'),
+        'a': ('\'avg_pool%d\' % p_index.inc()', '(Pool3DDNNLayer, {'
              '\'name\': \'\033[31mavg_pool%d\033[0m\' % (p_index.inc()),'
              '\'pool_size\': pool_size,'
-             '\'mode\': \'average_inc_pad\'})',
-        'm': '(MaxPool3DDNNLayer, {'
+             '\'mode\': \'average_inc_pad\'})'),
+        'm': ('\'max_pool%d\' % p_index.inc()', '(MaxPool3DDNNLayer, {'
              '\'name\': \'\033[31mmax_pool%d\033[0m\' % (p_index.inc()),'
-             '\'pool_size\': pool_size})',
-        'u': '(Unpooling3D, {'
+             '\'pool_size\': pool_size})'),
+        'u': ('\'unpool%d\' % p_index.dec()', '(Unpooling3D, {'
              '\'name\': \'\033[35munpool%d\033[0m\' % (p_index.dec()),'
-             '\'pool_size\': pool_size})',
-        'd': '(Conv3DDNNLayer, {'
+             '\'pool_size\': pool_size})'),
+        'd': ('\'deconv%d\' % c_index.dec()', '(Conv3DDNNLayer, {'
              '\'name\': \'\033[36mdeconv%d\033[0m\' % (c_index.dec()),'
              '\'num_filters\': number_filters,'
              '\'filter_size\': (convo_size, convo_size, convo_size),'
-             '\'pad\': \'full\'})',
-        'f': '(Conv3DDNNLayer, {'
+             '\'pad\': \'full\'})'),
+        'f': ('final', '(Conv3DDNNLayer, {'
              '\'name\': \'\033[36mfinal\033[0m\','
              '\'num_filters\': input_shape[1],'
              '\'filter_size\': (convo_size, convo_size, convo_size),'
-             '\'pad\': \'full\'})',
-        'r': '(ReshapeLayer, {'
+             '\'pad\': \'full\'})'),
+        'r': ('reshape', '(ReshapeLayer, {'
              '\'name\': \'\033[32mreshape\033[0m\','
-             '\'shape\': ([0], -1)})',
-        's': '(DenseLayer, {'
+             '\'shape\': ([0], -1)})'),
+        's': ('3d_out', '(DenseLayer, {'
              '\'name\':\'\033[32m3d_out\033[0m\','
              '\'num_units\': reduce(mul, input_shape[2:], 1),'
-             '\'nonlinearity\': nonlinearities.softmax})',
-        'p': '(DenseLayer, {'
-             '\'name\':\'\033[32mpatch_out\033[0m\','
+             '\'nonlinearity\': nonlinearities.softmax})'),
+        'p': ('class_out', '(DenseLayer, {'
+             '\'name\':\'\033[32mclass_out\033[0m\','
              '\'num_units\': 2,'
-             '\'nonlinearity\': nonlinearities.softmax})'
+             '\'nonlinearity\': nonlinearities.softmax})')
     }
 
-    return [eval(possible_layers[l]) for l in net_layers]
+    return [eval(layer) for l in net_layers for name, layer in possible_layers[l]]
 
 
 def create_encoder3d_string(forward_path, input_shape, convo_size, pool_size, number_filters, dir_name):
@@ -129,7 +129,7 @@ def create_cnn3d_det_string(cnn_path, input_shape, convo_size, pool_size, number
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
-    final_layers = 'i' + cnn_path + 'r' + 's'
+    final_layers = 'i' + cnn_path + 'r' + 'p'
 
     encoder = NeuralNet(
         layers=get_layers_string(final_layers, input_shape, convo_size, pool_size, number_filters),
