@@ -109,7 +109,19 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
     }
 
     layers_list_no_short = [eval(layer) for l in net_layers for name, layer in possible_layers[l]]
-    layers_dict = dict([(eval(name), eval(layer)) for l in net_layers for name, layer in possible_layers[l]])
+    layers_dict = dict([(eval(possible_layers[l][0]), eval(possible_layers[l][1])) for l in net_layers])
+
+    if shortcuts:
+        c_index.__init__()
+        p_index.__init__()
+        for pre_layer, layer in zip(net_layers[:-1], net_layers[1:]):
+            if layer == 'c':
+                c_index.inc()
+            elif layer == 'a':
+                p_index.inc()
+            if layer == 'd':
+                i = c_index.dec()
+
 
     return layers_dict if shortcuts else layers_list_no_short
 
