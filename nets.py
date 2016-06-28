@@ -108,8 +108,8 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
               '\'nonlinearity\': nonlinearities.softmax})')
     }
 
-    layers_list_no_short = [eval(layer) for l in net_layers for name, layer in possible_layers[l]]
-    layers_dict = dict([(eval(possible_layers[l][0]), eval(possible_layers[l][1])) for l in net_layers])
+    layers_list_no_short = [eval(possible_layers[l][1]) for l in net_layers]
+    layers_names = dict([(eval(possible_layers[l][0]), eval(possible_layers[l][1])) for l in net_layers])
 
     if shortcuts:
         c_index.__init__()
