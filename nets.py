@@ -125,7 +125,31 @@ def create_encoder3d_string(forward_path, input_shape, convo_size, pool_size, nu
     return encoder
 
 
-def create_unet3d_string(forward_path, input_shape, convo_size, pool_size, number_filters, dir_name):
+def create_cnn3d_det_string(cnn_path, input_shape, convo_size, pool_size, number_filters, dir_name):
+    # We create the final string defining the net with the necessary input and reshape layers
+    # We assume that the user will never put these parameters as part of the net definition when
+    # calling the main python function
+    final_layers = 'i' + cnn_path + 'r' + 's'
+
+    encoder = NeuralNet(
+        layers=get_layers_string(final_layers, input_shape, convo_size, pool_size, number_filters),
+
+        regression=True,
+
+        update=updates.adadelta,
+        # update=updates.adam,
+        # update_learning_rate=1e-3,
+
+        on_epoch_finished=get_epoch_finished(os.path.join(dir_name, 'encoder')),
+
+        verbose=11,
+        max_epochs=200
+    )
+
+    return encoder
+
+
+def create_unet3d_seg_string(forward_path, input_shape, convo_size, pool_size, number_filters, dir_name):
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
@@ -150,7 +174,7 @@ def create_unet3d_string(forward_path, input_shape, convo_size, pool_size, numbe
     return encoder
 
 
-def create_patches3d_string(forward_path, input_shape, convo_size, pool_size, number_filters, dir_name):
+def create_unet3d_det_string(forward_path, input_shape, convo_size, pool_size, number_filters, dir_name):
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function

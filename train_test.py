@@ -6,7 +6,7 @@ from data_creation import load_encoder_data, load_patches, load_patch_batch
 from data_creation import reshape_save_nifti
 from data_creation import get_sufix
 from data_creation import leave_one_out
-from nets import create_unet3d_string, create_encoder3d_string, create_patches3d_string
+from nets import create_unet3d_seg_string, create_encoder3d_string, create_unet3d_det_string, create_cnn3d_det_string
 from nibabel import load as load_nii
 
 
@@ -42,12 +42,14 @@ def main():
     parser.add_argument('--encoder', action='store_const', const='encoder', dest='select', default='unet')
     parser.add_argument('--patches-seg', action='store_const', const='patches-seg', dest='select', default='unet')
     parser.add_argument('--patches-det', action='store_const', const='patches-det', dest='select', default='unet')
+    parser.add_argument('--patches-cnn', action='store_const', const='patches-cnn', dest='select', default='unet')
 
     args = parser.parse_args()
 
     selector = {
         'patches-seg': unet_patches3d_segmentation,
         'patches-det': unet_patches3d_detection,
+        'patches-cnn': cnn_patches3d_detection,
         'encoder': autoencoder3d
     }
 
@@ -161,7 +163,7 @@ def unet_patches3d_segmentation(options):
 
     print c['g'] + 'Creating the ' + c['b'] + 'patch-based unet CNN' + c['nc']
     # Train the net and save it
-    net = create_unet3d_string(
+    net = create_unet3d_seg_string(
         ''.join(options['layers']),
         x_train.shape,
         options['convo_size'],
@@ -184,6 +186,14 @@ def unet_patches3d_segmentation(options):
 
 
 def unet_patches3d_detection(options):
+    patches_network_detection(options, 'unet')
+
+
+def cnn_patches3d_detection(options):
+    patches_network_detection(options, 'cnn')
+
+
+def patches_network_detection(options, mode):
     c = color_codes()
     image_sufix = get_sufix(
         options['use_flair'],
@@ -226,7 +236,11 @@ def unet_patches3d_detection(options):
         print c['g'] + 'Creating the ' + c['b'] + 'patch-based unet CNN' + c['nc']
 
         # Train the net and save it
-        net = create_patches3d_string(
+        net_types = {
+            'cnn': create_cnn3d_det_string,
+            'unet': create_unet3d_det_string
+        }
+        net = net_types[mode](
             ''.join(options['layers']),
             x_train.shape,
             options['convo_size'],
@@ -248,7 +262,8 @@ def unet_patches3d_detection(options):
             image[x, y, z] = y_pred[:, 1]
 
         image_nii.get_data()[:] = image
-        image_nii.to_filename(os.path.join(options['folder'], 'test' + str(i) + '.nii.gz'))
+        image_nii.to_filename(os.path.join(options['folder'], 'cnn_test' + str(i) + '.nii.gz'))
+
 
 
 if __name__ == '__main__':
