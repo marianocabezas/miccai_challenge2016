@@ -36,7 +36,7 @@ def get_back_pathway(forward_pathway):
 
 
 def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_filters):
-    previous_layer = InputLayer(name='input', shape=input_shape)
+    previous_layer = InputLayer(name='\033[30minput\033[0m', shape=input_shape)
     convolutions = dict()
     c_index = 1
     p_index = 1
@@ -175,8 +175,8 @@ def create_unet3d_shortcuts_det_string(forward_path, input_shape, convo_size, po
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
-    back_pathway = get_back_pathway(forward_path).replace('d', 'sd').replace('f', 'sf').replace('csd', 'cd')
-    final_layers = 'i' + forward_path + back_pathway + 'r' + 'C'
+    back_pathway = get_back_pathway(forward_path).replace('d', 'sd').replace('f', 'sf')
+    final_layers = ('i' + forward_path + back_pathway + 'r' + 'C').replace('csd', 'cd')
 
     return create_classifier_net(final_layers, input_shape, convo_size, pool_size, number_filters, dir_name)
 
