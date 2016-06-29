@@ -1,4 +1,5 @@
 import os
+from theano import tensor
 from operator import mul
 from nolearn.lasagne import NeuralNet
 from nolearn.lasagne.handlers import SaveWeights
@@ -6,12 +7,16 @@ from nolearn_utils.hooks import (
     SaveTrainingHistory, PlotTrainingHistory,
     EarlyStopping
 )
-from lasagne import objectives
+# from lasagne import objectives
 from lasagne.layers import InputLayer, ReshapeLayer, DenseLayer, DropoutLayer, ElemwiseSumLayer
 from lasagne.layers.dnn import Conv3DDNNLayer, MaxPool3DDNNLayer, Pool3DDNNLayer
 from layers import Unpooling3D
 from lasagne import updates
 from lasagne import nonlinearities
+
+
+def probabilistic_dsc_objective(predictions, targets):
+    return 1 - (2 * tensor.sum(predictions * targets) / (tensor.sum(predictions) + tensor.sum(targets)))
 
 
 def get_epoch_finished(dir_name, patience):
@@ -133,9 +138,10 @@ def create_classifier_net(layers, input_shape, convo_size, pool_size, number_fil
         layers=get_layers_string(layers, input_shape, convo_size, pool_size, number_filters),
 
         regression=False,
-        objective_loss_function=objectives.categorical_crossentropy,
+        # objective_loss_function=objectives.categorical_crossentropy,
+        objective_loss_function=probabilistic_dsc_objective,
 
-        #update=updates.adadelta,
+        # update=updates.adadelta,
         update=updates.adam,
         update_learning_rate=1e-3,
 
