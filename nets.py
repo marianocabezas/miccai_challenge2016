@@ -1,5 +1,4 @@
 import os
-import numpy as np
 from theano import tensor
 from operator import mul
 from nolearn.lasagne import NeuralNet
@@ -17,9 +16,9 @@ from lasagne import nonlinearities
 
 
 def probabilistic_dsc_objective(predictions, targets):
-    one = np.array(1.0).astype(np.float32)
-    two = np.array(2.0).astype(np.float32)
-    return one - (two * tensor.sum(predictions * targets) / (tensor.sum(predictions) + tensor.sum(targets)))
+    top = 2.0 * tensor.sum(predictions * targets, axis=1)
+    bottom = tensor.sum(predictions, axis=1) + tensor.sum(targets, axis=1)
+    return 1.0 - (top / bottom)
 
 
 def get_epoch_finished(dir_name, patience):
