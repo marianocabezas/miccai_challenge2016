@@ -130,8 +130,6 @@ def load_image_vectors(name, dir_name, min_shape, datatype=np.float32):
 def load_patch_batch(image_names, batch_size, size, datatype=np.float32):
     images = [load_nii(name).get_data() for name in image_names]
     images_norm = [(im - im[np.nonzero(im)].mean()) / im[np.nonzero(im)].std() for im in images]
-    for image in images_norm:
-        print 'Values = (' + str(image.min()) + ' - ' + str(image.max())
     lesion_centers = get_mask_voxels(images[0].astype(np.bool))
     for i in range(0, len(lesion_centers), batch_size):
         centers = lesion_centers[i:i+batch_size]
