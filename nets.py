@@ -1,4 +1,5 @@
 import os
+from theano import tensor
 from operator import mul
 from nolearn.lasagne import NeuralNet
 from nolearn.lasagne.handlers import SaveWeights
@@ -12,6 +13,10 @@ from lasagne.layers.dnn import Conv3DDNNLayer, MaxPool3DDNNLayer, Pool3DDNNLayer
 from layers import Unpooling3D
 from lasagne import updates
 from lasagne import nonlinearities
+
+
+def probabilistic_dsc_objective(predictions, targets):
+    return 1.0 - ((2 * predictions * targets) / (predictions + targets))
 
 
 def get_epoch_finished(dir_name, patience):
