@@ -91,7 +91,8 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
         elif layer == 'o':
             previous_layer = DropoutLayer(
                 incoming=previous_layer,
-                name='drop%d' % (c_index - 1)
+                name='drop%d' % (c_index - 1),
+                p=0.5
             )
         elif layer == 'f':
             c_index -= 1
@@ -134,9 +135,9 @@ def create_classifier_net(layers, input_shape, convo_size, pool_size, number_fil
         regression=False,
         objective_loss_function=objectives.categorical_crossentropy,
 
-        update=updates.adadelta,
-        # update=updates.adam,
-        # update_learning_rate=1e-3,
+        #update=updates.adadelta,
+        update=updates.adam,
+        update_learning_rate=1e-3,
 
         on_epoch_finished=get_epoch_finished(os.path.join(dir_name, 'patches'), patience),
 
