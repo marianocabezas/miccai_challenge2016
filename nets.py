@@ -16,7 +16,9 @@ from lasagne import nonlinearities
 
 
 def probabilistic_dsc_objective(predictions, targets):
-    return 1.0 - ((2 * predictions * targets) / (predictions + targets))
+    top = 2 * tensor.sum(predictions * targets, axis=predictions.ndim - 1)
+    bottom = tensor.sum(predictions + targets, axis=predictions.ndim - 1)
+    return 1.0 - (top / bottom)
 
 
 def get_epoch_finished(dir_name, patience):
