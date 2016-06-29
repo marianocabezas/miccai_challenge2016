@@ -68,6 +68,7 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
             )
             p_index += 1
         elif layer == 'u':
+            p_index -= 1
             previous_layer = Unpooling3D(
                 incoming=previous_layer,
                 name='\033[35munpool%d\033[0m' % p_index,
