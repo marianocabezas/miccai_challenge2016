@@ -14,7 +14,7 @@ from lasagne import updates
 from lasagne import nonlinearities
 
 
-def get_epoch_finished(dir_name, patience=20):
+def get_epoch_finished(dir_name, patience):
     return [
         SaveWeights(dir_name + 'model_weights.pkl', only_best=True, pickle=False),
         SaveTrainingHistory(dir_name + 'model_history.pkl'),
@@ -126,7 +126,7 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
     return previous_layer
 
 
-def create_classifier_net(layers, input_shape, convo_size, pool_size, number_filters, dir_name):
+def create_classifier_net(layers, input_shape, convo_size, pool_size, number_filters, patience, dir_name):
     return NeuralNet(
 
         layers=get_layers_string(layers, input_shape, convo_size, pool_size, number_filters),
@@ -138,51 +138,90 @@ def create_classifier_net(layers, input_shape, convo_size, pool_size, number_fil
         # update=updates.adam,
         # update_learning_rate=1e-3,
 
-        on_epoch_finished=get_epoch_finished(os.path.join(dir_name, 'patches')),
+        on_epoch_finished=get_epoch_finished(os.path.join(dir_name, 'patches'), patience),
 
         verbose=11,
         max_epochs=200
     )
 
 
-def create_cnn3d_det_string(cnn_path, input_shape, convo_size, pool_size, number_filters, dir_name):
+def create_cnn3d_det_string(
+        cnn_path,
+        input_shape,
+        convo_size,
+        pool_size,
+        number_filters,
+        patience,
+        dir_name
+):
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
     final_layers = 'i' + cnn_path + 'r' + 'C'
 
-    return create_classifier_net(final_layers, input_shape, convo_size, pool_size, number_filters, dir_name)
+    return create_classifier_net(final_layers, input_shape, convo_size, pool_size, number_filters, patience, dir_name)
 
 
-def create_unet3d_seg_string(forward_path, input_shape, convo_size, pool_size, number_filters, dir_name):
+def create_unet3d_seg_string(
+        forward_path,
+        input_shape,
+        convo_size,
+        pool_size,
+        number_filters,
+        patience,
+        dir_name
+):
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
     final_layers = 'i' + forward_path + get_back_pathway(forward_path) + 'r' + 'S'
 
-    return create_classifier_net(final_layers, input_shape, convo_size, pool_size, number_filters, dir_name)
+    return create_classifier_net(final_layers, input_shape, convo_size, pool_size, number_filters, patience, dir_name)
 
 
-def create_unet3d_det_string(forward_path, input_shape, convo_size, pool_size, number_filters, dir_name):
+def create_unet3d_det_string(
+        forward_path,
+        input_shape,
+        convo_size,
+        pool_size,
+        number_filters,
+        patience,
+        dir_name
+):
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
     final_layers = 'i' + forward_path + get_back_pathway(forward_path) + 'r' + 'C'
 
-    return create_classifier_net(final_layers, input_shape, convo_size, pool_size, number_filters, dir_name)
+    return create_classifier_net(final_layers, input_shape, convo_size, pool_size, number_filters, patience, dir_name)
 
 
-def create_unet3d_shortcuts_det_string(forward_path, input_shape, convo_size, pool_size, number_filters, dir_name):
+def create_unet3d_shortcuts_det_string(
+        forward_path,
+        input_shape,
+        convo_size,
+        pool_size,
+        number_filters,
+        patience, dir_name
+):
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
     back_pathway = get_back_pathway(forward_path).replace('d', 'sd').replace('f', 'sf')
     final_layers = ('i' + forward_path + back_pathway + 'r' + 'C').replace('csd', 'cd')
 
-    return create_classifier_net(final_layers, input_shape, convo_size, pool_size, number_filters, dir_name)
+    return create_classifier_net(final_layers, input_shape, convo_size, pool_size, number_filters, patience, dir_name)
 
 
-def create_encoder3d_string(forward_path, input_shape, convo_size, pool_size, number_filters, dir_name):
+def create_encoder3d_string(
+        forward_path,
+        input_shape,
+        convo_size,
+        pool_size,
+        number_filters,
+        patience,
+        dir_name
+):
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
@@ -197,7 +236,7 @@ def create_encoder3d_string(forward_path, input_shape, convo_size, pool_size, nu
         # update=updates.adam,
         # update_learning_rate=1e-3,
 
-        on_epoch_finished=get_epoch_finished(os.path.join(dir_name, 'encoder')),
+        on_epoch_finished=get_epoch_finished(os.path.join(dir_name, 'encoder'), patience),
 
         verbose=11,
         max_epochs=200

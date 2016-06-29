@@ -23,6 +23,8 @@ def main():
     parser.add_argument('-l', '--forward-layers', action='store', dest='layers', default='cac')
     parser.add_argument('-w', '--win-size', action='store', dest='patch_size', type=int, nargs=3, default=(9, 9, 9))
     parser.add_argument('-i', '--image-size', action='store', dest='min_shape', type=int, nargs=3, default=None)
+    parser.add_argument('-b', '--batch-size', action='store', dest='batch_size', type=int, default=200000)
+    parser.add_argument('--patience', action='store', dest='patience', default=20)
     parser.add_argument('--use-gado', action='store_true', dest='use_gado', default=False)
     parser.add_argument('--no-gado', action='store_false', dest='use_gado', default=False)
     parser.add_argument('--gado', action='store', dest='gado', default='GADO_preprocessed.nii.gz')
@@ -111,6 +113,7 @@ def autoencoder3d(options):
         options['convo_size'],
         options['pool_size'],
         options['number_filters'],
+        options['patience'],
         options['folder']
     )
     cPickle.dump(net, open(os.path.join(options['folder'], 'net.pkl'), 'wb'))
@@ -174,6 +177,7 @@ def unet_patches3d_segmentation(options):
         options['convo_size'],
         options['pool_size'],
         options['number_filters'],
+        options['patience'],
         options['folder']
     )
     # cPickle.dump(net, open(os.path.join(options['folder'], 'patches.pkl'), 'wb'))
@@ -256,6 +260,7 @@ def patches_network_detection(options, mode):
             options['convo_size'],
             options['pool_size'],
             options['number_filters'],
+            options['patience'],
             options['folder']
         )
         cPickle.dump(net, open(os.path.join(options['folder'], 'patches.' + sufixes + str(i) + '.pkl'), 'wb'))
@@ -266,7 +271,7 @@ def patches_network_detection(options, mode):
         print c['g'] + 'Creating the test probability maps' + c['nc']
         image_nii = load_nii(names[0, 0])
         image = image_nii.get_data()
-        for batch, centers in load_patch_batch(names[:, 0], 200000, tuple(options['patch_size'])):
+        for batch, centers in load_patch_batch(names[:, 0], options['batch_size'], tuple(options['patch_size'])):
             y_pred = net.predict_proba(batch)
             [x, y, z] = np.stack(centers, axis=1)
             image[x, y, z] = y_pred[:, 1]
