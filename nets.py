@@ -43,7 +43,7 @@ def get_back_pathway(forward_pathway):
 
 
 def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_filters, multi_channel=True):
-    input_shape_single = tuple(input_shape[0:] + (1,) + input_shape[2:])
+    input_shape_single = tuple(input_shape[:1] + (1,) + input_shape[2:])
     channels = range(0, input_shape[1])
     previous_layer = InputLayer(name='\033[30minput\033[0m', shape=input_shape) if multi_channel\
         else [InputLayer(name='\033[30minput_%d\033[0m' % i, shape=input_shape_single) for i in channels]
