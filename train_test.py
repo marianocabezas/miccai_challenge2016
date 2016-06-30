@@ -279,7 +279,13 @@ def patches_network_detection(options, mode):
         cPickle.dump(net, open(os.path.join(options['folder'], 'patches.' + sufixes + str(i) + '.pkl'), 'wb'))
 
         print c['g'] + 'Training the ' + c['b'] + 'patch-based ' + c['b'] + mode + c['nc']
-        net.fit(x_train, y_train)
+        if options['multi_channel']:
+            net.fit(x_train, y_train)
+        else:
+            n_channels = x_train.shape[1]
+            channels_train = np.split(x_train, n_channels, axis = 1)
+            inputs = dict([('input%d' % c, channel) for (c, channel) in zip(range(0, n_channels), channels_train)])
+            net.fit(inputs, y_train)
 
         print c['g'] + 'Creating the test probability maps' + c['nc']
         image_nii = load_nii(names[0, i])
