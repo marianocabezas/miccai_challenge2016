@@ -260,7 +260,7 @@ def patches_network_detection(options, mode):
         print 'Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
         print 'Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')'
 
-        print c['g'] + 'Creating the ' + c['b'] + 'patch-based ' + c['b'] + mode + c['nc']
+        print c['g'] + '-- Creating the ' + c['b'] + 'patch-based ' + c['b'] + mode + c['nc']
 
         # Train the net and save it
         net_types = {
@@ -280,7 +280,7 @@ def patches_network_detection(options, mode):
         )
         cPickle.dump(net, open(os.path.join(options['folder'], 'patches.' + sufixes + str(i) + '.pkl'), 'wb'))
 
-        print c['g'] + 'Training the ' + c['b'] + 'patch-based ' + c['b'] + mode + c['nc']
+        print c['g'] + '-- Training the ' + c['b'] + 'patch-based ' + c['b'] + mode + c['nc']
         if options['multi_channel']:
             net.fit(x_train, y_train)
         else:
@@ -289,7 +289,7 @@ def patches_network_detection(options, mode):
             inputs = dict([('input%d' % c, channel) for (c, channel) in zip(range(0, n_channels), channels_train)])
             net.fit(inputs, y_train)
 
-        print c['g'] + 'Creating the test probability maps' + c['nc']
+        print c['g'] + '-- Creating the test probability maps' + c['nc']
         image_nii = load_nii(names[0, i])
         image = image_nii.get_data()
         for batch, centers in load_patch_batch(names[:, i], options['batch_size'], tuple(options['patch_size'])):
