@@ -286,7 +286,7 @@ def patches_network_detection(options, mode):
         else:
             n_channels = x_train.shape[1]
             channels_train = np.split(x_train, n_channels, axis = 1)
-            inputs = dict([('input%d' % c, channel) for (c, channel) in zip(range(0, n_channels), channels_train)])
+            inputs = dict([('input_%d' % c, channel) for (c, channel) in zip(range(0, n_channels), channels_train)])
             net.fit(inputs, y_train)
 
         print c['g'] + '-- Creating the test probability maps' + c['nc']
@@ -297,7 +297,7 @@ def patches_network_detection(options, mode):
                 y_pred = net.predict_proba(batch)
             else:
                 channels_train = np.split(batch, n_channels, axis=1)
-                inputs = dict([('input%d' % c, channel) for (c, channel) in zip(range(0, n_channels), channels_train)])
+                inputs = dict([('input_%d' % c, channel) for (c, channel) in zip(range(0, n_channels), channels_train)])
                 y_pred = net.predict_proba(inputs)
             [x, y, z] = np.stack(centers, axis=1)
             image[x, y, z] = y_pred[:, 1]
