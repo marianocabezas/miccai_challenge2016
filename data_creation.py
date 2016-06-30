@@ -168,8 +168,8 @@ def load_patch_vectors(name, mask_name, dir_name, size, rois=None, random_state=
     nolesion_msk_patches = [np.array(get_patches(image, centers, size))
                             for image, centers in zip(lesion_masks, nolesion_small)]
 
-    data = [p1 + p2 for p1, p2 in zip(lesion_patches, nolesion_patches)]
-    masks = [p1 + p2 for p1, p2 in zip(lesion_msk_patches, nolesion_msk_patches)]
+    data = [np.concatenate([p1, p2]) for p1, p2 in zip(lesion_patches, nolesion_patches)]
+    masks = [np.concatenate([p1, p2]) for p1, p2 in zip(lesion_msk_patches, nolesion_msk_patches)]
 
     return data, masks, image_names
 
