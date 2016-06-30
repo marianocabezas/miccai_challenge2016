@@ -25,6 +25,8 @@ def main():
     parser.add_argument('-i', '--image-size', action='store', dest='min_shape', type=int, nargs=3, default=None)
     parser.add_argument('-b', '--batch-size', action='store', dest='batch_size', type=int, default=200000)
     parser.add_argument('--patience', action='store', dest='patience', default=20)
+    parser.add_argument('--multi-channel', action='store_true', dest='multi_channel', default=True)
+    parser.add_argument('--single-channel', action='store_false', dest='multi_channel', default=True)
     parser.add_argument('--use-gado', action='store_true', dest='use_gado', default=False)
     parser.add_argument('--no-gado', action='store_false', dest='use_gado', default=False)
     parser.add_argument('--gado', action='store', dest='gado', default='GADO_preprocessed.nii.gz')
@@ -114,6 +116,7 @@ def autoencoder3d(options):
         options['pool_size'],
         options['number_filters'],
         options['patience'],
+        options['multi_channel'],
         options['folder']
     )
     cPickle.dump(net, open(os.path.join(options['folder'], 'net.pkl'), 'wb'))
@@ -178,6 +181,7 @@ def unet_patches3d_segmentation(options):
         options['pool_size'],
         options['number_filters'],
         options['patience'],
+        options['multi_channel'],
         options['folder']
     )
     # cPickle.dump(net, open(os.path.join(options['folder'], 'patches.pkl'), 'wb'))
@@ -264,6 +268,7 @@ def patches_network_detection(options, mode):
             options['pool_size'],
             options['number_filters'],
             options['patience'],
+            options['multi_channel'],
             options['folder']
         )
         cPickle.dump(net, open(os.path.join(options['folder'], 'patches.' + sufixes + str(i) + '.pkl'), 'wb'))

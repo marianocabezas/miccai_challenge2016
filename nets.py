@@ -182,10 +182,10 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
     return previous_layer
 
 
-def create_classifier_net(layers, input_shape, convo_size, pool_size, number_filters, patience, dir_name):
+def create_classifier_net(layers, input_shape, convo_size, pool_size, number_filters, patience, multichannel, dir_name):
     return NeuralNet(
 
-        layers=get_layers_string(layers, input_shape, convo_size, pool_size, number_filters),
+        layers=get_layers_string(layers, input_shape, convo_size, pool_size, number_filters, multichannel),
 
         regression=False,
         objective_loss_function=objectives.categorical_crossentropy,
@@ -208,6 +208,7 @@ def create_cnn3d_det_string(
         pool_size,
         number_filters,
         patience,
+        multichannel,
         dir_name
 ):
     # We create the final string defining the net with the necessary input and reshape layers
@@ -215,7 +216,16 @@ def create_cnn3d_det_string(
     # calling the main python function
     final_layers = cnn_path + 'r' + 'C'
 
-    return create_classifier_net(final_layers, input_shape, convo_size, pool_size, number_filters, patience, dir_name)
+    return create_classifier_net(
+        final_layers,
+        input_shape,
+        convo_size,
+        pool_size,
+        number_filters,
+        patience,
+        multichannel,
+        dir_name
+    )
 
 
 def create_unet3d_seg_string(
@@ -225,6 +235,7 @@ def create_unet3d_seg_string(
         pool_size,
         number_filters,
         patience,
+        multichannel,
         dir_name
 ):
     # We create the final string defining the net with the necessary input and reshape layers
@@ -232,7 +243,16 @@ def create_unet3d_seg_string(
     # calling the main python function
     final_layers = forward_path + get_back_pathway(forward_path) + 'r' + 'S'
 
-    return create_classifier_net(final_layers, input_shape, convo_size, pool_size, number_filters, patience, dir_name)
+    return create_classifier_net(
+        final_layers,
+        input_shape,
+        convo_size,
+        pool_size,
+        number_filters,
+        patience,
+        multichannel,
+        dir_name
+    )
 
 
 def create_unet3d_det_string(
@@ -242,6 +262,7 @@ def create_unet3d_det_string(
         pool_size,
         number_filters,
         patience,
+        multichannel,
         dir_name
 ):
     # We create the final string defining the net with the necessary input and reshape layers
@@ -249,7 +270,16 @@ def create_unet3d_det_string(
     # calling the main python function
     final_layers = 'i' + forward_path + get_back_pathway(forward_path) + 'r' + 'C'
 
-    return create_classifier_net(final_layers, input_shape, convo_size, pool_size, number_filters, patience, dir_name)
+    return create_classifier_net(
+        final_layers,
+        input_shape,
+        convo_size,
+        pool_size,
+        number_filters,
+        patience,
+        multichannel,
+        dir_name
+    )
 
 
 def create_unet3d_shortcuts_det_string(
@@ -258,7 +288,9 @@ def create_unet3d_shortcuts_det_string(
         convo_size,
         pool_size,
         number_filters,
-        patience, dir_name
+        patience,
+        multichannel,
+        dir_name
 ):
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
@@ -266,7 +298,16 @@ def create_unet3d_shortcuts_det_string(
     back_pathway = get_back_pathway(forward_path).replace('d', 'sd').replace('f', 'sf')
     final_layers = (forward_path + back_pathway + 'r' + 'C').replace('csd', 'cd')
 
-    return create_classifier_net(final_layers, input_shape, convo_size, pool_size, number_filters, patience, dir_name)
+    return create_classifier_net(
+        final_layers,
+        input_shape,
+        convo_size,
+        pool_size,
+        number_filters,
+        patience,
+        multichannel,
+        dir_name
+    )
 
 
 def create_encoder3d_string(
@@ -276,6 +317,7 @@ def create_encoder3d_string(
         pool_size,
         number_filters,
         patience,
+        multichannel,
         dir_name
 ):
     # We create the final string defining the net with the necessary input and reshape layers
@@ -284,13 +326,12 @@ def create_encoder3d_string(
     final_layers = forward_path + get_back_pathway(forward_path) + 'r'
 
     encoder = NeuralNet(
-        layers=get_layers_string(final_layers, input_shape, convo_size, pool_size, number_filters),
+        layers=get_layers_string(final_layers, input_shape, convo_size, pool_size, number_filters, multichannel),
 
         regression=True,
 
-        update=updates.adadelta,
-        # update=updates.adam,
-        # update_learning_rate=1e-3,
+        update=updates.adam,
+        update_learning_rate=1e-3,
 
         on_epoch_finished=get_epoch_finished(os.path.join(dir_name, 'encoder'), patience),
 
