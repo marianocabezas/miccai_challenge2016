@@ -244,6 +244,9 @@ def patches_network_detection(options, mode):
 
     print c['g'] + 'Starting leave-one-out for the patch-based ' + c['b'] + mode + c['nc']
 
+    n_channels = x[0].shape[1]
+    channels = range(0, n_channels)
+
     for x_train, y_train, i in leave_one_out(x, y):
         print 'Running patient ' + c['c'] + names[0, i].rsplit('/')[-2] + c['nc']
         seed = np.random.randint(np.iinfo(np.int32).max)
@@ -281,9 +284,8 @@ def patches_network_detection(options, mode):
         if options['multi_channel']:
             net.fit(x_train, y_train)
         else:
-            n_channels = x_train.shape[1]
-            channels_train = np.split(x_train, n_channels, axis = 1)
-            inputs = dict([('input_%d' % c, channel) for (c, channel) in zip(range(0, n_channels), channels_train)])
+            x_train = np.split(x_train, n_channels, axis=1)
+            inputs = dict([('\033[30minput_%d\033[0m' % c, channel) for (c, channel) in zip(channels, x_train)])
             net.fit(inputs, y_train)
 
         print c['g'] + '-- Creating the test probability maps' + c['nc']
@@ -293,8 +295,8 @@ def patches_network_detection(options, mode):
             if options['multi_channel']:
                 y_pred = net.predict_proba(batch)
             else:
-                channels_train = np.split(batch, n_channels, axis=1)
-                inputs = dict([('input_%d' % c, channel) for (c, channel) in zip(range(0, n_channels), channels_train)])
+                batch = np.split(batch, n_channels, axis=1)
+                inputs = dict([('\033[30minput_%d\033[0m' % c, channel) for (c, channel) in zip(channels, batch)])
                 y_pred = net.predict_proba(inputs)
             [x, y, z] = np.stack(centers, axis=1)
             image[x, y, z] = y_pred[:, 1]
