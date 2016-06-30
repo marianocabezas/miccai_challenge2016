@@ -68,6 +68,7 @@ def main():
 
 def color_codes():
     codes = {'g': '\033[32m',
+             'c': '\033[36',
              'bg': '\033[32;1m',
              'b': '\033[1m',
              'nc': '\033[0m',
@@ -251,6 +252,7 @@ def patches_network_detection(options, mode):
         np.random.seed(seed)
         y_train = np.random.permutation(np.concatenate(y_train).astype(dtype=np.int32))
         y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
+        print 'Running patient ' + c['c'] + names[0, i].rsplit('/')[-2] + c['nc']
         print 'Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
         print 'Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')'
 
