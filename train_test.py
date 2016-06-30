@@ -286,8 +286,8 @@ def patches_network_detection(options, mode):
             image[x, y, z] = y_pred[:, 1]
 
         image_nii.get_data()[:] = image
-        new_name = re.search(r'(.+?)\.nii.*|\.+', names[0, i]).groups()[0] + '_reshaped.nii.gz'
-        image_nii.to_filename(os.path.join(options['folder'], mode + '.c' + str(i) + '.' + sufixes + '.nii.gz'))
+        name = os.path.join('/'.join(names[0, i].rsplit('/')[:-1]), mode + '.c' + str(i) + '.' + sufixes + '.nii.gz')
+        image_nii.to_filename(name)
 
 
 if __name__ == '__main__':
