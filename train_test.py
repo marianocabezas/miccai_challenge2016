@@ -278,7 +278,7 @@ def patches_network_detection(options, mode):
         net.fit(x_train, y_train)
 
         print c['g'] + 'Creating the test probability maps' + c['nc']
-        image_nii = load_nii(names[0, 0])
+        image_nii = load_nii(names[0, i])
         image = image_nii.get_data()
         for batch, centers in load_patch_batch(names[:, i], options['batch_size'], tuple(options['patch_size'])):
             y_pred = net.predict_proba(batch)
