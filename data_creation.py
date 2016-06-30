@@ -168,8 +168,8 @@ def load_patch_vectors(name, mask_name, dir_name, size, rois=None, random_state=
     nolesion_msk_patches = [np.array(get_patches(image, centers, size))
                             for image, centers in zip(lesion_masks, nolesion_small)]
 
-    data = lesion_patches + nolesion_patches
-    masks = lesion_msk_patches + nolesion_msk_patches
+    data = [p1 + p2 for p1, p2 in zip(lesion_patches, nolesion_patches)]
+    masks = [p1 + p2 for p1, p2 in zip(lesion_msk_patches, nolesion_msk_patches)]
 
     return data, masks, image_names
 
@@ -264,82 +264,60 @@ def load_patches(
     size_sufix = '.'.join([str(length) for length in size])
     sufixes = image_sufix + '.' + size_sufix
 
-    try:
-        h5f = h5py.File(os.path.join(dir_name, 'patches_vector_unet.' + sufixes + '.h5'), 'r')
-        x_joint = np.array(h5f['patches'])
-        y_joint = np.array(h5f['masks'])
-        h5f.close()
-        slice_indices = cPickle.load(open(os.path.join(dir_name, 'patches_shapes_unet.' + sufixes + '.pkl'), 'rb'))
-        x = [x_joint[ini:end] for ini, end in slice_indices]
-        y = [y_joint[ini:end] for ini, end in slice_indices]
-        image_names = np.load(os.path.join(dir_name, 'image_names_patches.' + sufixes + '.npy'))
-    except IOError:
-        # We'll use this function later on to compute indices
-        def cumsum(it):
-            total = 0
-            for val in it:
-                total += val
-                yield total
-        # Setting up the lists for all images
-        flair, flair_names = None, None
-        pd, pd_names = None, None
-        t2, t2_names = None, None
-        t1, t1_names = None, None
-        gado, gado_names = None, None
-        y = None
+    # We'll use this function later on to compute indices
+    def cumsum(it):
+        total = 0
+        for val in it:
+            total += val
+            yield total
+    # Setting up the lists for all images
+    flair, flair_names = None, None
+    pd, pd_names = None, None
+    t2, t2_names = None, None
+    t1, t1_names = None, None
+    gado, gado_names = None, None
+    y = None
 
-        random_state = np.random.randint(1)
+    random_state = np.random.randint(1)
 
-        # We load the image modalities for each patient according to the parameters
-        rois = load_thresholded_images(flair_name, dir_name)
-        if use_flair:
-            print 'Loading ' + flair_name + ' images'
-            flair, y, flair_names = load_patch_vectors(flair_name, mask_name, dir_name, size, rois, random_state)
-            gc.collect()
-        if use_pd:
-            print 'Loading ' + pd_name + ' images'
-            pd, y, pd_names = load_patch_vectors(pd_name, mask_name, dir_name, size, rois, random_state)
-            gc.collect()
-        if use_t2:
-            print 'Loading ' + t2_name + ' images'
-            t2, y, t2_names = load_patch_vectors(t2_name, mask_name, dir_name, size, rois, random_state)
-            gc.collect()
-        if use_t1:
-            print 'Loading ' + t1_name + ' images'
-            t1, y, t1_names = load_patch_vectors(t1_name, mask_name, dir_name, size, rois, random_state)
-            gc.collect()
-        if use_gado:
-            print 'Loading ' + gado_name + ' images'
-            gado, y, gado_names = load_patch_vectors(gado_name, mask_name, dir_name, size, rois, random_state)
-            gc.collect()
+    # We load the image modalities for each patient according to the parameters
+    rois = load_thresholded_images(flair_name, dir_name)
+    if use_flair:
+        print 'Loading ' + flair_name + ' images'
+        flair, y, flair_names = load_patch_vectors(flair_name, mask_name, dir_name, size, rois, random_state)
+        gc.collect()
+    if use_pd:
+        print 'Loading ' + pd_name + ' images'
+        pd, y, pd_names = load_patch_vectors(pd_name, mask_name, dir_name, size, rois, random_state)
+        gc.collect()
+    if use_t2:
+        print 'Loading ' + t2_name + ' images'
+        t2, y, t2_names = load_patch_vectors(t2_name, mask_name, dir_name, size, rois, random_state)
+        gc.collect()
+    if use_t1:
+        print 'Loading ' + t1_name + ' images'
+        t1, y, t1_names = load_patch_vectors(t1_name, mask_name, dir_name, size, rois, random_state)
+        gc.collect()
+    if use_gado:
+        print 'Loading ' + gado_name + ' images'
+        gado, y, gado_names = load_patch_vectors(gado_name, mask_name, dir_name, size, rois, random_state)
+        gc.collect()
 
-        print 'Creating data vector'
-        data = [images for images in [flair, pd, t2, gado, t1] if images is not None]
-        flair, pd, t2, t1, gado = None, None, None, None, None
-        gc.collect()
-        print 'Stacking the numpy arrays'
-        x = [np.stack(images, axis=1) for images in zip(*data)]
-        data = None
-        gc.collect()
-        image_names = np.stack([name for name in [
-            flair_names,
-            pd_names,
-            t2_names,
-            gado_names,
-            t1_names
-        ] if name is not None])
-
-        print 'Storing the patches to disk'
-        batch_length = list(cumsum([0] + [batch.shape[0] for batch in x]))
-        slice_indices = zip(batch_length[:-1], batch_length[1:])
-        cPickle.dump(slice_indices, open(os.path.join(dir_name, 'patches_shapes_unet.' + sufixes + '.pkl'), 'wb'))
-        h5f = h5py.File(os.path.join(dir_name, 'patches_vector_unet.' + sufixes + '.h5'), 'w')
-        h5f.create_dataset('patches', data=np.concatenate(x), compression='gzip', compression_opts=9)
-        gc.collect()
-        h5f.create_dataset('masks', data=np.concatenate(y), compression='gzip', compression_opts=9)
-        gc.collect()
-        h5f.close()
-        np.save(os.path.join(dir_name, 'image_names_patches.' + sufixes + '.npy'), image_names)
+    print 'Creating data vector'
+    data = [images for images in [flair, pd, t2, gado, t1] if images is not None]
+    flair, pd, t2, t1, gado = None, None, None, None, None
+    gc.collect()
+    print 'Stacking the numpy arrays'
+    x = [np.stack(images, axis=1) for images in zip(*data)]
+    data = None
+    gc.collect()
+    image_names = np.stack([name for name in [
+        flair_names,
+        pd_names,
+        t2_names,
+        gado_names,
+        t1_names
+    ] if name is not None])
 
     return x, y, image_names
 
