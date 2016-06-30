@@ -281,7 +281,7 @@ def load_patches(
     random_state = np.random.randint(1)
 
     # We load the image modalities for each patient according to the parameters
-    rois = load_thresholded_images(flair_name, dir_name)
+    rois = load_thresholded_images(flair_name, dir_name, threshold=1.5)
     if use_flair:
         print 'Loading ' + flair_name + ' images'
         flair, y, flair_names = load_patch_vectors(flair_name, mask_name, dir_name, size, rois, random_state)
