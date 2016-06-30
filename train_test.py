@@ -236,6 +236,9 @@ def patches_network_detection(options, mode):
         size=tuple(options['patch_size'])
     )
 
+    print 'Data shape = (' ','.join([str(length) for length in x.shape])
+    print 'Labels shape = (' ','.join([str(length) for length in y.shape])
+
     for x_train, y_train, i in leave_one_out(x, y):
         seed = np.random.randint(np.iinfo(np.int32).max)
         np.random.seed(seed)
