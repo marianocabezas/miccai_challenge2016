@@ -1,4 +1,5 @@
 import os
+import re
 import argparse
 import numpy as np
 import cPickle
@@ -240,8 +241,8 @@ def patches_network_detection(options, mode):
         size=tuple(options['patch_size'])
     )
 
-    print 'Data shape = (' + 'x'.join([str(len(x)), 'N'] + [str(length) for length in x[0].shape[1:]])
-    print 'Labels shape = (' + 'x'.join([str(len(y)), 'N'] + [str(length) for length in y[0].shape[1:]])
+    print 'Data shape = (' + 'x'.join([str(len(x)), 'N'] + [str(length) for length in x[0].shape[1:]]) + ')'
+    print 'Labels shape = (' + 'x'.join([str(len(y)), 'N'] + [str(length) for length in y[0].shape[1:]]) + ')'
 
     for x_train, y_train, i in leave_one_out(x, y):
         seed = np.random.randint(np.iinfo(np.int32).max)
@@ -285,6 +286,7 @@ def patches_network_detection(options, mode):
             image[x, y, z] = y_pred[:, 1]
 
         image_nii.get_data()[:] = image
+        new_name = re.search(r'(.+?)\.nii.*|\.+', names[0, i]).groups()[0] + '_reshaped.nii.gz'
         image_nii.to_filename(os.path.join(options['folder'], mode + '.c' + str(i) + '.' + sufixes + '.nii.gz'))
 
 

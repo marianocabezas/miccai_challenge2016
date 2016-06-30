@@ -9,8 +9,6 @@ from nibabel import Nifti1Image as NiftiImage
 from math import floor
 from data_manipulation.generate_features import get_mask_voxels, get_patches
 from operator import itemgetter
-import h5py
-import cPickle
 
 
 def train_test_split(data, labels, test_size=0.1, random_state=42):
@@ -98,7 +96,7 @@ def reshape_save_nifti_to_dir(image, original_name):
     return reshaped_nii
 
 
-def load_thresholded_images(name, dir_name, threshold=2, datatype=np.float32):
+def load_thresholded_images(name, dir_name, threshold=2.0, datatype=np.float32):
     patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
     image_names = [os.path.join(dir_name, patient, name) for patient in patients]
     images = [load_nii(image_name).get_data() for image_name in image_names]
@@ -260,16 +258,6 @@ def load_patches(
         use_t1,
         size
 ):
-    image_sufix = get_sufix(use_flair, use_pd, use_t2, use_gado, use_t1)
-    size_sufix = '.'.join([str(length) for length in size])
-    sufixes = image_sufix + '.' + size_sufix
-
-    # We'll use this function later on to compute indices
-    def cumsum(it):
-        total = 0
-        for val in it:
-            total += val
-            yield total
     # Setting up the lists for all images
     flair, flair_names = None, None
     pd, pd_names = None, None
@@ -285,23 +273,18 @@ def load_patches(
     if use_flair:
         print 'Loading ' + flair_name + ' images'
         flair, y, flair_names = load_patch_vectors(flair_name, mask_name, dir_name, size, rois, random_state)
-        gc.collect()
     if use_pd:
         print 'Loading ' + pd_name + ' images'
         pd, y, pd_names = load_patch_vectors(pd_name, mask_name, dir_name, size, rois, random_state)
-        gc.collect()
     if use_t2:
         print 'Loading ' + t2_name + ' images'
         t2, y, t2_names = load_patch_vectors(t2_name, mask_name, dir_name, size, rois, random_state)
-        gc.collect()
     if use_t1:
         print 'Loading ' + t1_name + ' images'
         t1, y, t1_names = load_patch_vectors(t1_name, mask_name, dir_name, size, rois, random_state)
-        gc.collect()
     if use_gado:
         print 'Loading ' + gado_name + ' images'
         gado, y, gado_names = load_patch_vectors(gado_name, mask_name, dir_name, size, rois, random_state)
-        gc.collect()
 
     print 'Creating data vector'
     data = [images for images in [flair, pd, t2, gado, t1] if images is not None]
