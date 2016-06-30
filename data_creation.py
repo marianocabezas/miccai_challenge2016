@@ -290,7 +290,6 @@ def load_patches(
     data = [images for images in [flair, pd, t2, gado, t1] if images is not None]
     flair, pd, t2, t1, gado = None, None, None, None, None
     gc.collect()
-    print 'Stacking the numpy arrays'
     x = [np.stack(images, axis=1) for images in zip(*data)]
     data = None
     gc.collect()
