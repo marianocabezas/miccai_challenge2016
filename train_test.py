@@ -291,7 +291,12 @@ def patches_network_detection(options, mode):
         image_nii = load_nii(names[0, i])
         image = image_nii.get_data()
         for batch, centers in load_patch_batch(names[:, i], options['batch_size'], tuple(options['patch_size'])):
-            y_pred = net.predict_proba(batch)
+            if options['multi_channel']:
+                y_pred = net.predict_proba(batch)
+            else:
+                channels_train = np.split(batch, n_channels, axis=1)
+                inputs = dict([('input%d' % c, channel) for (c, channel) in zip(range(0, n_channels), channels_train)])
+                y_pred = net.predict_proba(inputs)
             [x, y, z] = np.stack(centers, axis=1)
             image[x, y, z] = y_pred[:, 1]
 
