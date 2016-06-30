@@ -30,14 +30,15 @@ def get_epoch_finished(dir_name, patience):
     ]
 
 
-def get_back_pathway(forward_pathway):
+def get_back_pathway(forward_pathway, multi_channel=True):
     # We create the backwards path of the encoder from the forward path
     # We need to mirror the configuration of the layers and change the pooling operators with unpooling,
     # and the convolutions with deconvolutions (convolutions with diferent padding). This definitions
     # match the values of the possible_layers dictionary
     back_pathway = ''.join(['d' if l is 'c' else 'u' for l in forward_pathway[::-1]])
     last_conv = back_pathway.rfind('d')
-    back_pathway = back_pathway[:last_conv] + 'f' + back_pathway[last_conv + 1:]
+    final_conv = 'f' if multi_channel else 'fU'
+    back_pathway = back_pathway[:last_conv] + final_conv + back_pathway[last_conv + 1:]
 
     return back_pathway
 
@@ -214,7 +215,8 @@ def create_cnn3d_det_string(
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
-    final_layers = cnn_path.replace('a', 'ao').replace('m', 'mo') + 'r' + 'C'
+    final_layers = 'rC' if multichannel else 'rUC'
+    final_layers = cnn_path.replace('a', 'ao').replace('m', 'mo') + final_layers
 
     return create_classifier_net(
         final_layers,
@@ -241,7 +243,7 @@ def create_unet3d_seg_string(
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
-    final_layers = forward_path + get_back_pathway(forward_path) + 'r' + 'S'
+    final_layers = forward_path + get_back_pathway(forward_path, multichannel) + 'r' + 'S'
 
     return create_classifier_net(
         final_layers,
@@ -268,7 +270,7 @@ def create_unet3d_det_string(
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
-    final_layers = 'i' + forward_path + get_back_pathway(forward_path) + 'r' + 'C'
+    final_layers = 'i' + forward_path + get_back_pathway(forward_path, multichannel) + 'r' + 'C'
 
     return create_classifier_net(
         final_layers,
@@ -295,7 +297,7 @@ def create_unet3d_shortcuts_det_string(
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
-    back_pathway = get_back_pathway(forward_path).replace('d', 'sd').replace('f', 'sf')
+    back_pathway = get_back_pathway(forward_path, multichannel).replace('d', 'sd').replace('f', 'sf')
     final_layers = (forward_path + back_pathway + 'r' + 'C').replace('csd', 'cd')
 
     return create_classifier_net(
@@ -323,7 +325,7 @@ def create_encoder3d_string(
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
-    final_layers = forward_path + get_back_pathway(forward_path) + 'r'
+    final_layers = forward_path + get_back_pathway(forward_path, multichannel) + 'r'
 
     encoder = NeuralNet(
         layers=get_layers_string(final_layers, input_shape, convo_size, pool_size, number_filters, multichannel),
