@@ -214,7 +214,7 @@ def create_cnn3d_det_string(
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
     # calling the main python function
-    final_layers = cnn_path + 'r' + 'C'
+    final_layers = cnn_path.replace('a', 'ao').replace('m', 'mo') + 'r' + 'C'
 
     return create_classifier_net(
         final_layers,
