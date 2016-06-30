@@ -283,6 +283,5 @@ def patches_network_detection(options, mode):
         image_nii.to_filename(os.path.join(options['folder'], mode + '.c' + str(i) + '.' + sufixes + '.nii.gz'))
 
 
-
 if __name__ == '__main__':
     main()
