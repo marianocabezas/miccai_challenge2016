@@ -248,13 +248,15 @@ def patches_network_detection(options, mode):
     print c['g'] + 'Starting leave-one-out for the patch-based ' + c['b'] + mode + c['nc']
 
     for x_train, y_train, i in leave_one_out(x, y):
+        print 'Running patient ' + c['c'] + names[0, i].rsplit('/')[-2] + c['nc']
         seed = np.random.randint(np.iinfo(np.int32).max)
+        print 'Permuting the data'
         np.random.seed(seed)
         x_train = np.random.permutation(np.concatenate(x_train).astype(dtype=np.float32))
+        print 'Permuting the labels'
         np.random.seed(seed)
         y_train = np.random.permutation(np.concatenate(y_train).astype(dtype=np.int32))
         y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
-        print 'Running patient ' + c['c'] + names[0, i].rsplit('/')[-2] + c['nc']
         print 'Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
         print 'Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')'
 
