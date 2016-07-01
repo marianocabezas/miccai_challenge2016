@@ -296,7 +296,7 @@ def patches_network_detection(options, mode):
                 y_pred = net.predict_proba(batch)
             else:
                 batch = np.split(batch, n_channels, axis=1)
-                inputs = dict([('\033[30minput_%d\033[0m' % c, channel) for (c, channel) in zip(channels, batch)])
+                inputs = dict([('\033[30minput_%d\033[0m' % ch, channel) for (ch, channel) in zip(channels, batch)])
                 y_pred = net.predict_proba(inputs)
             [x, y, z] = np.stack(centers, axis=1)
             image[x, y, z] = y_pred[:, 1]
