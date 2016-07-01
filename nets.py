@@ -21,11 +21,11 @@ def probabilistic_dsc_objective(predictions, targets):
     return 1.0 - (top / bottom)
 
 
-def get_epoch_finished(dir_name, patience):
+def get_epoch_finished(name, patience):
     return [
-        SaveWeights(dir_name + 'model_weights.pkl', only_best=True, pickle=False),
-        SaveTrainingHistory(dir_name + 'model_history.pkl'),
-        PlotTrainingHistory(dir_name + 'training_history.png'),
+        SaveWeights(name + 'model_weights.pkl', only_best=True, pickle=False),
+        SaveTrainingHistory(name + 'model_history.pkl'),
+        PlotTrainingHistory(name + 'training_history.png'),
         EarlyStopping(patience=patience)
     ]
 
