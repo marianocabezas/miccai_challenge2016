@@ -135,7 +135,9 @@ def patches_network_detection(options, mode):
         print c['g'] + '-- Creating the ' + c['b'] + 'patch-based ' + c['b'] + mode + c['nc']
 
         # Train the net and save it
-        net_name = os.path.join(os.path.split(names[0, i])[0], 'patches_' + mode + '.c' + str(i) + '.' + sufixes)
+        net_name = os.path.join(
+            os.path.split(names[0, i])[0], 'patches_' + mode + '.c' + str(i) + '.' + sufixes + '.pkl'
+        )
         net_types = {
             'cnn': create_cnn3d_det_string,
             'unet': create_unet3d_det_string,
@@ -151,9 +153,14 @@ def patches_network_detection(options, mode):
             options['multi_channel'],
             net_name
         )
-        cPickle.dump(net, open(os.path.join(options['folder'], 'patches.' + sufixes + str(i) + '.pkl'), 'wb'))
 
         print c['g'] + '-- Training the ' + c['b'] + 'patch-based ' + c['b'] + mode + c['nc']
+        # We try to get the last weights to keep improving the net over and over
+        try:
+            net.load_params_from(net_name)
+        except:
+            pass
+
         if options['multi_channel']:
             net.fit(x_train, y_train)
         else:
