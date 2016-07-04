@@ -165,7 +165,7 @@ def patches_network_detection(options, mode):
             net.fit(x_train, y_train)
         else:
             x_train = np.split(x_train, n_channels, axis=1)
-            inputs = dict([('\033[30minput_%d\033[0m' % c, channel) for (c, channel) in zip(channels, x_train)])
+            inputs = dict([('\033[30minput_%d\033[0m' % ch, channel) for (ch, channel) in zip(channels, x_train)])
             net.fit(inputs, y_train)
 
         print c['g'] + '-- Creating the test probability maps' + c['nc']
