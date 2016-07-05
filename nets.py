@@ -246,33 +246,6 @@ def create_cnn3d_det_string(
     )
 
 
-def create_unet3d_seg_string(
-        forward_path,
-        input_shape,
-        convo_size,
-        pool_size,
-        number_filters,
-        patience,
-        multichannel,
-        name
-):
-    # We create the final string defining the net with the necessary input and reshape layers
-    # We assume that the user will never put these parameters as part of the net definition when
-    # calling the main python function
-    final_layers = forward_path + get_back_pathway(forward_path, multichannel) + 'r' + 'S'
-
-    return create_classifier_net(
-        final_layers,
-        input_shape,
-        convo_size,
-        pool_size,
-        number_filters,
-        patience,
-        multichannel,
-        name
-    )
-
-
 def create_unet3d_det_string(
         forward_path,
         input_shape,
@@ -289,6 +262,34 @@ def create_unet3d_det_string(
     final_layers = 'i' + forward_path + get_back_pathway(forward_path, multichannel) + 'r' + 'C'
 
     return create_classifier_net(
+        final_layers,
+        input_shape,
+        convo_size,
+        pool_size,
+        number_filters,
+        patience,
+        multichannel,
+        name
+    )
+
+
+def create_unet3d_seg_string(
+            forward_path,
+            input_shape,
+            convo_size,
+            pool_size,
+            number_filters,
+            patience,
+            multichannel,
+            name
+    ):
+
+    # We create the final string defining the net with the necessary input and reshape layers
+    # We assume that the user will never put these parameters as part of the net definition when
+    # calling the main python function
+    final_layers = 'i' + forward_path + get_back_pathway(forward_path, multichannel) + 'r' + 'S'
+
+    return create_segmentation_net(
         final_layers,
         input_shape,
         convo_size,
@@ -317,6 +318,35 @@ def create_unet3d_shortcuts_det_string(
     final_layers = (forward_path + back_pathway + 'r' + 'C').replace('csd', 'cd')
 
     return create_classifier_net(
+        final_layers,
+        input_shape,
+        convo_size,
+        pool_size,
+        number_filters,
+        patience,
+        multichannel,
+        name
+    )
+
+
+def create_unet3d_shortcuts_seg_string(
+            forward_path,
+            input_shape,
+            convo_size,
+            pool_size,
+            number_filters,
+            patience,
+            multichannel,
+            name
+    ):
+
+    # We create the final string defining the net with the necessary input and reshape layers
+    # We assume that the user will never put these parameters as part of the net definition when
+    # calling the main python function
+    back_pathway = get_back_pathway(forward_path, multichannel).replace('d', 'sd').replace('f', 'sf')
+    final_layers = (forward_path + back_pathway + 'r' + 'S').replace('csd', 'cd')
+
+    return create_segmentation_net(
         final_layers,
         input_shape,
         convo_size,
