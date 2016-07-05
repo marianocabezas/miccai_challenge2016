@@ -182,6 +182,7 @@ def patches_network_detection(options, mode):
             image[x, y, z] = y_pred[:, 1]
 
         image_nii.get_data()[:] = image
+        mode = mode + '.mc' if options['multi_channel'] else mode + '.sc'
         name = os.path.join('/'.join(names[0, i].rsplit('/')[:-1]), mode + '.c' + str(i) + '.' + sufixes + '.nii.gz')
         image_nii.to_filename(name)
 
