@@ -92,6 +92,7 @@ def patches_network_detection(options, mode):
     )
     size_sufix = '.'.join([str(length) for length in tuple(options['patch_size'])])
     sufixes = image_sufix + '.' + size_sufix
+    mode_write = mode + '.mc' if options['multi_channel'] else mode + '.sc'
 
     print c['g'] + 'Loading the data for the patch-based ' + c['b'] + mode + c['nc']
     # Create the data
@@ -179,8 +180,7 @@ def patches_network_detection(options, mode):
             image[x, y, z] = y_pred[:, 1]
 
         image_nii.get_data()[:] = image
-        mode = mode + '.mc' if options['multi_channel'] else mode + '.sc'
-        name = os.path.join('/'.join(names[0, i].rsplit('/')[:-1]), mode + '.c' + str(i) + '.' + sufixes + '.nii.gz')
+        name = os.path.join('/'.join(names[0, i].rsplit('/')[:-1]), mode_write + '.c' + str(i) + '.' + sufixes + '.nii.gz')
         image_nii.to_filename(name)
 
 

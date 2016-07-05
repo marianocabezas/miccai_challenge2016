@@ -201,6 +201,22 @@ def create_classifier_net(layers, input_shape, convo_size, pool_size, number_fil
         max_epochs=200
     )
 
+def create_segmentation_net(layers, input_shape, convo_size, pool_size, number_filters, patience, multichannel, name):
+    return NeuralNet(
+
+        layers=get_layers_string(layers, input_shape, convo_size, pool_size, number_filters, multichannel),
+
+        regression=True,
+
+        update=updates.adam,
+        update_learning_rate=1e-3,
+
+        on_epoch_finished=get_epoch_finished(name, patience),
+
+        verbose=11,
+        max_epochs=200
+    )
+
 
 def create_cnn3d_det_string(
         cnn_path,
