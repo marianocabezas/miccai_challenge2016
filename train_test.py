@@ -1,14 +1,11 @@
 import os
-import re
 import argparse
 import numpy as np
-import cPickle
-from data_creation import load_encoder_data, load_patches, load_patch_batch
-from data_creation import reshape_save_nifti
+from data_creation import load_patches, load_patch_batch
 from data_creation import get_sufix
 from data_creation import leave_one_out
-from nets import create_unet3d_seg_string, create_unet3d_det_string, create_unet3d_shortcuts_det_string
-from nets import create_encoder3d_string, create_cnn3d_det_string
+from nets import create_unet3d_det_string, create_unet3d_shortcuts_det_string
+from nets import create_cnn3d_det_string
 from nibabel import load as load_nii
 
 
