@@ -180,8 +180,9 @@ def patches_network_detection(options, mode):
             image[x, y, z] = y_pred[:, 1]
 
         image_nii.get_data()[:] = image
-        name = os.path.join('/'.join(names[0, i].rsplit('/')[:-1]), mode_write + '.c' + str(i) + '.' + sufixes + '.nii.gz')
-        image_nii.to_filename(name)
+        name = mode_write + '.c' + str(i) + '.' + sufixes + '.nii.gz'
+        path = '/'.join(names[0, i].rsplit('/')[:-1])
+        image_nii.to_filename(os.path.join(path, name))
 
 
 if __name__ == '__main__':

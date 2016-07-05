@@ -1,4 +1,3 @@
-import os
 from theano import tensor
 from operator import mul
 from nolearn.lasagne import NeuralNet
@@ -200,6 +199,7 @@ def create_classifier_net(layers, input_shape, convo_size, pool_size, number_fil
         verbose=11,
         max_epochs=200
     )
+
 
 def create_segmentation_net(layers, input_shape, convo_size, pool_size, number_filters, patience, multichannel, name):
     return NeuralNet(
