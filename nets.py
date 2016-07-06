@@ -13,6 +13,7 @@ from lasagne.layers.dnn import Conv3DDNNLayer, MaxPool3DDNNLayer, Pool3DDNNLayer
 from layers import Unpooling3D
 from lasagne import updates
 from lasagne import nonlinearities
+from sklearn.metrics import accuracy_score
 
 
 def probabilistic_dsc_objective(predictions, targets):
