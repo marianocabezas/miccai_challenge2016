@@ -1,4 +1,5 @@
 from theano import tensor
+import numpy as np
 from operator import mul
 from nolearn.lasagne import NeuralNet
 from nolearn.lasagne.handlers import SaveWeights
@@ -15,11 +16,15 @@ from lasagne import nonlinearities
 
 
 def probabilistic_dsc_objective(predictions, targets):
-    print '---- Predictions ndim = (' + str(predictions.ndim) + ')'
-    print '---- Targets ndim = (' + str(targets.ndim) + ')'
     top = 2 * tensor.sum(predictions[:, 1] * targets)
     bottom = tensor.sum(predictions[:, 1] + targets)
     return 1.0 - (top / bottom)
+
+
+def probabilistic_dsc_accuracy(predictions, targets):
+    top = 2 * np.sum(predictions[:, 1] * targets)
+    bottom = np.sum(predictions[:, 1] + targets)
+    return top / bottom
 
 
 def get_epoch_finished(name, patience):
@@ -192,6 +197,7 @@ def create_classifier_net(layers, input_shape, convo_size, pool_size, number_fil
         regression=False,
         # objective_loss_function=objectives.categorical_crossentropy,
         objective_loss_function=probabilistic_dsc_objective,
+        custom_score=('dsc', probabilistic_dsc_accuracy),
 
         # update=updates.adadelta,
         update=updates.adam,
