@@ -39,6 +39,18 @@ def leave_one_out(data_list, labels_list):
         yield data_list[:i] + data_list[i+1:], labels_list[:i] + labels_list[i+1:], i
 
 
+def sum_patch_to_image(patch, center, image):
+    patch_size = patch.shape
+    patch_half = tuple([idx / 2 for idx in patch_size])
+    indices = [slice(c_idx - p_idx, c_idx + p_idx + 1) for (c_idx, p_idx) in zip(center, patch_half)]
+    image[indices] += patch
+    return image
+
+
+def sum_patches_to_image(patches, centers, image):
+    return np.sum(map(lambda p, c: sum_patch_to_image(p, c, image), patches, centers))
+
+
 def set_patches(image, centers, patches, patch_size=(15, 15, 15)):
     list_of_tuples = all([isinstance(center, tuple) for center in centers])
     sizes_match = all([patch_size == patch.shape for patch in patches])

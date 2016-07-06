@@ -4,7 +4,9 @@ import numpy as np
 from data_creation import load_patches, load_patch_batch
 from data_creation import get_sufix
 from data_creation import leave_one_out
+from data_creation import sum_patches_to_image
 from nets import create_unet3d_det_string, create_unet3d_shortcuts_det_string
+from nets import create_unet3d_seg_string, create_unet3d_shortcuts_seg_string
 from nets import create_cnn3d_det_string
 from nibabel import load as load_nii
 
@@ -49,7 +51,9 @@ def main():
 
     selector = {
         'patches-det': unet_patches3d_detection,
+        'patches-seg': unet_patches3d_segmentation,
         'patches-short': unet_patches3d_shortcuts_detection,
+        'patches-short-seg': unet_patches3d_shortcuts_segmentation,
         'patches-cnn': cnn_patches3d_detection,
     }
 
@@ -73,8 +77,16 @@ def unet_patches3d_detection(options):
     patches_network_detection(options, 'unet')
 
 
+def unet_patches3d_segmentation(options):
+    patches_network_segmentation(options, 'unet')
+
+
 def unet_patches3d_shortcuts_detection(options):
     patches_network_detection(options, 'unet-short')
+
+
+def unet_patches3d_shortcuts_segmentation(options):
+    patches_network_segmentation(options, 'unet-short')
 
 
 def cnn_patches3d_detection(options):
@@ -178,6 +190,110 @@ def patches_network_detection(options, mode):
                 y_pred = net.predict_proba(inputs)
             [x, y, z] = np.stack(centers, axis=1)
             image[x, y, z] = y_pred[:, 1]
+
+        image_nii.get_data()[:] = image
+        name = mode_write + '.c' + str(i) + '.' + sufixes + '.nii.gz'
+        path = '/'.join(names[0, i].rsplit('/')[:-1])
+        image_nii.to_filename(os.path.join(path, name))
+
+def patches_network_segmentation(options, mode):
+    c = color_codes()
+    image_sufix = get_sufix(
+        options['use_flair'],
+        options['use_pd'],
+        options['use_t2'],
+        options['use_gado'],
+        options['use_t1']
+    )
+    size_sufix = '.'.join([str(length) for length in tuple(options['patch_size'])])
+    sufixes = image_sufix + '.' + size_sufix
+    mode_write = mode + '.mc' if options['multi_channel'] else mode + '.sc'
+
+    print c['g'] + 'Loading the data for the patch-based ' + c['b'] + mode + c['nc']
+    # Create the data
+    (x, y, names) = load_patches(
+        dir_name=options['folder'],
+        use_flair=options['use_flair'],
+        use_pd=options['use_pd'],
+        use_t2=options['use_t2'],
+        use_gado=options['use_gado'],
+        use_t1=options['use_t1'],
+        flair_name=options['flair'],
+        pd_name=options['pd'],
+        t2_name=options['t2'],
+        gado_name=options['gado'],
+        t1_name=options['t1'],
+        mask_name=options['mask'],
+        size=tuple(options['patch_size'])
+    )
+
+    print c['g'] + 'Starting leave-one-out for the patch-based ' + c['b'] + mode + c['nc']
+
+    n_channels = x[0].shape[1]
+    channels = range(0, n_channels)
+
+    for x_train, y_train, i in leave_one_out(x, y):
+        print 'Running patient ' + c['c'] + names[0, i].rsplit('/')[-2] + c['nc']
+        seed = np.random.randint(np.iinfo(np.int32).max)
+        print '-- Permuting the data'
+        np.random.seed(seed)
+        x_train = np.random.permutation(np.concatenate(x_train).astype(dtype=np.float32))
+        print '-- Permuting the labels'
+        np.random.seed(seed)
+        y_train = np.random.permutation(np.concatenate(y_train).astype(dtype=np.int32))
+        y_train = y_train.reshape([y_train.shape[0], -1])
+        print '-- Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
+        print '-- Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')'
+
+        print c['g'] + '-- Creating the ' + c['b'] + 'patch-based ' + c['b'] + mode + c['nc']
+
+        # Train the net and save it
+        net_name = os.path.join(
+            os.path.split(names[0, i])[0], 'patches_' + mode + '.c' + str(i) + '.' + sufixes
+        )
+        net_types = {
+            'unet': create_unet3d_seg_string,
+            'unet-short': create_unet3d_shortcuts_seg_string
+        }
+        net = net_types[mode](
+            ''.join(options['layers']),
+            x_train.shape,
+            options['convo_size'],
+            options['pool_size'],
+            options['number_filters'],
+            options['patience'],
+            options['multi_channel'],
+            net_name
+        )
+
+        print c['g'] + '-- Training the ' + c['b'] + 'patch-based ' + c['b'] + mode + c['nc']
+        # We try to get the last weights to keep improving the net over and over
+        try:
+            net.load_params_from(net_name + 'model_weights.pkl')
+        except:
+            pass
+
+        if options['multi_channel']:
+            net.fit(x_train, y_train)
+        else:
+            x_train = np.split(x_train, n_channels, axis=1)
+            inputs = dict(
+                [('\033[30minput_%d\033[0m' % ch, channel) for (ch, channel) in zip(channels, x_train)])
+            net.fit(inputs, y_train)
+
+        print c['g'] + '-- Creating the test probability maps' + c['nc']
+        image_nii = load_nii(names[0, i])
+        image = np.zeros_like(image_nii.get_data())
+        for batch, centers in load_patch_batch(names[:, i], options['batch_size'],
+                                               tuple(options['patch_size'])):
+            if options['multi_channel']:
+                y_pred = net.predict_proba(batch)
+            else:
+                batch = np.split(batch, n_channels, axis=1)
+                inputs = dict(
+                    [('\033[30minput_%d\033[0m' % ch, channel) for (ch, channel) in zip(channels, batch)])
+                y_pred = net.predict_proba(inputs)
+                image += sum_patches_to_image(y_pred, centers, image)
 
         image_nii.get_data()[:] = image
         name = mode_write + '.c' + str(i) + '.' + sufixes + '.nii.gz'

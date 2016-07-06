@@ -188,8 +188,8 @@ def create_classifier_net(layers, input_shape, convo_size, pool_size, number_fil
         layers=get_layers_string(layers, input_shape, convo_size, pool_size, number_filters, multichannel),
 
         regression=False,
-        # objective_loss_function=objectives.categorical_crossentropy,
-        objective_loss_function=probabilistic_dsc_objective,
+        objective_loss_function=objectives.categorical_crossentropy,
+        # objective_loss_function=probabilistic_dsc_objective,
 
         # update=updates.adadelta,
         update=updates.adam,
