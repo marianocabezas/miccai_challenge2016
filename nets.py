@@ -22,8 +22,8 @@ def probabilistic_dsc_objective(predictions, targets):
 
 
 def probabilistic_dsc_accuracy(predictions, targets):
-    top = 2 * np.sum(predictions[:, 1] * targets)
-    bottom = np.sum(predictions[:, 1] + targets)
+    top = 2 * np.sum(predictions[1, :] * targets)
+    bottom = np.sum(predictions[1, :] + targets)
     return top / bottom
 
 
