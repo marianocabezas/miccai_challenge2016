@@ -1,4 +1,5 @@
 from theano import tensor
+import numpy as np
 from operator import mul
 from nolearn.lasagne import NeuralNet
 from nolearn.lasagne.handlers import SaveWeights
@@ -190,7 +191,7 @@ def create_classifier_net(layers, input_shape, convo_size, pool_size, number_fil
         regression=False,
         # objective_loss_function=objectives.categorical_crossentropy,
         objective_loss_function=probabilistic_dsc_objective,
-        custom_scores=[('dsc', lambda x, y: 2 * x * y / (x + y))],
+        custom_scores=[('dsc', lambda x, y: 2 * np.sum(x * y[:, 1]) / np.sum((x + y[:, 1])))],
 
         # update=updates.adadelta,
         update=updates.adam,
