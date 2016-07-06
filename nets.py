@@ -15,8 +15,8 @@ from lasagne import nonlinearities
 
 
 def probabilistic_dsc_objective(predictions, targets):
-    print predictions.shape
-    print targets.shape
+    print '---- Predictions shape = (' + ','.join([str(length) for length in predictions.shape]) + ')'
+    print '---- Targets shape = (' + ','.join([str(length) for length in targets.shape]) + ')'
     top = 2 * tensor.sum(predictions[1,:] * targets, axis=predictions.ndim - 1)
     bottom = tensor.sum(predictions[1,:] + targets, axis=predictions.ndim - 1)
     return 1.0 - (top / bottom)
