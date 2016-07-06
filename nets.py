@@ -196,7 +196,7 @@ def create_classifier_net(layers, input_shape, convo_size, pool_size, number_fil
 
         # update=updates.adadelta,
         update=updates.adam,
-        update_learning_rate=1e-4,
+        update_learning_rate=1e-3,
 
         on_epoch_finished=get_epoch_finished(name, patience),
 
