@@ -1,7 +1,7 @@
 from theano import tensor
 import numpy as np
 from operator import mul
-from nolearn.lasagne import NeuralNet
+from nolearn.lasagne import NeuralNet, BatchIterator
 from nolearn.lasagne.handlers import SaveWeights
 from nolearn_utils.hooks import (
     SaveTrainingHistory, PlotTrainingHistory,
@@ -198,6 +198,8 @@ def create_classifier_net(layers, input_shape, convo_size, pool_size, number_fil
         update_learning_rate=1e-4,
 
         on_epoch_finished=get_epoch_finished(name, patience),
+
+        batch_iterator_train=BatchIterator(batch_size=1024),
 
         verbose=11,
         max_epochs=200
