@@ -223,7 +223,10 @@ def create_classifier_net(
 
         regression=False,
         objective_loss_function=objective_function[obj_f],
-        custom_scores=[('dsc', accuracy_dsc_probabilistic)],
+        custom_scores=[
+            ('prob dsc', accuracy_dsc_probabilistic),
+            ('dsc', accuracy_dsc)
+        ],
 
         # update=updates.adadelta,
         update=updates.adam,
