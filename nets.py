@@ -33,7 +33,7 @@ def accuracy_dsc_probabilistic(target, estimated):
 
 def accuracy_dsc(target, estimated):
     A = target.astype(dtype=np.bool)
-    B = np.array(estimated[:, 1] > 0.5).astype(dtype=np.bool)
+    B = np.array(estimated[:, 1] > 0.8).astype(dtype=np.bool)
     return 2 * np.sum(np.logical_and(A, B)) / np.sum(np.sum(A) + np.sum(B))
 
 
