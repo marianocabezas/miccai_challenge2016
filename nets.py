@@ -32,9 +32,9 @@ def accuracy_dsc_probabilistic(target, estimated):
 
 
 def accuracy_dsc(target, estimated):
-    target = target.astype(dtype=np.bool)
-    estimated = np.array(estimated[:, 1] > 0.5).astype(dtype=np.bool)
-    return 2 * np.sum(np.logical_and(target, estimated)) / np.sum(np.sum(target) + np.sum(estimated))
+    A = target.astype(dtype=np.bool)
+    B = np.array(estimated[:, 1] > 0.5).astype(dtype=np.bool)
+    return 2 * np.sum(np.logical_and(A, B)) / np.sum(np.sum(A) + np.sum(B))
 
 
 def get_epoch_finished(name, patience):
@@ -230,7 +230,7 @@ def create_classifier_net(
 
         # update=updates.adadelta,
         update=updates.adam,
-        update_learning_rate=1e-3,
+        update_learning_rate=1e-4,
 
         on_epoch_finished=get_epoch_finished(name, patience),
 
