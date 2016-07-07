@@ -7,7 +7,7 @@ from nolearn_utils.hooks import (
     SaveTrainingHistory, PlotTrainingHistory,
     EarlyStopping
 )
-# from lasagne import objectives
+from lasagne import objectives
 from lasagne.layers import InputLayer, ReshapeLayer, DenseLayer, DropoutLayer, ElemwiseSumLayer, ConcatLayer
 from lasagne.layers.dnn import Conv3DDNNLayer, MaxPool3DDNNLayer, Pool3DDNNLayer
 from layers import Unpooling3D
@@ -27,7 +27,7 @@ def logarithmic_dsc_objective(predictions, targets):
     return -(top - bottom)
 
 
-def accuacy_dsc_probabilistic(target, estimated):
+def accuracy_dsc_probabilistic(target, estimated):
     return 2 * np.sum(target * estimated[:, 1]) / (np.sum(target) + np.sum(estimated[:, 1]))
 
 
@@ -193,16 +193,31 @@ def get_layers_string(net_layers, input_shape, convo_size, pool_size, number_fil
     return previous_layer
 
 
-def create_classifier_net(layers, input_shape, convo_size, pool_size, number_filters, patience, multichannel, name):
+def create_classifier_net(
+        layers,
+        input_shape,
+        convo_size,
+        pool_size,
+        number_filters,
+        patience,
+        multichannel,
+        name,
+        obj_f='xent'
+):
+
+    objective_function = {
+        'xent': objectives.categorical_crossentropy,
+        'pdsc': probabilistic_dsc_objective,
+        'ldsc': logarithmic_dsc_objective
+    }
+
     return NeuralNet(
 
         layers=get_layers_string(layers, input_shape, convo_size, pool_size, number_filters, multichannel),
 
         regression=False,
-        # objective_loss_function=objectives.categorical_crossentropy,
-        # objective_loss_function=probabilistic_dsc_objective,
-        objective_loss_function=logarithmic_dsc_objective,
-        custom_scores=[('dsc', accuacy_dsc_probabilistic)],
+        objective_loss_function=objective_function[obj_f],
+        custom_scores=[('dsc', accuracy_dsc_probabilistic)],
 
         # update=updates.adadelta,
         update=updates.adam,
