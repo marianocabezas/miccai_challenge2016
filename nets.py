@@ -19,7 +19,7 @@ from sklearn.metrics import accuracy_score
 def probabilistic_dsc_objective(predictions, targets):
     top = 2 * tensor.sum(predictions[:, 1] * targets)
     bottom = tensor.sum(predictions[:, 1] + targets)
-    return 1.0 - (top / bottom)
+    return -(top / bottom)
 
 
 def get_epoch_finished(name, patience):
