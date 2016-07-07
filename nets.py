@@ -32,9 +32,9 @@ def accuracy_dsc_probabilistic(target, estimated):
 
 
 def accuracy_dsc(target, estimated):
-    target = target.astype(np.bool)
-    estimated = estimated[:, 1] > 0.5
-    return 2 * np.sum(np.logical_and(target, estimated)) / (np.sum(target) + np.sum(estimated))
+    target = target.astype(dtype=np.bool)
+    estimated = np.array(estimated[:, 1] > 0.5).astype(dtype=np.bool)
+    return 2 * np.sum(np.logical_and(target, estimated)) / np.sum(np.sum(target) + np.sum(estimated))
 
 
 def get_epoch_finished(name, patience):
