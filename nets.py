@@ -13,7 +13,6 @@ from lasagne.layers.dnn import Conv3DDNNLayer, MaxPool3DDNNLayer, Pool3DDNNLayer
 from layers import Unpooling3D
 from lasagne import updates
 from lasagne import nonlinearities
-from sklearn.metrics import accuracy_score
 
 
 def probabilistic_dsc_objective(predictions, targets):
@@ -196,7 +195,7 @@ def create_classifier_net(layers, input_shape, convo_size, pool_size, number_fil
 
         # update=updates.adadelta,
         update=updates.adam,
-        update_learning_rate=1e-3,
+        update_learning_rate=1e-4,
 
         on_epoch_finished=get_epoch_finished(name, patience),
 
