@@ -17,8 +17,18 @@ from lasagne import nonlinearities
 
 def probabilistic_dsc_objective(predictions, targets):
     top = 2 * tensor.sum(predictions[:, 1] * targets)
-    bottom = tensor.sum(predictions[:, 1] + targets)
+    bottom = tensor.sum(predictions[:, 1]) + tensor.sum(targets)
     return -(top / bottom)
+
+
+def logarithmic_dsc_objective(predictions, targets):
+    top = tensor.log(2) + tensor.log(tensor.sum(predictions[:, 1] * targets))
+    bottom = tensor.log(tensor.sum(predictions[:, 1]) + tensor.sum(targets))
+    return -(top - bottom)
+
+
+def accuacy_dsc_probabilistic(target, estimated):
+    return 2 * np.sum(target * estimated[:, 1]) / (np.sum(target) + np.sum(estimated[:, 1]))
 
 
 def get_epoch_finished(name, patience):
@@ -190,8 +200,9 @@ def create_classifier_net(layers, input_shape, convo_size, pool_size, number_fil
 
         regression=False,
         # objective_loss_function=objectives.categorical_crossentropy,
-        objective_loss_function=probabilistic_dsc_objective,
-        custom_scores=[('dsc', lambda x, y: 2 * np.sum(x * y[:, 1]) / np.sum((x + y[:, 1])))],
+        # objective_loss_function=probabilistic_dsc_objective,
+        objective_loss_function=logarithmic_dsc_objective,
+        custom_scores=[('dsc', accuacy_dsc_probabilistic)],
 
         # update=updates.adadelta,
         update=updates.adam,
