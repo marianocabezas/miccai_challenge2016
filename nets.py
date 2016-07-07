@@ -31,6 +31,12 @@ def accuracy_dsc_probabilistic(target, estimated):
     return 2 * np.sum(target * estimated[:, 1]) / (np.sum(target) + np.sum(estimated[:, 1]))
 
 
+def accuracy_dsc(target, estimated):
+    target = target.astype(np.bool)
+    estimated = estimated[:, 1] > 0.5
+    return 2 * np.sum(np.logical_and(target, estimated)) / (np.sum(target) + np.sum(estimated))
+
+
 def get_epoch_finished(name, patience):
     return [
         SaveWeights(name + 'model_weights.pkl', only_best=True, pickle=False),
