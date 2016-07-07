@@ -313,7 +313,7 @@ def create_unet3d_seg_string(
             patience,
             multichannel,
             name
-    ):
+):
 
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when
@@ -369,7 +369,7 @@ def create_unet3d_shortcuts_seg_string(
             patience,
             multichannel,
             name
-    ):
+):
 
     # We create the final string defining the net with the necessary input and reshape layers
     # We assume that the user will never put these parameters as part of the net definition when

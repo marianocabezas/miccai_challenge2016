@@ -196,6 +196,7 @@ def patches_network_detection(options, mode):
         path = '/'.join(names[0, i].rsplit('/')[:-1])
         image_nii.to_filename(os.path.join(path, name))
 
+
 def patches_network_segmentation(options, mode):
     c = color_codes()
     image_sufix = get_sufix(
@@ -293,7 +294,8 @@ def patches_network_segmentation(options, mode):
                 inputs = dict(
                     [('\033[30minput_%d\033[0m' % ch, channel) for (ch, channel) in zip(channels, batch)])
                 y_pred = net.predict_proba(inputs)
-                image += sum_patches_to_image(y_pred, centers, image)
+
+            image += sum_patches_to_image(y_pred, centers, image)
 
         image_nii.get_data()[:] = image
         name = mode_write + '.c' + str(i) + '.' + sufixes + '.nii.gz'
