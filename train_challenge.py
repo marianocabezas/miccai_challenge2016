@@ -59,10 +59,10 @@ def main():
     net_name = '/home/sergivalverde/w/CNN/code/CNN1/miccai_challenge2016/deep-challenge2016.init.'
     net = NeuralNet(
         layers= [
-            (InputLayer, dict(name='in', shape=(None, 4, 15, 15))),
-            (Conv3DDNNLayer, dict(name='conv1_1', num_filters=64, filter_size=(5,5), pad='same')),
+            (InputLayer, dict(name='in', shape=(None, 4, 15, 15, 15))),
+            (Conv3DDNNLayer, dict(name='conv1_1', num_filters=64, filter_size=(5, 5, 5), pad='same')),
             (Pool3DDNNLayer, dict(name='avgpool_1', pool_size=2, stride=2, mode='average_inc_pad')),
-            (Conv3DDNNLayer, dict(name='conv2_1', num_filters=128, filter_size=(5, 5), pad='same')),
+            (Conv3DDNNLayer, dict(name='conv2_1', num_filters=128, filter_size=(5, 5, 5), pad='same')),
             (Pool3DDNNLayer, dict(name='avgpool_2', pool_size=2, stride=2, mode='average_inc_pad')),
             (DropoutLayer, dict(name='l2drop', p=0.5)),
             (DenseLayer, dict(name='l1', num_units=256)),
@@ -126,10 +126,10 @@ def main():
     net_name = '/home/sergivalverde/w/CNN/code/CNN1/miccai_challenge2016/deep-challenge2016.final.'
     net = NeuralNet(
         layers=[
-            (InputLayer, dict(name='in', shape=(None, 4, 15, 15))),
-            (Conv3DDNNLayer, dict(name='conv1_1', num_filters=64, filter_size=(5, 5), pad='same')),
+            (InputLayer, dict(name='in', shape=(None, 4, 15, 15, 15))),
+            (Conv3DDNNLayer, dict(name='conv1_1', num_filters=64, filter_size=(5, 5, 5), pad='same')),
             (Pool3DDNNLayer, dict(name='avgpool_1', pool_size=2, stride=2, mode='average_inc_pad')),
-            (Conv3DDNNLayer, dict(name='conv2_1', num_filters=128, filter_size=(5, 5), pad='same')),
+            (Conv3DDNNLayer, dict(name='conv2_1', num_filters=128, filter_size=(5, 5, 5), pad='same')),
             (Pool3DDNNLayer, dict(name='avgpool_2', pool_size=2, stride=2, mode='average_inc_pad')),
             (DropoutLayer, dict(name='l2drop', p=0.5)),
             (DenseLayer, dict(name='l1', num_units=256)),
