@@ -75,7 +75,7 @@ def main():
             SaveWeights(net_name + 'model_weights.pkl', only_best=True, pickle=False),
             SaveTrainingHistory(net_name + 'model_history.pkl'),
             PlotTrainingHistory(net_name + 'training_history.png'),
-            EarlyStopping(patience=net_name)
+            EarlyStopping(patience=10)
         ],
         verbose= 10,
         max_epochs=50,
@@ -142,10 +142,9 @@ def main():
             SaveWeights(net_name + 'model_weights.pkl', only_best=True, pickle=False),
             SaveTrainingHistory(net_name + 'model_history.pkl'),
             PlotTrainingHistory(net_name + 'training_history.png'),
-            EarlyStopping(patience=net_name)
         ],
         verbose=10,
-        max_epochs=50,
+        max_epochs=2000,
         train_split=TrainSplit(eval_size=0.25),
         custom_scores=[('dsc', lambda x, y: 2 * np.sum(x * y[:, 1]) / np.sum((x + y[:, 1])))],
     )
