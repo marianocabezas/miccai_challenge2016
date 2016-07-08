@@ -38,8 +38,8 @@ def main():
         flair_name='FLAIR_preprocessed.nii.gz',
         pd_name='DP_preprocessed.nii.gz',
         t2_name='T2_preprocessed.nii.gz',
-        gado_name=None,
         t1_name='T1_preprocessed.nii.gz',
+        gado_name=None,
         mask_name='Consensus.nii.gz',
         size=patch_size
     )
