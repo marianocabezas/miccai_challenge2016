@@ -112,6 +112,16 @@ def load_thresholded_images(name, dir_name, threshold=2.0, datatype=np.float32):
     patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
     image_names = [os.path.join(dir_name, patient, name) for patient in patients]
     images = [load_nii(image_name).get_data() for image_name in image_names]
+    rois = [image > threshold for image in images]
+    for roi, image in zip(rois, images_norm):
+        print 'Mask size = ' + str(np.sum(roi)) + ' (min = ' + str(image.min()) + ', max = ' + str(image.max()) + ')'
+    return rois
+
+
+def load_thresholded_norm_images(name, dir_name, threshold=2.0, datatype=np.float32):
+    patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
+    image_names = [os.path.join(dir_name, patient, name) for patient in patients]
+    images = [load_nii(image_name).get_data() for image_name in image_names]
     images_norm = [(im.astype(dtype=datatype) - im[np.nonzero(im)].mean()) / im[np.nonzero(im)].std() for im in images]
     rois = [image > threshold for image in images_norm]
     for roi, image in zip(rois, images_norm):
@@ -283,7 +293,7 @@ def load_patches(
 
     # We load the image modalities for each patient according to the parameters
     rois = load_thresholded_images(roi_names, dir_name, threshold=0.5) if roi_names \
-        else load_thresholded_images(flair_name, dir_name, threshold=1)
+        else load_thresholded_norm_images(flair_name, dir_name, threshold=1)
     if use_flair:
         print 'Loading ' + flair_name + ' images'
         flair, y, flair_names = load_patch_vectors(flair_name, mask_name, dir_name, size, rois, random_state)

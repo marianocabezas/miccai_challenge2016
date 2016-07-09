@@ -35,7 +35,8 @@ def main():
         [os.path.join(dir_name, patient, 'T1_preprocessed.nii.gz') for patient in patients]
     ] if name is not None], axis=1)
 
-    print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Running iteration' + c['b'] + '1>' + c['nc']
+    ''' Here we create an initial net to find conflictive voxels '''
+    print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Running iteration ' + c['b'] + '1>' + c['nc']
     net_name = '/home/sergivalverde/w/CNN/code/CNN1/miccai_challenge2016/deep-challenge2016.init.'
     net = NeuralNet(
         layers=[
@@ -101,6 +102,8 @@ def main():
         # We try to get the last weights to keep improving the net over and over
         net.fit(x_train, y_train)
 
+
+    ''' Here we get the seeds '''
     print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Looking for seeds>' + c['nc']
     paths = ['/'.join(name[0].rsplit('/')[:-1]) for name in names]
     roi_names = [os.path.join(path, 'test.iter1.nii.gz') for path in paths]
@@ -118,7 +121,8 @@ def main():
         image_nii.get_data()[:] = image
         image_nii.to_filename(output_name)
 
-    print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Running iteration' + c['b'] + '2>' + c['nc']
+    ''' Here we perform the last iteration '''
+    print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Running iteration ' + c['b'] + '2>' + c['nc']
     net_name = '/home/sergivalverde/w/CNN/code/CNN1/miccai_challenge2016/deep-challenge2016.final.'
     net = NeuralNet(
         layers=[
