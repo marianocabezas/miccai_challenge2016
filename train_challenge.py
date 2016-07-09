@@ -35,7 +35,7 @@ def main():
         [os.path.join(dir_name, patient, 'T1_preprocessed.nii.gz') for patient in patients]
     ] if name is not None], axis=1)
 
-    print c['c'] + strftime("%H:%M:%S") + c['g'] + '<Running iteration' + c['b'] + '1>' + c['nc']
+    print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Running iteration' + c['b'] + '1>' + c['nc']
     net_name = '/home/sergivalverde/w/CNN/code/CNN1/miccai_challenge2016/deep-challenge2016.init.'
     net = NeuralNet(
         layers=[
