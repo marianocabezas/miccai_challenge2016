@@ -66,7 +66,8 @@ def main():
     try:
         net.load_params_from(net_name + 'model_weights.pkl')
     except:
-        print c['g'] + 'Loading the data for the ' + c['b'] + 'iteration 1' + c['nc']
+        print c['c'] + '[' + strftime("%H:%M:%S") + '] ' +\
+              c['g'] + 'Loading the data for ' + c['b'] + 'iteration 1' + c['nc']
         # Create the data
         (x, y, _) = load_patches(
             dir_name=dir_name,
@@ -95,11 +96,12 @@ def main():
         print '-- Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
         print '-- Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')'
 
-        print c['c'] + strftime("%H:%M:%S") + c['g'] + 'Training (' + c['b'] + '1' + c['nc'] + c['g'] + ')' + c['nc']
+        print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +\
+            'Training (' + c['b'] + 'initial' + c['nc'] + c['g'] + ')' + c['nc']
         # We try to get the last weights to keep improving the net over and over
         net.fit(x_train, y_train)
 
-    print c['c'] + strftime("%H:%M:%S") + c['g'] + '<Looking for seeds>' + c['nc']
+    print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Looking for seeds>' + c['nc']
     paths = ['/'.join(name[0].rsplit('/')[:-1]) for name in names]
     roi_names = [os.path.join(path, 'test.iter1.nii.gz') for path in paths]
     for patient, output_name in zip(names, roi_names):
@@ -115,7 +117,7 @@ def main():
         image_nii.get_data()[:] = image
         image_nii.to_filename(output_name)
 
-    print c['c'] + strftime("%H:%M:%S") + c['g'] + '<Running iteration' + c['b'] + '2>' + c['nc']
+    print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Running iteration' + c['b'] + '2>' + c['nc']
     net_name = '/home/sergivalverde/w/CNN/code/CNN1/miccai_challenge2016/deep-challenge2016.final.'
     net = NeuralNet(
         layers=[
@@ -146,7 +148,8 @@ def main():
         net.load_params_from(net_name + 'model_weights.pkl')
     except:
         pass
-    print c['g'] + 'Loading the data for the ' + c['b'] + 'iteration 2' + c['nc']
+    print c['c'] + '[' + strftime("%H:%M:%S") + '] '\
+        + c['g'] + 'Loading the data for ' + c['b'] + 'iteration 2' + c['nc']
     (x, y, names) = load_patches(
         dir_name='/home/sergivalverde/w/CNN/images/CH16',
         use_flair=True,
@@ -171,7 +174,8 @@ def main():
     np.random.seed(seed)
     y_train = np.random.permutation(np.concatenate(y).astype(dtype=np.int32))
     y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
-    print c['c'] + strftime("%H:%M:%S") + c['g'] + 'Training (' + c['b'] + '2' + c['nc'] + c['g'] + ')' + c['nc']
+    print c['c'] + '[' + strftime("%H:%M:%S") + '] '\
+        + c['g'] + 'Training (' + c['b'] + 'final' + c['nc'] + c['g'] + ')' + c['nc']
     net.fit(x_train, y_train)
 
 
