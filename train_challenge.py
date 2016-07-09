@@ -27,6 +27,16 @@ def main():
     patch_size = (15, 15, 15)
     dir_name = '/home/sergivalverde/w/CNN/images/CH16'
     print c['g'] + 'Loading the data for the ' + c['b'] + 'Challenge' + c['nc'] + c['g'] + ' training' + c['nc']
+    patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
+    names = np.stack([name for name in [
+        [os.path.join(dir_name, patient, 'FLAIR_preprocessed.nii.gz') for patient in patients],
+        [os.path.join(dir_name, patient, 'DP_preprocessed.nii.gz') for patient in patients],
+        [os.path.join(dir_name, patient, 'T2_preprocessed.nii.gz') for patient in patients],
+        [os.path.join(dir_name, patient, 'T1_preprocessed.nii.gz') for patient in patients]
+    ] if name is not None])
+    for name in names:
+        print name.shape
+
     # Create the data
     (x, y, _) = load_patches(
         dir_name=dir_name,
@@ -44,15 +54,6 @@ def main():
         size=patch_size
     )
 
-    patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
-    names = np.stack([name for name in [
-        [os.path.join(dir_name, patient, 'FLAIR_preprocessed.nii.gz') for patient in patients],
-        [os.path.join(dir_name, patient, 'DP_preprocessed.nii.gz') for patient in patients],
-        [os.path.join(dir_name, patient, 'T2_preprocessed.nii.gz') for patient in patients],
-        [os.path.join(dir_name, patient, 'T1_preprocessed.nii.gz') for patient in patients]
-    ] if name is not None])
-
-    print names.shape
     seed = np.random.randint(np.iinfo(np.int32).max)
     print '-- Permuting the data'
     np.random.seed(seed)
