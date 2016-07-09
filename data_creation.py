@@ -292,7 +292,7 @@ def load_patches(
     random_state = np.random.randint(1)
 
     # We load the image modalities for each patient according to the parameters
-    rois = load_thresholded_images(roi_names, dir_name, threshold=0.5) if roi_names \
+    rois = load_thresholded_images(roi_name, dir_name, threshold=0.5) if roi_name \
         else load_thresholded_norm_images(flair_name, dir_name, threshold=1)
     if use_flair:
         print 'Loading ' + flair_name + ' images'
