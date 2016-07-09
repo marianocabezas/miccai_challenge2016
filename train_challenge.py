@@ -102,7 +102,7 @@ def main():
     paths = ['/'.join(name[0].rsplit('/')[:-1]) for name in names]
     roi_names = [os.path.join(path, 'test.iter1') for path in paths]
     for patient, output_name in zip(names, roi_names):
-        print c['g'] + '-- Testing with patient ' + patient[0].rsplit('/')[-1] + c['nc']
+        print c['g'] + '-- Testing with patient ' + patient[0].rsplit('/')[-2] + c['nc']
         image_nii = load_nii(patient[0])
         image = np.zeros_like(image_nii.get_data())
         for batch, centers in load_patch_batch(patient, 100000, patch_size):
