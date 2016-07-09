@@ -279,7 +279,7 @@ def load_patches(
         use_gado,
         use_t1,
         size,
-        roi_names=None
+        roi_name=None
 ):
     # Setting up the lists for all images
     flair, flair_names = None, None
