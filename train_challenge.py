@@ -109,9 +109,9 @@ def main():
     roi_names = [os.path.join(path, 'test.iter1.nii.gz') for path in paths]
     for patient, output_name in zip(names, roi_names):
         try :
-            c['c'] + '[' + strftime("%H:%M:%S") + '] ' \
-            + c['g'] + '-- Patient ' + patient[0].rsplit('/')[-2] + ' already done' + c['nc']
             load_nii(output_name)
+            print c['c'] + '[' + strftime("%H:%M:%S") + '] ' \
+            + c['g'] + '-- Patient ' + patient[0].rsplit('/')[-2] + ' already done' + c['nc']
         except:
             print c['c'] + '[' + strftime("%H:%M:%S") + '] '\
                   + c['g'] + '-- Testing with patient ' + c['b'] + patient[0].rsplit('/')[-2] + c['nc']
