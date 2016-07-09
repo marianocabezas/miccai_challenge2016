@@ -106,7 +106,6 @@ def main():
     roi_names = [os.path.join(path, 'test%d' % i) for path, i in zip(paths, range(15))]
     for patient, output_name in zip(names, roi_names):
         print c['g'] + '-- Testing patient ' + patient[0].rsplit('/')[-1] + c['nc']
-        print patient.shape
         image_nii = load_nii(patient[0])
         image = np.zeros_like(image_nii.get_data())
         for batch, centers in load_patch_batch(patient, 100000, patch_size):
@@ -167,6 +166,13 @@ def main():
     except:
         pass
 
+    print '-- Permuting the data'
+    np.random.seed(seed)
+    x_train = np.random.permutation(np.concatenate(x).astype(dtype=np.float32))
+    print '-- Permuting the labels'
+    np.random.seed(seed)
+    y_train = np.random.permutation(np.concatenate(y).astype(dtype=np.int32))
+    y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
     net.fit(x_train, y_train)
 
 
