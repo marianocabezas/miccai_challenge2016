@@ -1,4 +1,5 @@
 import os
+from time import strftime
 import numpy as np
 from data_creation import load_patches, load_patch_batch
 from lasagne.layers import InputLayer, DenseLayer, DropoutLayer
@@ -34,7 +35,7 @@ def main():
         [os.path.join(dir_name, patient, 'T1_preprocessed.nii.gz') for patient in patients]
     ] if name is not None], axis=1)
 
-    print c['g'] + '<Running iteration' + c['b'] + '1>' + c['nc']
+    print c['c'] + strftime("%H:%M:%S") + c['g'] + '<Running iteration' + c['b'] + '1>' + c['nc']
     net_name = '/home/sergivalverde/w/CNN/code/CNN1/miccai_challenge2016/deep-challenge2016.init.'
     net = NeuralNet(
         layers=[
@@ -94,15 +95,15 @@ def main():
         print '-- Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
         print '-- Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')'
 
-        print c['g'] + 'Training the ' + c['b'] + 'network (' + c['b'] + '1' + c['nc'] + c['g'] + ')' + c['nc']
+        print c['c'] + strftime("%H:%M:%S") + c['g'] + 'Training (' + c['b'] + '1' + c['nc'] + c['g'] + ')' + c['nc']
         # We try to get the last weights to keep improving the net over and over
         net.fit(x_train, y_train)
 
-    print c['g'] + '<Looking for seeds>' + c['nc']
+    print c['c'] + strftime("%H:%M:%S") + c['g'] + '<Looking for seeds>' + c['nc']
     paths = ['/'.join(name[0].rsplit('/')[:-1]) for name in names]
     roi_names = [os.path.join(path, 'test.iter1.nii.gz') for path in paths]
     for patient, output_name in zip(names, roi_names):
-        print c['g'] + '-- Testing with patient ' + patient[0].rsplit('/')[-2] + c['nc']
+        print c['c'] + strftime("%H:%M:%S") + c['g'] + '-- Testing with patient ' + patient[0].rsplit('/')[-2] + c['nc']
         image_nii = load_nii(patient[0])
         image = np.zeros_like(image_nii.get_data())
         for batch, centers in load_patch_batch(patient, 100000, patch_size):
@@ -114,7 +115,7 @@ def main():
         image_nii.get_data()[:] = image
         image_nii.to_filename(output_name)
 
-    print c['g'] + '<Running iteration' + c['b'] + '2>' + c['nc']
+    print c['c'] + strftime("%H:%M:%S") + c['g'] + '<Running iteration' + c['b'] + '2>' + c['nc']
     net_name = '/home/sergivalverde/w/CNN/code/CNN1/miccai_challenge2016/deep-challenge2016.final.'
     net = NeuralNet(
         layers=[
@@ -170,7 +171,7 @@ def main():
     np.random.seed(seed)
     y_train = np.random.permutation(np.concatenate(y).astype(dtype=np.int32))
     y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
-    print c['g'] + 'Training the ' + c['b'] + 'network (' + c['b'] + '2' + c['nc'] + c['g'] + ')' + c['nc']
+    print c['c'] + strftime("%H:%M:%S") + c['g'] + 'Training (' + c['b'] + '2' + c['nc'] + c['g'] + ')' + c['nc']
     net.fit(x_train, y_train)
 
 
