@@ -113,7 +113,7 @@ def load_thresholded_images(name, dir_name, threshold=2.0, datatype=np.float32):
     image_names = [os.path.join(dir_name, patient, name) for patient in patients]
     images = [load_nii(image_name).get_data() for image_name in image_names]
     rois = [image > threshold for image in images]
-    for roi, image in zip(rois, images_norm):
+    for roi, image in zip(rois, images):
         print 'Mask size = ' + str(np.sum(roi)) + ' (min = ' + str(image.min()) + ', max = ' + str(image.max()) + ')'
     return rois
 
