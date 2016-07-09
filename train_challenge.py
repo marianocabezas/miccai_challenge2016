@@ -32,7 +32,7 @@ def main():
         [os.path.join(dir_name, patient, 'DP_preprocessed.nii.gz') for patient in patients],
         [os.path.join(dir_name, patient, 'T2_preprocessed.nii.gz') for patient in patients],
         [os.path.join(dir_name, patient, 'T1_preprocessed.nii.gz') for patient in patients]
-    ] if name is not None])
+    ] if name is not None], axis=1)
     for name in names:
         print name.shape
 
