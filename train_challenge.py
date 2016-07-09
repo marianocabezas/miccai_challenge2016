@@ -101,10 +101,11 @@ def main():
         # We try to get the last weights to keep improving the net over and over
         net.fit(x_train, y_train)
 
-    print c['g'] + '-- Creating the test probability maps' + c['nc']
+    print c['g'] + 'Looking for seeds' + c['nc']
     paths = ['/'.join(name[0].rsplit('/')[:-1]) for name in names]
     roi_names = [os.path.join(path, 'test%d' % i) for path, i in zip(paths, range(15))]
     for patient, output_name in zip(names, roi_names):
+        print c['g'] + '-- Testing patient ' + patient[0].rsplit('/')[-1] + c['nc']
         print patient.shape
         image_nii = load_nii(patient[0])
         image = np.zeros_like(image_nii.get_data())
