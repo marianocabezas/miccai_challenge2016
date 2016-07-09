@@ -105,9 +105,8 @@ def main():
 
     ''' Here we get the seeds '''
     print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Looking for seeds>' + c['nc']
-    paths = ['/'.join(name[0].rsplit('/')[:-1]) for name in names]
-    roi_names = [os.path.join(path, 'test.iter1.nii.gz') for path in paths]
-    for patient, output_name in zip(names, roi_names):
+    for patient in names:
+        output_name = os.path.join('/'.join(patient[0].rsplit('/')[:-1]), 'test.iter1.nii.gz')
         try :
             load_nii(output_name)
             print c['c'] + '[' + strftime("%H:%M:%S") + '] ' \
@@ -174,7 +173,7 @@ def main():
         t1_name='T1_preprocessed.nii.gz',
         mask_name='Consensus.nii.gz',
         size=patch_size,
-        roi_names=roi_names
+        roi_name='test.iter1.nii.gz'
     )
 
     print '-- Permuting the data'
