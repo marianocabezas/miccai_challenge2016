@@ -6,7 +6,7 @@ from lasagne.layers import InputLayer, DenseLayer, DropoutLayer
 from lasagne.layers.dnn import Conv3DDNNLayer, Pool3DDNNLayer
 from lasagne import nonlinearities, objectives, updates
 from nolearn.lasagne import TrainSplit
-from nolearn.lasagne import NeuralNet
+from nolearn.lasagne import NeuralNet, BatchIterator
 from nolearn.lasagne.handlers import SaveWeights
 from nolearn_utils.hooks import SaveTrainingHistory, PlotTrainingHistory, EarlyStopping
 from nibabel import load as load_nii
@@ -146,6 +146,7 @@ def main():
             SaveTrainingHistory(net_name + 'model_history.pkl'),
             PlotTrainingHistory(net_name + 'training_history.png'),
         ],
+        batch_iterator_train=BatchIterator(batch_size=4096),
         verbose=10,
         max_epochs=2000,
         train_split=TrainSplit(eval_size=0.25),
