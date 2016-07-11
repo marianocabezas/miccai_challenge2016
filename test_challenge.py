@@ -10,7 +10,6 @@ from lasagne import nonlinearities, objectives, updates
 from nolearn.lasagne import TrainSplit
 from nolearn.lasagne import NeuralNet, BatchIterator
 from data_creation import load_patch_batch_percent
-from data_creation import sum_patches_to_image
 
 
 def color_codes():
@@ -69,17 +68,14 @@ def main():
     image_nii = load_nii(options['flair'])
     image = np.zeros_like(image_nii.get_data())
     print('-- Output shape = (' + ','.join([str(length) for length in image.shape]) + ')')
-    #print('0% of data tested', end='\r')
+    print('0% of data tested', end='\r')
     sys.stdout.flush()
     for batch, centers, percent in load_patch_batch_percent(names, batch_size, patch_size):
-        print('-- centers shape = (' + ','.join([str(len(centers)), str(len(centers[0]))]) + ')')
-        print('-- image shape = (' + ','.join([str(length) for length in image.shape]) + ')')
-        print('-- batch shape = (' + ','.join([str(length) for length in batch.shape]) + ')')
         y_pred = net.predict_proba(batch)
-        print('-- y_pred shape = (' + ','.join([str(length) for length in y_pred.shape]) + ')')
-        #print('%f% of data tested' % percent, end='\r')
+        print('%f% of data tested' % percent, end='\r')
         sys.stdout.flush()
-        image += sum_patches_to_image(y_pred, centers, image)
+        [x, y, z] = np.stack(centers, axis=1)
+        image[x, y, z] = y_pred[:, 1]
 
     print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +
           '<Saving to file' + c['b'] + options['output'] + c['nc'] + c['g'] + '>' + c['nc'])
