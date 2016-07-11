@@ -36,7 +36,7 @@ def main():
     c = color_codes()
     patch_size = (15, 15, 15)
     options = vars(parser.parse_args())
-    batch_size = 500000
+    batch_size = 100000
 
     print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Loading the net>' + c['nc'])
     net_name = '/usr/local/nets/deep-challenge2016.final.model_weights.pkl' if options['docker'] \
