@@ -74,8 +74,8 @@ def main():
     for batch, centers, percent in load_patch_batch_percent(names, batch_size, patch_size):
         y_pred = net.predict_proba(batch)
         print('%f% of data tested' % percent, end='\r')
-        image += sum_patches_to_image(y_pred, centers, image)
         sys.stdout.flush()
+        image += sum_patches_to_image(y_pred, centers, image)
 
     print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +
           '<Saving to file' + c['b'] + options['output'] + c['nc'] + c['g'] + '>' + c['nc'])
