@@ -72,7 +72,7 @@ def main():
     #print('0% of data tested', end='\r')
     sys.stdout.flush()
     for batch, centers, percent in load_patch_batch_percent(names, batch_size, patch_size):
-        print('-- centers shape = (' + ','.join([str(length) for length in centers.shape]) + ')')
+        print('-- centers shape = (' + ','.join([len(centers)] + [str(length) for length in centers[0].shape]) + ')')
         print('-- image shape = (' + ','.join([str(length) for length in image.shape]) + ')')
         print('-- batch shape = (' + ','.join([str(length) for length in batch.shape]) + ')')
         y_pred = net.predict_proba(batch)
