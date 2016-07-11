@@ -72,10 +72,11 @@ def main():
     #print('0% of data tested', end='\r')
     sys.stdout.flush()
     for batch, centers, percent in load_patch_batch_percent(names, batch_size, patch_size):
-        y_pred = net.predict_proba(batch)
-        print('-- y_pred shape = (' + ','.join([str(length) for length in y_pred.shape]) + ')')
         print('-- centers shape = (' + ','.join([str(length) for length in centers.shape]) + ')')
         print('-- image shape = (' + ','.join([str(length) for length in image.shape]) + ')')
+        print('-- batch shape = (' + ','.join([str(length) for length in batch.shape]) + ')')
+        y_pred = net.predict_proba(batch)
+        print('-- y_pred shape = (' + ','.join([str(length) for length in y_pred.shape]) + ')')
         #print('%f% of data tested' % percent, end='\r')
         sys.stdout.flush()
         image += sum_patches_to_image(y_pred, centers, image)
