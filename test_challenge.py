@@ -32,6 +32,7 @@ def main():
     parser.add_argument('--t2', action='store', dest='t2', default='T2_preprocessed.nii.gz')
     parser.add_argument('--t1', action='store', dest='t1', default='T1_preprocessed.nii.gz')
     parser.add_argument('--output', action='store', dest='output', default='output.nii.gz')
+    parser.add_argument('--no-docker', action='store_false', dest='docker', default=True)
 
     c = color_codes()
     patch_size = (15, 15, 15)
@@ -39,7 +40,8 @@ def main():
     batch_size = 500000
 
     print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Loading the net>' + c['nc']
-    net_name = '/usr/local/nets/deep-challenge2016.final.model_weights.pkl'
+    net_name = '/usr/local/nets/deep-challenge2016.final.model_weights.pkl' if options['docker'] \
+        else '/home/sergivalverde/w/CNN/code/CNN1/miccai_challenge2016/deep-challenge2016.final.model_weights.pkl'
     net = NeuralNet(
         layers=[
             (InputLayer, dict(name='in', shape=(None, 4, 15, 15, 15))),
@@ -60,7 +62,7 @@ def main():
         train_split=TrainSplit(eval_size=0.25),
         custom_scores=[('dsc', lambda x, y: 2 * np.sum(x * y[:, 1]) / np.sum((x + y[:, 1])))],
     )
-    net.load_params_from(net_name + 'model_weights.pkl')
+    net.load_params_from(net_name)
 
     print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Creating the probability map>' + c['nc']
     names = [options['flair'], options['pd'], options['t2'], options['t1']]
