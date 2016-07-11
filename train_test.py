@@ -106,7 +106,7 @@ def patches_network_detection(options, mode):
     sufixes = image_sufix + '.' + size_sufix
     mode_write = mode + '.mc' if options['multi_channel'] else mode + '.sc'
 
-    print c['g'] + 'Loading the data for the patch-based ' + c['b'] + mode + c['nc']
+    print(c['g'] + 'Loading the data for the patch-based ' + c['b'] + mode + c['nc'])
     # Create the data
     (x, y, names) = load_patches(
         dir_name=options['folder'],
@@ -124,25 +124,25 @@ def patches_network_detection(options, mode):
         size=tuple(options['patch_size'])
     )
 
-    print c['g'] + 'Starting leave-one-out for the patch-based ' + c['b'] + mode + c['nc']
+    print(c['g'] + 'Starting leave-one-out for the patch-based ' + c['b'] + mode + c['nc'])
 
     n_channels = x[0].shape[1]
     channels = range(0, n_channels)
 
     for x_train, y_train, i in leave_one_out(x, y):
-        print 'Running patient ' + c['c'] + names[0, i].rsplit('/')[-2] + c['nc']
+        print('Running patient ' + c['c'] + names[0, i].rsplit('/')[-2] + c['nc'])
         seed = np.random.randint(np.iinfo(np.int32).max)
-        print '-- Permuting the data'
+        print('-- Permuting the data')
         np.random.seed(seed)
         x_train = np.random.permutation(np.concatenate(x_train).astype(dtype=np.float32))
-        print '-- Permuting the labels'
+        print('-- Permuting the labels')
         np.random.seed(seed)
         y_train = np.random.permutation(np.concatenate(y_train).astype(dtype=np.int32))
         y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
-        print '-- Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
-        print '-- Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')'
+        print('-- Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
+        print('-- Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
 
-        print c['g'] + '-- Creating the ' + c['b'] + 'patch-based ' + c['b'] + mode + c['nc']
+        print(c['g'] + '-- Creating the ' + c['b'] + 'patch-based ' + c['b'] + mode + c['nc'])
 
         # Train the net and save it
         net_name = os.path.join(
@@ -164,11 +164,11 @@ def patches_network_detection(options, mode):
             net_name
         )
 
-        print c['g'] + '-- Training the ' + c['b'] + 'patch-based ' + c['b'] + mode + c['nc']
+        print(c['g'] + '-- Training the ' + c['b'] + 'patch-based ' + c['b'] + mode + c['nc'])
         # We try to get the last weights to keep improving the net over and over
         try:
             net.load_params_from(net_name + 'model_weights.pkl')
-        except:
+        except IOError:
             pass
 
         if options['multi_channel']:
@@ -178,7 +178,7 @@ def patches_network_detection(options, mode):
             inputs = dict([('\033[30minput_%d\033[0m' % ch, channel) for (ch, channel) in zip(channels, x_train)])
             net.fit(inputs, y_train)
 
-        print c['g'] + '-- Creating the test probability maps' + c['nc']
+        print(c['g'] + '-- Creating the test probability maps' + c['nc'])
         image_nii = load_nii(names[0, i])
         image = image_nii.get_data()
         for batch, centers in load_patch_batch(names[:, i], options['batch_size'], tuple(options['patch_size'])):
@@ -210,7 +210,7 @@ def patches_network_segmentation(options, mode):
     sufixes = image_sufix + '.' + size_sufix
     mode_write = mode + '.mc' if options['multi_channel'] else mode + '.sc'
 
-    print c['g'] + 'Loading the data for the patch-based ' + c['b'] + mode + c['nc']
+    print(c['g'] + 'Loading the data for the patch-based ' + c['b'] + mode + c['nc'])
     # Create the data
     (x, y, names) = load_patches(
         dir_name=options['folder'],
@@ -228,25 +228,25 @@ def patches_network_segmentation(options, mode):
         size=tuple(options['patch_size'])
     )
 
-    print c['g'] + 'Starting leave-one-out for the patch-based ' + c['b'] + mode + c['nc']
+    print(c['g'] + 'Starting leave-one-out for the patch-based ' + c['b'] + mode + c['nc'])
 
     n_channels = x[0].shape[1]
     channels = range(0, n_channels)
 
     for x_train, y_train, i in leave_one_out(x, y):
-        print 'Running patient ' + c['c'] + names[0, i].rsplit('/')[-2] + c['nc']
+        print('Running patient ' + c['c'] + names[0, i].rsplit('/')[-2] + c['nc'])
         seed = np.random.randint(np.iinfo(np.int32).max)
-        print '-- Permuting the data'
+        print('-- Permuting the data')
         np.random.seed(seed)
         x_train = np.random.permutation(np.concatenate(x_train).astype(dtype=np.float32))
-        print '-- Permuting the labels'
+        print('-- Permuting the labels')
         np.random.seed(seed)
         y_train = np.random.permutation(np.concatenate(y_train).astype(dtype=np.int32))
         y_train = y_train.reshape([y_train.shape[0], -1])
-        print '-- Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
-        print '-- Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')'
+        print('-- Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
+        print('-- Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
 
-        print c['g'] + '-- Creating the ' + c['b'] + 'patch-based ' + c['b'] + mode + c['nc']
+        print(c['g'] + '-- Creating the ' + c['b'] + 'patch-based ' + c['b'] + mode + c['nc'])
 
         # Train the net and save it
         net_name = os.path.join(
@@ -267,11 +267,11 @@ def patches_network_segmentation(options, mode):
             net_name
         )
 
-        print c['g'] + '-- Training the ' + c['b'] + 'patch-based ' + c['b'] + mode + c['nc']
+        print(c['g'] + '-- Training the ' + c['b'] + 'patch-based ' + c['b'] + mode + c['nc'])
         # We try to get the last weights to keep improving the net over and over
         try:
             net.load_params_from(net_name + 'model_weights.pkl')
-        except:
+        except IOError:
             pass
 
         if options['multi_channel']:
@@ -282,7 +282,7 @@ def patches_network_segmentation(options, mode):
                 [('\033[30minput_%d\033[0m' % ch, channel) for (ch, channel) in zip(channels, x_train)])
             net.fit(inputs, y_train)
 
-        print c['g'] + '-- Creating the test probability maps' + c['nc']
+        print(c['g'] + '-- Creating the test probability maps' + c['nc'])
         image_nii = load_nii(names[0, i])
         image = np.zeros_like(image_nii.get_data())
         for batch, centers in load_patch_batch(names[:, i], options['batch_size'],
