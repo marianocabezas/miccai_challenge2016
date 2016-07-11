@@ -62,6 +62,7 @@ def main():
         train_split=TrainSplit(eval_size=0.25),
         custom_scores=[('dsc', lambda p, t: 2 * np.sum(p * t[:, 1]) / np.sum((p + t[:, 1])))],
     )
+    net.load_params_from(net_name)
 
     print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +
           '<Creating the probability map ' + c['b'] + '1' + c['nc'] + c['g'] + '>' + c['nc'])
