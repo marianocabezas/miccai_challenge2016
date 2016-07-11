@@ -68,7 +68,6 @@ def main():
     names = np.array([options['flair'], options['pd'], options['t2'], options['t1']])
     image_nii = load_nii(options['flair'])
     image1 = np.zeros_like(image_nii.get_data())
-    print('-- Output shape = (' + ','.join([str(length) for length in image1.shape]) + ')')
     print('0% of data tested', end='\r')
     sys.stdout.flush()
     for batch, centers, percent in load_patch_batch_percent(names, batch_size, patch_size):
@@ -107,7 +106,6 @@ def main():
     print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +
           '<Creating the probability map ' + c['b'] + '2' + c['nc'] + c['g'] + '>' + c['nc'])
     image2 = np.zeros_like(image_nii.get_data())
-    print('-- Output shape = (' + ','.join([str(length) for length in image2.shape]) + ')')
     print('0% of data tested', end='\r')
     sys.stdout.flush()
     for batch, centers, percent in load_patch_batch_percent(names, batch_size, patch_size):
