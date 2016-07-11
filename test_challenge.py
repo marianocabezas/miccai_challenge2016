@@ -1,4 +1,3 @@
-import os
 import argparse
 from nibabel import load as load_nii
 import numpy as np
