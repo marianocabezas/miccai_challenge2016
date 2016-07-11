@@ -65,7 +65,7 @@ def main():
     net.load_params_from(net_name)
 
     print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Creating the probability map>' + c['nc']
-    names = [options['flair'], options['pd'], options['t2'], options['t1']]
+    names = np.stack([options['flair'], options['pd'], options['t2'], options['t1']])
     image_nii = load_nii(options['flair'])
     image = np.zeros_like(image_nii.get_data())
 
