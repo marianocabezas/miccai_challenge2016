@@ -6,9 +6,8 @@ from nibabel import load as load_nii
 import numpy as np
 from lasagne.layers import InputLayer, DenseLayer, DropoutLayer
 from lasagne.layers.dnn import Conv3DDNNLayer, Pool3DDNNLayer
-from lasagne import nonlinearities, objectives, updates
-from nolearn.lasagne import TrainSplit
-from nolearn.lasagne import NeuralNet, BatchIterator
+from lasagne import nonlinearities
+from nolearn.lasagne import NeuralNet
 from data_creation import load_patch_batch_percent
 from data_creation import sum_patches_to_image
 
@@ -53,14 +52,7 @@ def main():
             (DenseLayer, dict(name='l1', num_units=256)),
             (DenseLayer, dict(name='out', num_units=2, nonlinearity=nonlinearities.softmax)),
         ],
-        objective_loss_function=objectives.categorical_crossentropy,
-        update=updates.adam,
-        update_learning_rate=0.0001,
-        batch_iterator_train=BatchIterator(batch_size=4096),
         verbose=10,
-        max_epochs=2000,
-        train_split=TrainSplit(eval_size=0.25),
-        custom_scores=[('dsc', lambda x, y: 2 * np.sum(x * y[:, 1]) / np.sum((x + y[:, 1])))],
     )
     net.load_params_from(net_name)
 
@@ -68,13 +60,14 @@ def main():
     names = np.array([options['flair'], options['pd'], options['t2'], options['t1']])
     image_nii = load_nii(options['flair'])
     image = np.zeros_like(image_nii.get_data())
-    print('0\% of data tested', end='\r')
+    print('-- Output shape = (' + ','.join([str(length) for length in image.shape]) + ')')
+    print('0% of data tested', end='\r')
     sys.stdout.flush()
     for batch, centers, percent in load_patch_batch_percent(names, batch_size, patch_size):
         y_pred = net.predict_proba(batch)
 
         image += sum_patches_to_image(y_pred, centers, image)
-        print('%f\% of data tested', end='\r')
+        print('%f% of data tested', end='\r')
         sys.stdout.flush()
 
     print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +
