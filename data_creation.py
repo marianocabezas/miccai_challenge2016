@@ -158,6 +158,18 @@ def load_patch_batch(image_names, batch_size, size, datatype=np.float32):
         ), centers
 
 
+def load_patch_batch_precent(image_names, batch_size, size, datatype=np.float32):
+    images = [load_nii(name).get_data() for name in image_names]
+    images_norm = [(im - im[np.nonzero(im)].mean()) / im[np.nonzero(im)].std() for im in images]
+    lesion_centers = get_mask_voxels(images[0].astype(np.bool))
+    n_centers = len(lesion_centers)
+    for i in range(0, n_centers, batch_size):
+        centers = lesion_centers[i:i + batch_size]
+        yield np.stack(
+            [np.array(get_patches(image, centers, size)).astype(datatype) for image in images_norm], axis=1
+        ), centers, min((i + batch_size),  n_centers) / n_centers
+
+
 def load_patch_vectors(name, mask_name, dir_name, size, rois=None, random_state=42, datatype=np.float32):
     # Get the names of the images and load them
     patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
