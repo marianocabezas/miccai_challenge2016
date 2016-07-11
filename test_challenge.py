@@ -1,5 +1,5 @@
-import argparse
 from __future__ import print_function
+import argparse
 from time import strftime
 from nibabel import load as load_nii
 import numpy as np
