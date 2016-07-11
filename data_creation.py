@@ -167,7 +167,7 @@ def load_patch_batch_percent(image_names, batch_size, size, datatype=np.float32)
         centers = lesion_centers[i:i + batch_size]
         yield np.stack(
             [np.array(get_patches(image, centers, size)).astype(datatype) for image in images_norm], axis=1
-        ), centers, min((i + batch_size),  n_centers) / n_centers
+        ), centers, float(min((i + batch_size),  n_centers)) / n_centers
 
 
 def load_patch_vectors(name, mask_name, dir_name, size, rois=None, random_state=42, datatype=np.float32):
