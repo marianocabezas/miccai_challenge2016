@@ -1,4 +1,5 @@
 from __future__ import print_function
+import sys
 import argparse
 from time import strftime
 from nibabel import load as load_nii
@@ -68,11 +69,13 @@ def main():
     image_nii = load_nii(options['flair'])
     image = np.zeros_like(image_nii.get_data())
     print('0\% of data tested', end='\r')
+    sys.stdout.flush()
     for batch, centers, percent in load_patch_batch_percent(names, batch_size, patch_size):
         y_pred = net.predict_proba(batch)
 
         image += sum_patches_to_image(y_pred, centers, image)
         print('%f\% of data tested', end='\r')
+        sys.stdout.flush()
 
     print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +
           '<Saving to file' + c['b'] + options['output'] + c['nc'] + c['g'] + '>' + c['nc'])
