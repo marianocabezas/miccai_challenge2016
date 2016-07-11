@@ -73,7 +73,7 @@ def main():
     sys.stdout.flush()
     for batch, centers, percent in load_patch_batch_percent(names, batch_size, patch_size):
         y_pred = net.predict_proba(batch)
-        print('%f% of data tested', end='\r')
+        print('%f% of data tested' % percent, end='\r')
         image += sum_patches_to_image(y_pred, centers, image)
         sys.stdout.flush()
 
