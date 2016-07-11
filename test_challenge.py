@@ -68,11 +68,11 @@ def main():
     image_nii = load_nii(options['flair'])
     image = np.zeros_like(image_nii.get_data())
     print('-- Output shape = (' + ','.join([str(length) for length in image.shape]) + ')')
-    print('0% of data tested', end='\r')
+    print('0%% of data tested', end='\r')
     sys.stdout.flush()
     for batch, centers, percent in load_patch_batch_percent(names, batch_size, patch_size):
         y_pred = net.predict_proba(batch)
-        print('%f% of data tested' % percent, end='\r')
+        print('%f%% of data tested' % percent, end='\r')
         sys.stdout.flush()
         [x, y, z] = np.stack(centers, axis=1)
         image[x, y, z] = y_pred[:, 1]
