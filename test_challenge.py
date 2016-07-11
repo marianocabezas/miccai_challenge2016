@@ -67,13 +67,15 @@ def main():
     names = np.array([options['flair'], options['pd'], options['t2'], options['t1']])
     image_nii = load_nii(options['flair'])
     image = np.zeros_like(image_nii.get_data())
-
+    print('0\% of data tested', end='\r')
     for batch, centers, percent in load_patch_batch_percent(names, batch_size, patch_size):
         y_pred = net.predict_proba(batch)
 
         image += sum_patches_to_image(y_pred, centers, image)
-        print(c['g'] + '%f\% of data tested' + c['nc'], end='\r')
+        print('%f\% of data tested', end='\r')
 
+    print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +
+          '<Saving to file' + c['b'] + options['output'] + c['nc'] + c['g'] + '>' + c['nc'])
     image_nii.get_data()[:] = image
     image_nii.to_filename(options['output'])
 
