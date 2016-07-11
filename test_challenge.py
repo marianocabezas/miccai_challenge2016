@@ -1,0 +1,84 @@
+import os
+import argparse
+from nibabel import load as load_nii
+import numpy as np
+from lasagne.layers import InputLayer, DenseLayer, DropoutLayer
+from lasagne.layers.dnn import Conv3DDNNLayer, Pool3DDNNLayer
+from lasagne import nonlinearities, objectives, updates
+from nolearn.lasagne import TrainSplit
+from nolearn.lasagne import NeuralNet, BatchIterator
+from nolearn.lasagne.handlers import SaveWeights
+from nolearn_utils.hooks import SaveTrainingHistory, PlotTrainingHistory
+from data_creation import load_patch_batch
+from data_creation import sum_patches_to_image
+
+
+def color_codes():
+    codes = {'g': '\033[32m',
+             'c': '\033[36m',
+             'bg': '\033[32;1m',
+             'b': '\033[1m',
+             'nc': '\033[0m',
+             'gc': '\033[32m, \033[0m'
+             }
+    return codes
+
+
+def main():
+    # Parse command line options
+    parser = argparse.ArgumentParser(description='Test different nets with 3D data.')
+    parser.add_argument('--flair', action='store', dest='flair', default='FLAIR_preprocessed.nii.gz')
+    parser.add_argument('--pd', action='store', dest='pd', default='DP_preprocessed.nii.gz')
+    parser.add_argument('--t2', action='store', dest='t2', default='T2_preprocessed.nii.gz')
+    parser.add_argument('--t1', action='store', dest='t1', default='T1_preprocessed.nii.gz')
+    parser.add_argument('--output', action='store', dest='output', default='output.nii.gz')
+
+    c = color_codes()
+    patch_size = (15, 15, 15)
+    options = vars(parser.parse_args())
+
+    print c['g'] + '-- Loading the net' + c['nc']
+    net_name = '/home/sergivalverde/w/CNN/code/CNN1/miccai_challenge2016/deep-challenge2016.final.'
+    net = NeuralNet(
+        layers=[
+            (InputLayer, dict(name='in', shape=(None, 4, 15, 15, 15))),
+            (Conv3DDNNLayer, dict(name='conv1_1', num_filters=32, filter_size=(5, 5, 5), pad='same')),
+            (Pool3DDNNLayer, dict(name='avgpool_1', pool_size=2, stride=2, mode='average_inc_pad')),
+            (Conv3DDNNLayer, dict(name='conv2_1', num_filters=64, filter_size=(5, 5, 5), pad='same')),
+            (Pool3DDNNLayer, dict(name='avgpool_2', pool_size=2, stride=2, mode='average_inc_pad')),
+            (DropoutLayer, dict(name='l2drop', p=0.5)),
+            (DenseLayer, dict(name='l1', num_units=256)),
+            (DenseLayer, dict(name='out', num_units=2, nonlinearity=nonlinearities.softmax)),
+        ],
+        objective_loss_function=objectives.categorical_crossentropy,
+        update=updates.adam,
+        update_learning_rate=0.0001,
+        on_epoch_finished=[
+            SaveWeights(net_name + 'model_weights.pkl', only_best=True, pickle=False),
+            SaveTrainingHistory(net_name + 'model_history.pkl'),
+            PlotTrainingHistory(net_name + 'training_history.png'),
+        ],
+        batch_iterator_train=BatchIterator(batch_size=4096),
+        verbose=10,
+        max_epochs=2000,
+        train_split=TrainSplit(eval_size=0.25),
+        custom_scores=[('dsc', lambda x, y: 2 * np.sum(x * y[:, 1]) / np.sum((x + y[:, 1])))],
+    )
+    net.load_params_from(net_name + 'model_weights.pkl')
+
+    print c['g'] + '-- Creating the test probability map' + c['nc']
+    names = [options['flair'], options['pd'], options['t2'], options['t1']]
+    image_nii = load_nii(options['flair'])
+    image = np.zeros_like(image_nii.get_data())
+
+    for batch, centers in load_patch_batch(names, options['batch_size'], patch_size):
+        y_pred = net.predict_proba(batch)
+
+        image += sum_patches_to_image(y_pred, centers, image)
+
+    image_nii.get_data()[:] = image
+    image_nii.to_filename(options['output'])
+
+
+if __name__ == '__main__':
+    main()

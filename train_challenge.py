@@ -61,12 +61,12 @@ def main():
         verbose=10,
         max_epochs=50,
         train_split=TrainSplit(eval_size=0.25),
-        custom_scores=[('dsc', lambda x, y: 2 * np.sum(x * y[:, 1]) / np.sum((x + y[:, 1])))],
+        custom_scores=[('dsc', lambda p, t: 2 * np.sum(p * t[:, 1]) / np.sum((p + t[:, 1])))],
     )
 
     try:
         net.load_params_from(net_name + 'model_weights.pkl')
-    except:
+    except IOError:
         print c['c'] + '[' + strftime("%H:%M:%S") + '] ' +\
               c['g'] + 'Loading the data for ' + c['b'] + 'iteration 1' + c['nc']
         # Create the data
@@ -101,16 +101,15 @@ def main():
         # We try to get the last weights to keep improving the net over and over
         net.fit(x_train, y_train)
 
-
     ''' Here we get the seeds '''
     print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Looking for seeds>' + c['nc']
     for patient in names:
         output_name = os.path.join('/'.join(patient[0].rsplit('/')[:-1]), 'test.iter1.nii.gz')
-        try :
+        try:
             load_nii(output_name)
             print c['c'] + '[' + strftime("%H:%M:%S") + '] ' \
-            + c['g'] + '-- Patient ' + patient[0].rsplit('/')[-2] + ' already done' + c['nc']
-        except:
+                + c['g'] + '-- Patient ' + patient[0].rsplit('/')[-2] + ' already done' + c['nc']
+        except IOError:
             print c['c'] + '[' + strftime("%H:%M:%S") + '] '\
                   + c['g'] + '-- Testing with patient ' + c['b'] + patient[0].rsplit('/')[-2] + c['nc']
             image_nii = load_nii(patient[0])
@@ -150,12 +149,12 @@ def main():
         verbose=10,
         max_epochs=2000,
         train_split=TrainSplit(eval_size=0.25),
-        custom_scores=[('dsc', lambda x, y: 2 * np.sum(x * y[:, 1]) / np.sum((x + y[:, 1])))],
+        custom_scores=[('dsc', lambda p, t: 2 * np.sum(p * t[:, 1]) / np.sum((p + t[:, 1])))],
     )
 
     try:
         net.load_params_from(net_name + 'model_weights.pkl')
-    except:
+    except IOError:
         pass
     print c['c'] + '[' + strftime("%H:%M:%S") + '] '\
         + c['g'] + 'Loading the data for ' + c['b'] + 'iteration 2' + c['nc']
