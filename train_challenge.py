@@ -36,7 +36,7 @@ def main():
     ] if name is not None], axis=1)
     seed = np.random.randint(np.iinfo(np.int32).max)
     ''' Here we create an initial net to find conflictive voxels '''
-    print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Running iteration ' + c['b'] + '1>' + c['nc']
+    print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Running iteration ' + c['b'] + '1>' + c['nc'])
     net_name = '/home/sergivalverde/w/CNN/code/CNN1/miccai_challenge2016/deep-challenge2016.init.'
     net = NeuralNet(
         layers=[
@@ -67,8 +67,8 @@ def main():
     try:
         net.load_params_from(net_name + 'model_weights.pkl')
     except IOError:
-        print c['c'] + '[' + strftime("%H:%M:%S") + '] ' +\
-              c['g'] + 'Loading the data for ' + c['b'] + 'iteration 1' + c['nc']
+        print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' +
+              c['g'] + 'Loading the data for ' + c['b'] + 'iteration 1' + c['nc'])
         # Create the data
         (x, y, _) = load_patches(
             dir_name=dir_name,
@@ -86,15 +86,15 @@ def main():
             size=patch_size
         )
 
-        print '-- Permuting the data'
+        print('-- Permuting the data')
         np.random.seed(seed)
         x_train = np.random.permutation(np.concatenate(x).astype(dtype=np.float32))
-        print '-- Permuting the labels'
+        print('-- Permuting the labels')
         np.random.seed(seed)
         y_train = np.random.permutation(np.concatenate(y).astype(dtype=np.int32))
         y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
-        print '-- Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')'
-        print '-- Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')'
+        print('-- Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
+        print('-- Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
 
         print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +\
             'Training (' + c['b'] + 'initial' + c['nc'] + c['g'] + ')' + c['nc']

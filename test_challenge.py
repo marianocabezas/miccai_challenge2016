@@ -38,7 +38,48 @@ def main():
     options = vars(parser.parse_args())
     batch_size = 100000
 
-    print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Loading the net>' + c['nc'])
+    print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +
+          '<Loading the net ' + c['b'] + '1' + c['nc'] + c['g'] + '>' + c['nc'])
+
+    net_name = '/usr/local/nets/deep-challenge2016.init.model_weights.pkl' if options['docker'] \
+        else '/home/sergivalverde/w/CNN/code/CNN1/miccai_challenge2016/deep-challenge2016.init.model_weights.pkl'
+    net = NeuralNet(
+        layers=[
+            (InputLayer, dict(name='in', shape=(None, 4, 15, 15, 15))),
+            (Conv3DDNNLayer, dict(name='conv1_1', num_filters=32, filter_size=(5, 5, 5), pad='same')),
+            (Pool3DDNNLayer, dict(name='avgpool_1', pool_size=2, stride=2, mode='average_inc_pad')),
+            (Conv3DDNNLayer, dict(name='conv2_1', num_filters=64, filter_size=(5, 5, 5), pad='same')),
+            (Pool3DDNNLayer, dict(name='avgpool_2', pool_size=2, stride=2, mode='average_inc_pad')),
+            (DropoutLayer, dict(name='l2drop', p=0.5)),
+            (DenseLayer, dict(name='l1', num_units=256)),
+            (DenseLayer, dict(name='out', num_units=2, nonlinearity=nonlinearities.softmax)),
+        ],
+        objective_loss_function=objectives.categorical_crossentropy,
+        update=updates.adam,
+        update_learning_rate=0.0001,
+        verbose=10,
+        max_epochs=50,
+        train_split=TrainSplit(eval_size=0.25),
+        custom_scores=[('dsc', lambda p, t: 2 * np.sum(p * t[:, 1]) / np.sum((p + t[:, 1])))],
+    )
+
+    print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +
+          '<Creating the probability map ' + c['b'] + '1' + c['nc'] + c['g'] + '>' + c['nc'])
+    names = np.array([options['flair'], options['pd'], options['t2'], options['t1']])
+    image_nii = load_nii(options['flair'])
+    image1 = np.zeros_like(image_nii.get_data())
+    print('-- Output shape = (' + ','.join([str(length) for length in image1.shape]) + ')')
+    print('0% of data tested', end='\r')
+    sys.stdout.flush()
+    for batch, centers, percent in load_patch_batch_percent(names, batch_size, patch_size):
+        y_pred = net.predict_proba(batch)
+        print('%f%% of data tested' % percent, end='\r')
+        sys.stdout.flush()
+        [x, y, z] = np.stack(centers, axis=1)
+        image1[x, y, z] = y_pred[:, 1]
+
+    print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +
+          '<Loading the net ' + c['b'] + '2' + c['nc'] + c['g'] + '>' + c['nc'])
     net_name = '/usr/local/nets/deep-challenge2016.final.model_weights.pkl' if options['docker'] \
         else '/home/sergivalverde/w/CNN/code/CNN1/miccai_challenge2016/deep-challenge2016.final.model_weights.pkl'
     net = NeuralNet(
@@ -63,11 +104,10 @@ def main():
     )
     net.load_params_from(net_name)
 
-    print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Creating the probability map>' + c['nc'])
-    names = np.array([options['flair'], options['pd'], options['t2'], options['t1']])
-    image_nii = load_nii(options['flair'])
-    image = np.zeros_like(image_nii.get_data())
-    print('-- Output shape = (' + ','.join([str(length) for length in image.shape]) + ')')
+    print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +
+          '<Creating the probability map ' + c['b'] + '2' + c['nc'] + c['g'] + '>' + c['nc'])
+    image2 = np.zeros_like(image_nii.get_data())
+    print('-- Output shape = (' + ','.join([str(length) for length in image2.shape]) + ')')
     print('0% of data tested', end='\r')
     sys.stdout.flush()
     for batch, centers, percent in load_patch_batch_percent(names, batch_size, patch_size):
@@ -75,11 +115,11 @@ def main():
         print('%f%% of data tested' % percent, end='\r')
         sys.stdout.flush()
         [x, y, z] = np.stack(centers, axis=1)
-        image[x, y, z] = y_pred[:, 1]
+        image2[x, y, z] = y_pred[:, 1]
 
     print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +
           '<Saving to file' + c['b'] + options['output'] + c['nc'] + c['g'] + '>' + c['nc'])
-    image_nii.get_data()[:] = image
+    image_nii.get_data()[:] = (image1 * image2) > 0.5
     image_nii.to_filename(options['output'])
 
 
