@@ -1,4 +1,5 @@
 import argparse
+from __future__ import print_function
 from time import strftime
 from nibabel import load as load_nii
 import numpy as np
@@ -7,9 +8,7 @@ from lasagne.layers.dnn import Conv3DDNNLayer, Pool3DDNNLayer
 from lasagne import nonlinearities, objectives, updates
 from nolearn.lasagne import TrainSplit
 from nolearn.lasagne import NeuralNet, BatchIterator
-from nolearn.lasagne.handlers import SaveWeights
-from nolearn_utils.hooks import SaveTrainingHistory, PlotTrainingHistory
-from data_creation import load_patch_batch
+from data_creation import load_patch_batch_percent
 from data_creation import sum_patches_to_image
 
 
@@ -39,7 +38,7 @@ def main():
     options = vars(parser.parse_args())
     batch_size = 500000
 
-    print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Loading the net>' + c['nc']
+    print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Loading the net>' + c['nc'])
     net_name = '/usr/local/nets/deep-challenge2016.final.model_weights.pkl' if options['docker'] \
         else '/home/sergivalverde/w/CNN/code/CNN1/miccai_challenge2016/deep-challenge2016.final.model_weights.pkl'
     net = NeuralNet(
@@ -64,15 +63,16 @@ def main():
     )
     net.load_params_from(net_name)
 
-    print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Creating the probability map>' + c['nc']
+    print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Creating the probability map>' + c['nc'])
     names = np.stack([options['flair'], options['pd'], options['t2'], options['t1']])
     image_nii = load_nii(options['flair'])
     image = np.zeros_like(image_nii.get_data())
 
-    for batch, centers in load_patch_batch(names, batch_size, patch_size):
+    for batch, centers, percent in load_patch_batch_percent(names, batch_size, patch_size):
         y_pred = net.predict_proba(batch)
 
         image += sum_patches_to_image(y_pred, centers, image)
+        print(c['g'] + '%f\% of data tested' + c['nc'], end='\r')
 
     image_nii.get_data()[:] = image
     image_nii.to_filename(options['output'])

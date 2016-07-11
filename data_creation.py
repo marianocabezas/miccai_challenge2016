@@ -158,7 +158,7 @@ def load_patch_batch(image_names, batch_size, size, datatype=np.float32):
         ), centers
 
 
-def load_patch_batch_precent(image_names, batch_size, size, datatype=np.float32):
+def load_patch_batch_percent(image_names, batch_size, size, datatype=np.float32):
     images = [load_nii(name).get_data() for name in image_names]
     images_norm = [(im - im[np.nonzero(im)].mean()) / im[np.nonzero(im)].std() for im in images]
     lesion_centers = get_mask_voxels(images[0].astype(np.bool))
