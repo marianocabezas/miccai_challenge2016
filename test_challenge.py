@@ -1,4 +1,5 @@
 import argparse
+from time import strftime
 from nibabel import load as load_nii
 import numpy as np
 from lasagne.layers import InputLayer, DenseLayer, DropoutLayer
@@ -35,9 +36,10 @@ def main():
     c = color_codes()
     patch_size = (15, 15, 15)
     options = vars(parser.parse_args())
+    batch_size = 500000
 
-    print c['g'] + '-- Loading the net' + c['nc']
-    net_name = '/home/sergivalverde/w/CNN/code/CNN1/miccai_challenge2016/deep-challenge2016.final.'
+    print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Loading the net>' + c['nc']
+    net_name = '/usr/local/nets/deep-challenge2016.final.model_weights.pkl'
     net = NeuralNet(
         layers=[
             (InputLayer, dict(name='in', shape=(None, 4, 15, 15, 15))),
@@ -52,11 +54,6 @@ def main():
         objective_loss_function=objectives.categorical_crossentropy,
         update=updates.adam,
         update_learning_rate=0.0001,
-        on_epoch_finished=[
-            SaveWeights(net_name + 'model_weights.pkl', only_best=True, pickle=False),
-            SaveTrainingHistory(net_name + 'model_history.pkl'),
-            PlotTrainingHistory(net_name + 'training_history.png'),
-        ],
         batch_iterator_train=BatchIterator(batch_size=4096),
         verbose=10,
         max_epochs=2000,
@@ -65,12 +62,12 @@ def main():
     )
     net.load_params_from(net_name + 'model_weights.pkl')
 
-    print c['g'] + '-- Creating the test probability map' + c['nc']
+    print c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Creating the probability map>' + c['nc']
     names = [options['flair'], options['pd'], options['t2'], options['t1']]
     image_nii = load_nii(options['flair'])
     image = np.zeros_like(image_nii.get_data())
 
-    for batch, centers in load_patch_batch(names, options['batch_size'], patch_size):
+    for batch, centers in load_patch_batch(names, batch_size, patch_size):
         y_pred = net.predict_proba(batch)
 
         image += sum_patches_to_image(y_pred, centers, image)
