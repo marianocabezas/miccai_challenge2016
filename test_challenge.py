@@ -117,7 +117,7 @@ def main():
         image2[x, y, z] = y_pred[:, 1]
 
     print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +
-          '<Saving to file' + c['b'] + options['output'] + c['nc'] + c['g'] + '>' + c['nc'])
+          '<Saving to file ' + c['b'] + options['output'] + c['nc'] + c['g'] + '>' + c['nc'])
     image = (image1 * image2) > 0.5
     image_nii.get_data()[:] = np.roll(np.roll(image, -1, axis=0), -1, axis=1)
     image_nii.to_filename(options['output'])
