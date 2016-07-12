@@ -100,7 +100,7 @@ def main():
         verbose=10,
         max_epochs=2000,
         train_split=TrainSplit(eval_size=0.25),
-        custom_scores=[('dsc', lambda x, y: 2 * np.sum(x * y[:, 1]) / np.sum((x + y[:, 1])))],
+        custom_scores=[('dsc', lambda t, p: 2 * np.sum(t * p[:, 1]) / np.sum((t + p[:, 1])))],
     )
     net.load_params_from(net_name)
 
