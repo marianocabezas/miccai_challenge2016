@@ -1,4 +1,5 @@
 from __future__ import print_function
+import os
 import sys
 import argparse
 from time import strftime
@@ -121,6 +122,14 @@ def main():
     image = (image1 * image2) > 0.5
     image_nii.get_data()[:] = np.roll(np.roll(image, 1, axis=0), 1, axis=1)
     image_nii.to_filename(options['output'])
+
+    if not options['docker']:
+        path = '/'.join(options['output'].rsplit('/')[:-1])
+        case = options['output'].rsplit('/')[-1]
+        gt = load_nii(os.path.join(path, 'Consensus.nii.gz')).getdata().astype(dtype=np.bool)
+        dsc = np.sum(2 * np.logical_and(gt, image)) / (np.sum(gt) + np.sum(image))
+        print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +
+              '<DSC value for ' + c['c'] + case + c['g'] + ' = ' + c['b'] + str(dsc) + c['nc'] + c['g'] + '>' + c['nc'])
 
 
 if __name__ == '__main__':
