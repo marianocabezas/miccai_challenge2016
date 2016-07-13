@@ -120,7 +120,6 @@ def main():
           '<Saving to file ' + c['b'] + options['output'] + c['nc'] + c['g'] + '>' + c['nc'])
     image = (image1 * image2) > 0.5
     image_nii.get_data()[:] = np.roll(np.roll(image, 1, axis=0), 1, axis=1)
-    # image_nii.get_data()[:] = image
     image_nii.to_filename(options['output'])
 
 
