@@ -30,7 +30,8 @@ def main():
     patch_size = (15, 15, 15)
     batch_size = 100000
     dir_name = '/home/sergivalverde/w/CNN/images/CH16'
-    print(c['g'] + 'Loading the data for the patch-based ' + c['b'] + mode + c['nc'])
+    print(c['c'] + '\t[' + strftime("%H:%M:%S") + '] ' +
+          c['g'] + 'Loading the data for the leave-one-out test' + c['nc'])
     # Create the data
     (x, y, names) = load_patches(
         dir_name=dir_name,
@@ -205,8 +206,8 @@ def main():
         y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
         print('\t-- Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
         print('\t-- Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
-        print(c['c'] + '[' + strftime("%H:%M:%S") + '] '\
-            + c['g'] + 'Training (' + c['b'] + 'final' + c['nc'] + c['g'] + ')' + c['nc'])
+        print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' +
+              c['g'] + 'Training (' + c['b'] + 'final' + c['nc'] + c['g'] + ')' + c['nc'])
         net.fit(x_train, y_train)
 
         print(c['c'] + '\t[' + strftime("%H:%M:%S") + '] ' + c['g'] +
