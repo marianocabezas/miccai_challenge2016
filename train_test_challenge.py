@@ -55,8 +55,8 @@ def main():
     for x_train, y_train, i in leave_one_out(x, y):
         case = names[0, i].rsplit('/')[-2]
         path = '/'.join(names[0, i].rsplit('/')[:-1])
-        print(c['c'] + '\t[' + strftime("%H:%M:%S") + '] ' + c['nc'] + 'Patient ' + c['b'] + case + c['nc'])
-        print(c['c'] + '\t[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Running iteration ' + c['b'] + '1>' + c['nc'])
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['nc'] + 'Patient ' + c['b'] + case + c['nc'])
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] + '<Running iteration ' + c['b'] + '1>' + c['nc'])
         net_name = os.path.join(path, 'deep-challenge2016.init.')
         net = NeuralNet(
             layers=[
@@ -87,8 +87,8 @@ def main():
         try:
             net.load_params_from(net_name + 'model_weights.pkl')
         except IOError:
-            print(c['c'] + '\t[' + strftime("%H:%M:%S") + '] ' +
-                  c['g'] + '\tLoading the data for ' + c['b'] + 'iteration 1' + c['nc'])
+            print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' +
+                  c['g'] + 'Loading the data for ' + c['b'] + 'iteration 1' + c['nc'])
             # Create the data
             print('\t-- Permuting the data')
             np.random.seed(seed)
@@ -100,12 +100,12 @@ def main():
             print('\t-- Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
             print('\t-- Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
 
-            print(c['c'] + '\t[' + strftime("%H:%M:%S") + '] ' + c['g'] +
+            print(c['c'] + '\t[' + strftime("%H:%M:%S") + ']\t' + c['g'] +
                   'Training (' + c['b'] + 'initial' + c['nc'] + c['g'] + ')' + c['nc'])
             # We try to get the last weights to keep improving the net over and over
             net.fit(x_train, y_train)
 
-        print(c['c'] + '\t[' + strftime("%H:%M:%S") + '] ' + c['g'] +
+        print(c['c'] + '\t[' + strftime("%H:%M:%S") + ']\t' + c['g'] +
               '<Creating the probability map ' + c['b'] + '1' + c['nc'] + c['g'] + '>' + c['nc'])
         flair_name = os.path.join(path, 'FLAIR_preprocessed.nii.gz')
         pd_name = os.path.join(path, 'DP_preprocessed.nii.gz')
@@ -124,15 +124,15 @@ def main():
             image1[x, y, z] = y_pred[:, 1]
 
         ''' Here we get the seeds '''
-        print(c['c'] + '\t[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Looking for seeds>' + c['nc'])
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] + '<Looking for seeds>' + c['nc'])
         for patient in np.concatenate([names[:i, :], names[i + 1:, :]]):
             output_name = os.path.join('/'.join(patient[0].rsplit('/')[:-1]), 'test' + str(i) + '.iter1.nii.gz')
             try:
                 load_nii(output_name)
-                print(c['c'] + '\t[' + strftime("%H:%M:%S") + '] ' +
+                print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' +
                       c['g'] + '\t-- Patient ' + patient[0].rsplit('/')[-2] + ' already done' + c['nc'])
             except IOError:
-                print(c['c'] + '\t[' + strftime("%H:%M:%S") + '] ' +
+                print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' +
                       c['g'] + '\t-- Testing with patient ' + c['b'] + patient[0].rsplit('/')[-2] + c['nc'])
                 image_nii = load_nii(patient[0])
                 image = np.zeros_like(image_nii.get_data())
@@ -146,7 +146,7 @@ def main():
                 image_nii.to_filename(output_name)
 
         ''' Here we perform the last iteration '''
-        print(c['c'] + '\t[' + strftime("%H:%M:%S") + '] ' + c['g'] + '<Running iteration ' + c['b'] + '2>' + c['nc'])
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] + '<Running iteration ' + c['b'] + '2>' + c['nc'])
         net_name = os.path.join(path, 'deep-challenge2016.final.')
         net = NeuralNet(
             layers=[
@@ -178,8 +178,8 @@ def main():
             net.load_params_from(net_name + 'model_weights.pkl')
         except IOError:
             pass
-        print(c['c'] + '\t[' + strftime("%H:%M:%S") + '] ' +
-              c['g'] + '\tLoading the data for ' + c['b'] + 'iteration 2' + c['nc'])
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' +
+              c['g'] + 'Loading the data for ' + c['b'] + 'iteration 2' + c['nc'])
         (x_final, y_final, _) = load_patches(
             dir_name='/home/sergivalverde/w/CNN/images/CH16',
             use_flair=True,
@@ -210,7 +210,7 @@ def main():
               c['g'] + 'Training (' + c['b'] + 'final' + c['nc'] + c['g'] + ')' + c['nc'])
         net.fit(x_train, y_train)
 
-        print(c['c'] + '\t[' + strftime("%H:%M:%S") + '] ' + c['g'] +
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] +
               '<Creating the probability map ' + c['b'] + '2' + c['nc'] + c['g'] + '>' + c['nc'])
         image2 = np.zeros_like(image_nii.get_data())
         print('\t0% of data tested', end='\r')
@@ -227,7 +227,7 @@ def main():
 
         gt = load_nii(os.path.join(path, 'Consensus.nii.gz')).get_data().astype(dtype=np.bool)
         dsc = np.sum(2.0 * np.logical_and(gt, image)) / (np.sum(gt) + np.sum(image))
-        print(c['c'] + '\t[' + strftime("%H:%M:%S") + '] ' + c['g'] +
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] +
               '<DSC value for ' + c['c'] + case + c['g'] + ' = ' + c['b'] + str(dsc) + c['nc'] + c['g'] + '>' + c['nc'])
 
 
