@@ -56,7 +56,8 @@ def main():
         case = names[0, i].rsplit('/')[-2]
         path = '/'.join(names[0, i].rsplit('/')[:-1])
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['nc'] + 'Patient ' + c['b'] + case + c['nc'])
-        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] + '<Running iteration ' + c['b'] + '1>' + c['nc'])
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] +
+              '<Running iteration ' + c['b'] + '1' + c['nc'] + c['g'] + '>' + c['nc'])
         net_name = os.path.join(path, 'deep-challenge2016.init.')
         net = NeuralNet(
             layers=[
@@ -105,7 +106,7 @@ def main():
             # We try to get the last weights to keep improving the net over and over
             net.fit(x_train, y_train)
 
-        print(c['c'] + '\t[' + strftime("%H:%M:%S") + ']\t' + c['g'] +
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] +
               '<Creating the probability map ' + c['b'] + '1' + c['nc'] + c['g'] + '>' + c['nc'])
         flair_name = os.path.join(path, 'FLAIR_preprocessed.nii.gz')
         pd_name = os.path.join(path, 'DP_preprocessed.nii.gz')
