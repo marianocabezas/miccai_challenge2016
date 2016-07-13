@@ -182,7 +182,7 @@ def main():
             pass
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' +
               c['g'] + 'Loading the data for ' + c['b'] + 'iteration 2' + c['nc'])
-        (x_final, y_final, _) = load_patches(
+        (x_train, y_train, _) = load_patches(
             dir_name='/home/sergivalverde/w/CNN/images/CH16',
             use_flair=True,
             use_pd=True,
@@ -201,10 +201,10 @@ def main():
 
         print('\tPermuting the data')
         np.random.seed(seed)
-        x_train = np.random.permutation(np.concatenate(x_final[:i] + x_final[i+1:]).astype(dtype=np.float32))
+        x_train = np.random.permutation(np.concatenate(x_train[:i] + x_train[i+1:]).astype(dtype=np.float32))
         print('\tPermuting the labels')
         np.random.seed(seed)
-        y_train = np.random.permutation(np.concatenate(y_final[:i] + y_final[i+1:]).astype(dtype=np.int32))
+        y_train = np.random.permutation(np.concatenate(y_train[:i] + y_train[i+1:]).astype(dtype=np.int32))
         y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
         print('\tTraining vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
         print('\tTraining labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
