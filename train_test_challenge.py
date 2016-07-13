@@ -30,7 +30,7 @@ def main():
     patch_size = (15, 15, 15)
     batch_size = 100000
     dir_name = '/home/sergivalverde/w/CNN/images/CH16'
-    print(c['c'] + '\t[' + strftime("%H:%M:%S") + '] ' +
+    print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' +
           c['g'] + 'Loading the data for the leave-one-out test' + c['nc'])
     # Create the data
     (x, y, names) = load_patches(
