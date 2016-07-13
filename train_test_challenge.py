@@ -166,6 +166,7 @@ def main():
                 SaveWeights(net_name + 'model_weights.pkl', only_best=True, pickle=False),
                 SaveTrainingHistory(net_name + 'model_history.pkl'),
                 PlotTrainingHistory(net_name + 'training_history.png'),
+                EarlyStopping(patience=50)
             ],
             batch_iterator_train=BatchIterator(batch_size=4096),
             verbose=10,
