@@ -127,7 +127,7 @@ def main():
         path = '/'.join(options['output'].rsplit('/')[:-1])
         case = options['output'].rsplit('/')[-1]
         gt = load_nii(os.path.join(path, 'Consensus.nii.gz')).get_data().astype(dtype=np.bool)
-        dsc = np.sum(2 * np.logical_and(gt, image)) / (np.sum(gt) + np.sum(image))
+        dsc = np.sum(2.0 * np.logical_and(gt, image)) / (np.sum(gt) + np.sum(image))
         print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +
               '<DSC value for ' + c['c'] + case + c['g'] + ' = ' + c['b'] + str(dsc) + c['nc'] + c['g'] + '>' + c['nc'])
 
