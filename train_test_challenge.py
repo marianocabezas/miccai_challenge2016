@@ -90,15 +90,15 @@ def main():
             print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' +
                   c['g'] + 'Loading the data for ' + c['b'] + 'iteration 1' + c['nc'])
             # Create the data
-            print('\t-- Permuting the data')
+            print('\tPermuting the data')
             np.random.seed(seed)
             x_train = np.random.permutation(np.concatenate(x_train).astype(dtype=np.float32))
-            print('\t-- Permuting the labels')
+            print('\tPermuting the labels')
             np.random.seed(seed)
             y_train = np.random.permutation(np.concatenate(y_train).astype(dtype=np.int32))
             y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
-            print('\t-- Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
-            print('\t-- Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
+            print('\tTraining vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
+            print('\tTraining labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
 
             print(c['c'] + '\t[' + strftime("%H:%M:%S") + ']\t' + c['g'] +
                   'Training (' + c['b'] + 'initial' + c['nc'] + c['g'] + ')' + c['nc'])
@@ -130,10 +130,10 @@ def main():
             try:
                 load_nii(output_name)
                 print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' +
-                      c['g'] + '\t-- Patient ' + patient[0].rsplit('/')[-2] + ' already done' + c['nc'])
+                      c['g'] + '\tPatient ' + patient[0].rsplit('/')[-2] + ' already done' + c['nc'])
             except IOError:
                 print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' +
-                      c['g'] + '\t-- Testing with patient ' + c['b'] + patient[0].rsplit('/')[-2] + c['nc'])
+                      c['g'] + '\t Testing with patient ' + c['b'] + patient[0].rsplit('/')[-2] + c['nc'])
                 image_nii = load_nii(patient[0])
                 image = np.zeros_like(image_nii.get_data())
                 for batch, centers in load_patch_batch(patient, 100000, patch_size):
@@ -198,15 +198,15 @@ def main():
             roi_name='test' + str(i) + '.iter1.nii.gz'
         )
 
-        print('\t-- Permuting the data')
+        print('\tPermuting the data')
         np.random.seed(seed)
         x_train = np.random.permutation(np.concatenate(x_final[:i] + x_final[i+1:]).astype(dtype=np.float32))
-        print('\t-- Permuting the labels')
+        print('\tPermuting the labels')
         np.random.seed(seed)
         y_train = np.random.permutation(np.concatenate(y_final[:i] + y_final[i+1:]).astype(dtype=np.int32))
         y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
-        print('\t-- Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
-        print('\t-- Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
+        print('\tTraining vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
+        print('\tTraining labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
         print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' +
               c['g'] + 'Training (' + c['b'] + 'final' + c['nc'] + c['g'] + ')' + c['nc'])
         net.fit(x_train, y_train)
