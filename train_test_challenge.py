@@ -127,6 +127,7 @@ def main():
         ''' Here we get the seeds '''
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] + '<Looking for seeds>' + c['nc'])
         for patient in np.concatenate([names[:i, :], names[i + 1:, :]]):
+            print(patient.shape)
             output_name = os.path.join('/'.join(patient[0].rsplit('/')[:-1]), 'test' + str(i) + '.iter1.nii.gz')
             try:
                 load_nii(output_name)
