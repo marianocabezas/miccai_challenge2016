@@ -117,12 +117,12 @@ def main():
         image1 = np.zeros_like(image_nii.get_data())
         print('\t0% of data tested', end='\r')
         sys.stdout.flush()
-        for batch, centers, percent in load_patch_batch_percent(names_test, batch_size, patch_size):
-            y_pred = net.predict_proba(batch)
-            print('\t%f%% of data tested' % percent, end='\r')
-            sys.stdout.flush()
-            [x, y, z] = np.stack(centers, axis=1)
-            image1[x, y, z] = y_pred[:, 1]
+        #for batch, centers, percent in load_patch_batch_percent(names_test, batch_size, patch_size):
+        #    y_pred = net.predict_proba(batch)
+        #    print('\t%f%% of data tested' % percent, end='\r')
+        #    sys.stdout.flush()
+        #    [x, y, z] = np.stack(centers, axis=1)
+        #    image1[x, y, z] = y_pred[:, 1]
 
         ''' Here we get the seeds '''
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] + '<Looking for seeds>' + c['nc'])
