@@ -5,6 +5,7 @@ import argparse
 from time import strftime
 from nibabel import load as load_nii
 import numpy as np
+from scipy import ndimage
 from lasagne.layers import InputLayer, DenseLayer, DropoutLayer
 from lasagne.layers.dnn import Conv3DDNNLayer, Pool3DDNNLayer
 from lasagne import nonlinearities, objectives, updates
@@ -38,6 +39,7 @@ def main():
     patch_size = (15, 15, 15)
     options = vars(parser.parse_args())
     batch_size = 100000
+    min_size = 30
 
     print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +
           '<Loading the net ' + c['b'] + '1' + c['nc'] + c['g'] + '>' + c['nc'])
@@ -120,6 +122,15 @@ def main():
     print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +
           '<Saving to file ' + c['b'] + options['output'] + c['nc'] + c['g'] + '>' + c['nc'])
     image = (image1 * image2) > 0.5
+
+    # filter candidates < min_size
+    labels, num_labels = ndimage.label(image)
+    lesion_list = np.unique(labels)
+    num_elements_by_lesion = ndimage.labeled_comprehension(image, labels, lesion_list, np.sum, float, 0)
+    filt_min_size = num_elements_by_lesion >= min_size
+    lesion_list = lesion_list[filt_min_size]
+    image = reduce(np.logical_or, map(lambda lab: lab == labels, lesion_list))
+
     image_nii.get_data()[:] = np.roll(np.roll(image, 1, axis=0), 1, axis=1)
     image_nii.to_filename(options['output'])
 
