@@ -3,7 +3,7 @@ import os
 import sys
 from time import strftime
 import numpy as np
-from data_creation import load_patches, load_patch_batch, leave_one_out, load_patch_batch_percent
+from data_creation import load_patches, leave_one_out, load_patch_batch_percent
 from lasagne.layers import InputLayer, DenseLayer, DropoutLayer
 from lasagne.layers.dnn import Conv3DDNNLayer, Pool3DDNNLayer
 from lasagne import nonlinearities, objectives, updates
@@ -137,8 +137,10 @@ def main():
                       c['g'] + '\t Testing with patient ' + c['b'] + patient[0].rsplit('/')[-2] + c['nc'])
                 image_nii = load_nii(patient[0])
                 image = np.zeros_like(image_nii.get_data())
-                for batch, centers in load_patch_batch(patient, 100000, patch_size):
+                print('\t0% of data tested', end='\r')
+                for batch, centers, percent in load_patch_batch_percent(patient, 100000, patch_size):
                     y_pred = net.predict_proba(batch)
+                    print('\t%f%% of data tested' % percent, end='\r')
                     [x, y, z] = np.stack(centers, axis=1)
                     image[x, y, z] = y_pred[:, 1]
 
@@ -147,7 +149,8 @@ def main():
                 image_nii.to_filename(output_name)
 
         ''' Here we perform the last iteration '''
-        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] + '<Running iteration ' + c['b'] + '2>' + c['nc'])
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] +
+              '<Running iteration ' + c['b'] + '2' + c['nc'] + c['g'] + '>' + c['nc'])
         net_name = os.path.join(path, 'deep-challenge2016.final.')
         net = NeuralNet(
             layers=[
