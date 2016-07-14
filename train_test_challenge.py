@@ -101,7 +101,7 @@ def main():
             print('\tTraining vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
             print('\tTraining labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
 
-            print(c['c'] + '\t[' + strftime("%H:%M:%S") + ']\t' + c['g'] +
+            print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] +
                   'Training (' + c['b'] + 'initial' + c['nc'] + c['g'] + ')' + c['nc'])
             # We try to get the last weights to keep improving the net over and over
             net.fit(x_train, y_train)
