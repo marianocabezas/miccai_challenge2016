@@ -115,22 +115,19 @@ def main():
         names_test = np.array([flair_name, pd_name, t2_name, t1_name])
         image_nii = load_nii(flair_name)
         image1 = np.zeros_like(image_nii.get_data())
-        #print('\t0% of data tested', end='\r')
-        #sys.stdout.flush()
-        #for batch, centers, percent in load_patch_batch_percent(names_test, batch_size, patch_size):
-        #    y_pred = net.predict_proba(batch)
-        #    print('\t%f%% of data tested' % percent, end='\r')
-        #    sys.stdout.flush()
-        #    [x, y, z] = np.stack(centers, axis=1)
-        #    image1[x, y, z] = y_pred[:, 1]
+        print('\t0% of data tested', end='\r')
+        sys.stdout.flush()
+        for batch, centers, percent in load_patch_batch_percent(names_test, batch_size, patch_size):
+            y_pred = net.predict_proba(batch)
+            print('\t%f%% of data tested' % percent, end='\r')
+            sys.stdout.flush()
+            [x, y, z] = np.stack(centers, axis=1)
+            image1[x, y, z] = y_pred[:, 1]
 
         ''' Here we get the seeds '''
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' +
               c['g'] + '<Looking for seeds>' + c['nc'])
-        print(names.shape)
-        print(np.concatenate([names[:i, :], names[i + 1:, :]]).shape)
         for patient in np.concatenate([names[:i, :], names[i + 1:, :]]):
-            print(patient.shape)
             output_name = os.path.join('/'.join(patient[0].rsplit('/')[:-1]), 'test' + str(i) + '.iter1.nii.gz')
             try:
                 load_nii(output_name)
