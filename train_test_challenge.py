@@ -55,8 +55,8 @@ def main():
     for x_train, y_train, i in leave_one_out(x, y):
         case = names[0, i].rsplit('/')[-2]
         path = '/'.join(names[0, i].rsplit('/')[:-1])
-        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['nc'] + 'Patient ' + c['b'] + case + c['nc'])
-        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] +
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['nc'] + 'Patient ' + c['b'] + case + c['nc'])
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
               '<Running iteration ' + c['b'] + '1' + c['nc'] + c['g'] + '>' + c['nc'])
         net_name = os.path.join(path, 'deep-challenge2016.init.')
         net = NeuralNet(
@@ -88,25 +88,25 @@ def main():
         try:
             net.load_params_from(net_name + 'model_weights.pkl')
         except IOError:
-            print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' +
+            print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
                   c['g'] + 'Loading the data for ' + c['b'] + 'iteration 1' + c['nc'])
             # Create the data
-            print('\tPermuting the data')
+            print('    Permuting the data')
             np.random.seed(seed)
             x_train = np.random.permutation(np.concatenate(x_train).astype(dtype=np.float32))
-            print('\tPermuting the labels')
+            print('    Permuting the labels')
             np.random.seed(seed)
             y_train = np.random.permutation(np.concatenate(y_train).astype(dtype=np.int32))
             y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
-            print('\tTraining vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
-            print('\tTraining labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
+            print('    Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
+            print('    Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
 
-            print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] +
+            print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
                   'Training (' + c['b'] + 'initial' + c['nc'] + c['g'] + ')' + c['nc'])
             # We try to get the last weights to keep improving the net over and over
             net.fit(x_train, y_train)
 
-        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] +
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
               '<Creating the probability map ' + c['b'] + '1' + c['nc'] + c['g'] + '>' + c['nc'])
         flair_name = os.path.join(path, 'FLAIR_preprocessed.nii.gz')
         pd_name = os.path.join(path, 'DP_preprocessed.nii.gz')
@@ -115,45 +115,43 @@ def main():
         names_test = np.array([flair_name, pd_name, t2_name, t1_name])
         image_nii = load_nii(flair_name)
         image1 = np.zeros_like(image_nii.get_data())
-        print('\t0% of data tested', end='\r')
+        print('    0% of data tested', end='\r')
         sys.stdout.flush()
         for batch, centers, percent in load_patch_batch_percent(names_test, batch_size, patch_size):
             y_pred = net.predict_proba(batch)
-            print('\t%f%% of data tested' % percent, end='\r')
+            print('    %f%% of data tested' % percent, end='\r')
             sys.stdout.flush()
             [x, y, z] = np.stack(centers, axis=1)
             image1[x, y, z] = y_pred[:, 1]
 
         ''' Here we get the seeds '''
-        print('', end='\r')
-        sys.stdout.flush()
-        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' +
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
               c['g'] + '<Looking for seeds>' + c['nc'])
         for patient in np.concatenate([names[:, :i], names[:, i+1:]], axis=1):
-            print(names.shape)
+            print(patient.shape)
             output_name = os.path.join('/'.join(patient[0].rsplit('/')[:-1]), 'test' + str(i) + '.iter1.nii.gz')
             try:
                 load_nii(output_name)
-                print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' +
-                      c['g'] + '\tPatient ' + patient[0].rsplit('/')[-2] + ' already done' + c['nc'])
+                print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
+                      c['g'] + '    Patient ' + patient[0].rsplit('/')[-2] + ' already done' + c['nc'])
             except IOError:
-                print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' +
-                      c['g'] + '\t Testing with patient ' + c['b'] + patient[0].rsplit('/')[-2] + c['nc'])
+                print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
+                      c['g'] + '     Testing with patient ' + c['b'] + patient[0].rsplit('/')[-2] + c['nc'])
                 image_nii = load_nii(patient[0])
                 image = np.zeros_like(image_nii.get_data())
-                print('\t0% of data tested', end='\r')
+                print('    0% of data tested', end='\r')
                 for batch, centers, percent in load_patch_batch_percent(patient, 100000, patch_size):
                     y_pred = net.predict_proba(batch)
-                    print('\t%f%% of data tested' % percent, end='\r')
+                    print('    %f%% of data tested' % percent, end='\r')
                     [x, y, z] = np.stack(centers, axis=1)
                     image[x, y, z] = y_pred[:, 1]
 
-                print(c['g'] + '\t-- Saving image ' + c['b'] + output_name + c['nc'])
+                print(c['g'] + '    -- Saving image ' + c['b'] + output_name + c['nc'])
                 image_nii.get_data()[:] = image
                 image_nii.to_filename(output_name)
 
         ''' Here we perform the last iteration '''
-        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] +
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
               '<Running iteration ' + c['b'] + '2' + c['nc'] + c['g'] + '>' + c['nc'])
         net_name = os.path.join(path, 'deep-challenge2016.final.')
         net = NeuralNet(
@@ -187,7 +185,7 @@ def main():
             net.load_params_from(net_name + 'model_weights.pkl')
         except IOError:
             pass
-        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' +
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
               c['g'] + 'Loading the data for ' + c['b'] + 'iteration 2' + c['nc'])
         (x_train, y_train, _) = load_patches(
             dir_name='/home/sergivalverde/w/CNN/images/CH16',
@@ -206,27 +204,27 @@ def main():
             roi_name='test' + str(i) + '.iter1.nii.gz'
         )
 
-        print('\tPermuting the data')
+        print('    Permuting the data')
         np.random.seed(seed)
         x_train = np.random.permutation(np.concatenate(x_train[:i] + x_train[i+1:]).astype(dtype=np.float32))
-        print('\tPermuting the labels')
+        print('    Permuting the labels')
         np.random.seed(seed)
         y_train = np.random.permutation(np.concatenate(y_train[:i] + y_train[i+1:]).astype(dtype=np.int32))
         y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
-        print('\tTraining vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
-        print('\tTraining labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
+        print('    Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
+        print('    Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
         print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' +
               c['g'] + 'Training (' + c['b'] + 'final' + c['nc'] + c['g'] + ')' + c['nc'])
         net.fit(x_train, y_train)
 
-        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] +
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
               '<Creating the probability map ' + c['b'] + '2' + c['nc'] + c['g'] + '>' + c['nc'])
         image2 = np.zeros_like(image_nii.get_data())
-        print('\t0% of data tested', end='\r')
+        print('    0% of data tested', end='\r')
         sys.stdout.flush()
         for batch, centers, percent in load_patch_batch_percent(names, batch_size, patch_size):
             y_pred = net.predict_proba(batch)
-            print('\t%f%% of data tested' % percent, end='\r')
+            print('    %f%% of data tested' % percent, end='\r')
             sys.stdout.flush()
             [x, y, z] = np.stack(centers, axis=1)
             image2[x, y, z] = y_pred[:, 1]
@@ -236,9 +234,7 @@ def main():
 
         gt = load_nii(os.path.join(path, 'Consensus.nii.gz')).get_data().astype(dtype=np.bool)
         dsc = np.sum(2.0 * np.logical_and(gt, image)) / (np.sum(gt) + np.sum(image))
-        print('', end='\r')
-        sys.stdout.flush()
-        print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] +
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
               '<DSC value for ' + c['c'] + case + c['g'] + ' = ' + c['b'] + str(dsc) + c['nc'] + c['g'] + '>' + c['nc'])
 
 
