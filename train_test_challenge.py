@@ -125,6 +125,7 @@ def main():
             image1[x, y, z] = y_pred[:, 1]
 
         ''' Here we get the seeds '''
+        print('')
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' +
               c['g'] + '<Looking for seeds>' + c['nc'])
         for patient in np.concatenate([names[:, :i], names[:, i+1:]], axis=1):
