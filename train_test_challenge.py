@@ -125,7 +125,8 @@ def main():
             image1[x, y, z] = y_pred[:, 1]
 
         ''' Here we get the seeds '''
-        print('')
+        print('', end='\r')
+        sys.stdout.flush()
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' +
               c['g'] + '<Looking for seeds>' + c['nc'])
         for patient in np.concatenate([names[:, :i], names[:, i+1:]], axis=1):
@@ -235,7 +236,8 @@ def main():
 
         gt = load_nii(os.path.join(path, 'Consensus.nii.gz')).get_data().astype(dtype=np.bool)
         dsc = np.sum(2.0 * np.logical_and(gt, image)) / (np.sum(gt) + np.sum(image))
-        print('')
+        print('', end='\r')
+        sys.stdout.flush()
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] +
               '<DSC value for ' + c['c'] + case + c['g'] + ' = ' + c['b'] + str(dsc) + c['nc'] + c['g'] + '>' + c['nc'])
 
