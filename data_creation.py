@@ -116,6 +116,12 @@ def load_thresholded_images(name, dir_name, threshold=2.0, datatype=np.float32):
     return rois
 
 
+def load_thresholded_images_by_name(image_names, threshold=2.0, datatype=np.float32):
+    images = [load_nii(image_name).get_data() for image_name in image_names]
+    rois = [image.astype(dtype=datatype) > threshold for image in images]
+    return rois
+
+
 def load_thresholded_norm_images(name, dir_name, threshold=2.0, datatype=np.float32):
     patients = [f for f in sorted(os.listdir(dir_name)) if os.path.isdir(os.path.join(dir_name, f))]
     image_names = [os.path.join(dir_name, patient, name) for patient in patients]
@@ -200,6 +206,38 @@ def load_patch_vectors(name, mask_name, dir_name, size, rois=None, random_state=
     masks = [np.concatenate([p1, p2]) for p1, p2 in zip(lesion_msk_patches, nolesion_msk_patches)]
 
     return data, masks, image_names
+
+
+def load_patch_vectors_by_name(names, mask_names, size, rois=None, random_state=42, datatype=np.float32):
+    images = [load_nii(name).get_data() for name in names]
+    # Normalize the images
+    images_norm = [(im.astype(dtype=datatype) - im[np.nonzero(im)].mean()) / im[np.nonzero(im)].std() for im in images]
+    # Create the masks
+    brain_masks = rois if rois else [image.astype(dtype=np.bool) for image in images]
+    lesion_masks = [load_nii(name).get_data().astype(dtype=np.bool) for name in mask_names]
+    nolesion_masks = [np.logical_and(np.logical_not(lesion), brain) for lesion, brain in zip(lesion_masks, brain_masks)]
+
+    # Get all the patches for each image
+    lesion_centers = [get_mask_voxels(mask) for mask in lesion_masks]
+    nolesion_centers = [get_mask_voxels(mask) for mask in nolesion_masks]
+    # FIX: nolesion_small should have the best indices
+    np.random.seed(random_state)
+    indices = [np.random.permutation(range(0, len(centers1))).tolist()[:len(centers2)]
+               for centers1, centers2 in zip(nolesion_centers, lesion_centers)]
+    nolesion_small = [itemgetter(*idx)(centers) for centers, idx in zip(nolesion_centers, indices)]
+    lesion_patches = [np.array(get_patches(image, centers, size))
+                      for image, centers in zip(images_norm, lesion_centers)]
+    lesion_msk_patches = [np.array(get_patches(image, centers, size))
+                          for image, centers in zip(lesion_masks, lesion_centers)]
+    nolesion_patches = [np.array(get_patches(image, centers, size))
+                        for image, centers in zip(images_norm, nolesion_small)]
+    nolesion_msk_patches = [np.array(get_patches(image, centers, size))
+                            for image, centers in zip(lesion_masks, nolesion_small)]
+
+    data = [np.concatenate([p1, p2]) for p1, p2 in zip(lesion_patches, nolesion_patches)]
+    masks = [np.concatenate([p1, p2]) for p1, p2 in zip(lesion_msk_patches, nolesion_msk_patches)]
+
+    return data, masks
 
 
 def get_sufix(use_flair, use_pd, use_t2, use_t1, use_gado):

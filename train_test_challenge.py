@@ -4,6 +4,7 @@ import sys
 from time import strftime
 import numpy as np
 from data_creation import load_patches, leave_one_out, load_patch_batch_percent
+from data_creation import load_patch_vectors_by_name, load_thresholded_images_by_name
 from lasagne.layers import InputLayer, DenseLayer, DropoutLayer
 from lasagne.layers.dnn import Conv3DDNNLayer, Pool3DDNNLayer
 from lasagne import nonlinearities, objectives, updates
@@ -186,22 +187,22 @@ def main():
             pass
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
               c['g'] + 'Loading the data for ' + c['b'] + 'iteration 2' + c['nc'])
-        (x_train, y_train, _) = load_patches(
-            dir_name='/home/sergivalverde/w/CNN/images/CH16',
-            use_flair=True,
-            use_pd=True,
-            use_t2=True,
-            use_t1=True,
-            use_gado=False,
-            flair_name='FLAIR_preprocessed.nii.gz',
-            pd_name='DP_preprocessed.nii.gz',
-            t2_name='T2_preprocessed.nii.gz',
-            gado_name=None,
-            t1_name='T1_preprocessed.nii.gz',
-            mask_name='Consensus.nii.gz',
-            size=patch_size,
-            roi_name='test' + str(i) + '.iter1.nii.gz'
-        )
+        names = np.concatenate([names[:, :i], names[:, i + 1:]], axis=1)
+        paths = ['/'.join(name.rsplit('/')[:-1]) for name in names[0, :]]
+        roi_names = [os.path.join(p_path, 'test' + str(i) + '.iter1.nii.gz') for p_path in paths]
+        mask_names = [os.path.join(p_path, 'Consensus.nii.gz') for p_path in paths]
+        rois = load_thresholded_images_by_name(roi_names, threshold=0.5)
+        print('Loading FLAIR images')
+        flair, y_train, _ = load_patch_vectors_by_name(names[0, :], mask_names, patch_size, rois)
+        print('Loading PD images')
+        pd, _ = load_patch_vectors_by_name(names[1, :], mask_names, patch_size, rois)
+        print('Loading T2 images')
+        t2, _ = load_patch_vectors_by_name(names[2, :], mask_names, patch_size, rois)
+        print('Loading T1 images')
+        t1, _ = load_patch_vectors_by_name(names[3, :], mask_names, patch_size, rois)
+
+        print('Creating data vector')
+        x_train = [np.stack(images, axis=1) for images in zip(*[flair, pd, t2, t1])]
 
         print('    Permuting the data')
         np.random.seed(seed)
