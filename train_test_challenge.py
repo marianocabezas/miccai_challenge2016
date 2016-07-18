@@ -129,6 +129,7 @@ def main():
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' +
               c['g'] + '<Looking for seeds>' + c['nc'])
         for patient in np.concatenate([names[:, :i], names[:, i+1:]], axis=1):
+            print(names.shape)
             output_name = os.path.join('/'.join(patient[0].rsplit('/')[:-1]), 'test' + str(i) + '.iter1.nii.gz')
             try:
                 load_nii(output_name)
@@ -234,6 +235,7 @@ def main():
 
         gt = load_nii(os.path.join(path, 'Consensus.nii.gz')).get_data().astype(dtype=np.bool)
         dsc = np.sum(2.0 * np.logical_and(gt, image)) / (np.sum(gt) + np.sum(image))
+        print('')
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']\t' + c['g'] +
               '<DSC value for ' + c['c'] + case + c['g'] + ' = ' + c['b'] + str(dsc) + c['nc'] + c['g'] + '>' + c['nc'])
 
