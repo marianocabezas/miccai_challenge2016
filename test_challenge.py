@@ -43,9 +43,9 @@ def main():
 
     print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +
           '<Loading the net ' + c['b'] + '1' + c['nc'] + c['g'] + '>' + c['nc'])
-
     net_name = '/usr/local/nets/deep-challenge2016.init.model_weights.pkl' if options['docker'] \
         else '/home/sergivalverde/w/CNN/code/CNN1/miccai_challenge2016/deep-challenge2016.init.model_weights.pkl'
+    print(net_name)
     net = NeuralNet(
         layers=[
             (InputLayer, dict(name='in', shape=(None, 4, 15, 15, 15))),
