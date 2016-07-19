@@ -222,7 +222,7 @@ def main():
         image2 = np.zeros_like(image_nii.get_data())
         print('              0% of data tested', end='\r')
         sys.stdout.flush()
-        for batch, centers, percent in load_patch_batch_percent(names, batch_size, patch_size):
+        for batch, centers, percent in load_patch_batch_percent(names_test, batch_size, patch_size):
             y_pred = net.predict_proba(batch)
             print('              %f%% of data tested' % percent, end='\r')
             sys.stdout.flush()
