@@ -1,4 +1,5 @@
 from __future__ import print_function
+import argparse
 import os
 import sys
 from time import strftime
@@ -27,26 +28,35 @@ def color_codes():
 
 
 def main():
+
+    parser = argparse.ArgumentParser(description='Test different nets with 3D data.')
+    parser.add_argument('-f', '--folder', dest='folder', default='/home/sergivalverde/w/CNN/images/CH16')
+    parser.add_argument('--flair', action='store', dest='flair', default='FLAIR_preprocessed.nii.gz')
+    parser.add_argument('--pd', action='store', dest='pd', default='DP_preprocessed.nii.gz')
+    parser.add_argument('--t2', action='store', dest='t2', default='T2_preprocessed.nii.gz')
+    parser.add_argument('--t1', action='store', dest='t1', default='T1_preprocessed.nii.gz')
+    parser.add_argument('--mask', action='store', dest='mask', default='Consensus.nii.gz')
+    options = vars(parser.parse_args())
+
     c = color_codes()
     patch_size = (15, 15, 15)
     batch_size = 100000
-    dir_name = '/home/sergivalverde/w/CNN/images/CH16'
     print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' +
           c['g'] + 'Loading the data for the leave-one-out test' + c['nc'])
     # Create the data
     (x, y, names) = load_patches(
-        dir_name=dir_name,
+        dir_name=options['dir_name'],
         use_flair=True,
         use_pd=True,
         use_t2=True,
         use_gado=False,
         use_t1=True,
-        flair_name='FLAIR_preprocessed.nii.gz',
-        pd_name='DP_preprocessed.nii.gz',
-        t2_name='T2_preprocessed.nii.gz',
+        flair_name=options['flair'],
+        pd_name=options['pd'],
+        t2_name=options['t2'],
         gado_name=None,
-        t1_name='T1_preprocessed.nii.gz',
-        mask_name='Consensus.nii.gz',
+        t1_name=options['t1'],
+        mask_name=options['mask'],
         size=patch_size
     )
     seed = np.random.randint(np.iinfo(np.int32).max)
@@ -109,10 +119,10 @@ def main():
 
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
               '<Creating the probability map ' + c['b'] + '1' + c['nc'] + c['g'] + '>' + c['nc'])
-        flair_name = os.path.join(path, 'FLAIR_preprocessed.nii.gz')
-        pd_name = os.path.join(path, 'DP_preprocessed.nii.gz')
-        t2_name = os.path.join(path, 'T2_preprocessed.nii.gz')
-        t1_name = os.path.join(path, 'T1_preprocessed.nii.gz')
+        flair_name = os.path.join(path, options['flair'])
+        pd_name = os.path.join(path, options['pd'])
+        t2_name = os.path.join(path, options['t2'])
+        t1_name = os.path.join(path, options['t1'])
         names_test = np.array([flair_name, pd_name, t2_name, t1_name])
         image_nii = load_nii(flair_name)
         image1 = np.zeros_like(image_nii.get_data())
