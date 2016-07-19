@@ -213,7 +213,7 @@ def main():
         y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
         print('              Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
         print('              Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
-        print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' +
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
               c['g'] + 'Training (' + c['b'] + 'final' + c['nc'] + c['g'] + ')' + c['nc'])
         net.fit(x_train, y_train)
 
