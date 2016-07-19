@@ -193,7 +193,7 @@ def main():
         mask_names = [os.path.join(p_path, 'Consensus.nii.gz') for p_path in paths]
         rois = load_thresholded_images_by_name(roi_names, threshold=0.5)
         print('Loading FLAIR images')
-        flair, y_train, _ = load_patch_vectors_by_name(names_lou[0, :], mask_names, patch_size, rois)
+        flair, y_train = load_patch_vectors_by_name(names_lou[0, :], mask_names, patch_size, rois)
         print('Loading PD images')
         pd, _ = load_patch_vectors_by_name(names_lou[1, :], mask_names, patch_size, rois)
         print('Loading T2 images')
