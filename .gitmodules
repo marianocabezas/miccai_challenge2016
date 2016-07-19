@@ -1,3 +1,6 @@
 [submodule "data_manipulation"]
 	path = data_manipulation
 	url = https://github.com/marianocabezas/data_manipulation.git
+[submodule "cnn"]
+	path = cnn
+	url = https://github.com/marianocabezas/cnn.git

@@ -3,8 +3,8 @@ import os
 import sys
 from time import strftime
 import numpy as np
-from data_creation import load_patches, leave_one_out, load_patch_batch_percent
-from data_creation import load_patch_vectors_by_name, load_thresholded_images_by_name
+from cnn.data_creation import load_patches, leave_one_out, load_patch_batch_percent
+from cnn.data_creation import load_patch_vectors_by_name, load_thresholded_images_by_name
 from lasagne.layers import InputLayer, DenseLayer, DropoutLayer
 from lasagne.layers.dnn import Conv3DDNNLayer, Pool3DDNNLayer
 from lasagne import nonlinearities, objectives, updates

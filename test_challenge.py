@@ -11,7 +11,7 @@ from lasagne.layers.dnn import Conv3DDNNLayer, Pool3DDNNLayer
 from lasagne import nonlinearities, objectives, updates
 from nolearn.lasagne import TrainSplit
 from nolearn.lasagne import NeuralNet, BatchIterator
-from data_creation import load_patch_batch_percent
+from cnn.data_creation import load_patch_batch_percent
 
 
 def color_codes():
