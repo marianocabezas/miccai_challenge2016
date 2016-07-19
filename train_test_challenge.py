@@ -3,8 +3,8 @@ import os
 import sys
 from time import strftime
 import numpy as np
-from data_creation import load_patches, leave_one_out, load_patch_batch_percent
-from data_creation import load_patch_vectors_by_name, load_thresholded_images_by_name
+from cnn.data_creation import load_patches, leave_one_out, load_patch_batch_percent
+from cnn.data_creation import load_patch_vectors_by_name, load_thresholded_images_by_name
 from lasagne.layers import InputLayer, DenseLayer, DropoutLayer
 from lasagne.layers.dnn import Conv3DDNNLayer, Pool3DDNNLayer
 from lasagne import nonlinearities, objectives, updates
@@ -92,15 +92,15 @@ def main():
             print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
                   c['g'] + 'Loading the data for ' + c['b'] + 'iteration 1' + c['nc'])
             # Create the data
-            print('    Permuting the data')
+            print('              Permuting the data')
             np.random.seed(seed)
             x_train = np.random.permutation(np.concatenate(x_train).astype(dtype=np.float32))
-            print('    Permuting the labels')
+            print('              Permuting the labels')
             np.random.seed(seed)
             y_train = np.random.permutation(np.concatenate(y_train).astype(dtype=np.int32))
             y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
-            print('    Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
-            print('    Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
+            print('              Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
+            print('              Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
 
             print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
                   'Training (' + c['b'] + 'initial' + c['nc'] + c['g'] + ')' + c['nc'])
@@ -116,11 +116,11 @@ def main():
         names_test = np.array([flair_name, pd_name, t2_name, t1_name])
         image_nii = load_nii(flair_name)
         image1 = np.zeros_like(image_nii.get_data())
-        print('    0% of data tested', end='\r')
+        print('              0% of data tested', end='\r')
         sys.stdout.flush()
         for batch, centers, percent in load_patch_batch_percent(names_test, batch_size, patch_size):
             y_pred = net.predict_proba(batch)
-            print('    %f%% of data tested' % percent, end='\r')
+            print('              %f%% of data tested' % percent, end='\r')
             sys.stdout.flush()
             [x, y, z] = np.stack(centers, axis=1)
             image1[x, y, z] = y_pred[:, 1]
@@ -146,7 +146,7 @@ def main():
                     [x, y, z] = np.stack(centers, axis=1)
                     image[x, y, z] = y_pred[:, 1]
 
-                print(c['g'] + '    -- Saving image ' + c['b'] + output_name + c['nc'])
+                print(c['g'] + '              -- Saving image ' + c['b'] + output_name + c['nc'])
                 image_nii.get_data()[:] = image
                 image_nii.to_filename(output_name)
 
@@ -192,39 +192,39 @@ def main():
         roi_names = [os.path.join(p_path, 'test' + str(i) + '.iter1.nii.gz') for p_path in paths]
         mask_names = [os.path.join(p_path, 'Consensus.nii.gz') for p_path in paths]
         rois = load_thresholded_images_by_name(roi_names, threshold=0.5)
-        print('Loading FLAIR images')
+        print('              Loading FLAIR images')
         flair, y_train = load_patch_vectors_by_name(names_lou[0, :], mask_names, patch_size, rois)
-        print('Loading PD images')
+        print('              Loading PD images')
         pd, _ = load_patch_vectors_by_name(names_lou[1, :], mask_names, patch_size, rois)
-        print('Loading T2 images')
+        print('              Loading T2 images')
         t2, _ = load_patch_vectors_by_name(names_lou[2, :], mask_names, patch_size, rois)
-        print('Loading T1 images')
+        print('              Loading T1 images')
         t1, _ = load_patch_vectors_by_name(names_lou[3, :], mask_names, patch_size, rois)
 
-        print('Creating data vector')
+        print('              Creating data vector')
         x_train = [np.stack(images, axis=1) for images in zip(*[flair, pd, t2, t1])]
 
-        print('    Permuting the data')
+        print('              Permuting the data')
         np.random.seed(seed)
         x_train = np.random.permutation(np.concatenate(x_train[:i] + x_train[i+1:]).astype(dtype=np.float32))
-        print('    Permuting the labels')
+        print('              Permuting the labels')
         np.random.seed(seed)
         y_train = np.random.permutation(np.concatenate(y_train[:i] + y_train[i+1:]).astype(dtype=np.int32))
         y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
-        print('    Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
-        print('    Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
-        print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' +
+        print('              Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
+        print('              Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
               c['g'] + 'Training (' + c['b'] + 'final' + c['nc'] + c['g'] + ')' + c['nc'])
         net.fit(x_train, y_train)
 
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
               '<Creating the probability map ' + c['b'] + '2' + c['nc'] + c['g'] + '>' + c['nc'])
         image2 = np.zeros_like(image_nii.get_data())
-        print('    0% of data tested', end='\r')
+        print('              0% of data tested', end='\r')
         sys.stdout.flush()
         for batch, centers, percent in load_patch_batch_percent(names, batch_size, patch_size):
             y_pred = net.predict_proba(batch)
-            print('    %f%% of data tested' % percent, end='\r')
+            print('              %f%% of data tested' % percent, end='\r')
             sys.stdout.flush()
             [x, y, z] = np.stack(centers, axis=1)
             image2[x, y, z] = y_pred[:, 1]

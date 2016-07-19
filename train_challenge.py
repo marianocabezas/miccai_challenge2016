@@ -1,7 +1,7 @@
 import os
 from time import strftime
 import numpy as np
-from data_creation import load_patches, load_patch_batch
+from cnn.data_creation import load_patches, load_patch_batch
 from lasagne.layers import InputLayer, DenseLayer, DropoutLayer
 from lasagne.layers.dnn import Conv3DDNNLayer, Pool3DDNNLayer
 from lasagne import nonlinearities, objectives, updates
