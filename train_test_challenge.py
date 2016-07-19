@@ -86,8 +86,6 @@ def main():
             update_learning_rate=0.0001,
             on_epoch_finished=[
                 SaveWeights(net_name + 'model_weights.pkl', only_best=True, pickle=False),
-                SaveTrainingHistory(net_name + 'model_history.pkl'),
-                PlotTrainingHistory(net_name + 'training_history.png'),
                 EarlyStopping(patience=10)
             ],
             verbose=10,
@@ -180,8 +178,6 @@ def main():
             update_learning_rate=0.0001,
             on_epoch_finished=[
                 SaveWeights(net_name + 'model_weights.pkl', only_best=True, pickle=False),
-                SaveTrainingHistory(net_name + 'model_history.pkl'),
-                PlotTrainingHistory(net_name + 'training_history.png'),
                 EarlyStopping(patience=50)
             ],
             batch_iterator_train=BatchIterator(batch_size=4096),
