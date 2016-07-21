@@ -5,7 +5,7 @@ import sys
 from time import strftime
 import numpy as np
 from cnn.data_creation import load_patches, leave_one_out, load_patch_batch_percent
-from cnn.data_creation import load_patch_vectors_by_name, load_thresholded_images_by_name
+from cnn.data_creation import load_patch_vectors_by_name_pr
 from lasagne.layers import InputLayer, DenseLayer, DropoutLayer
 from lasagne.layers.dnn import Conv3DDNNLayer, Pool3DDNNLayer
 from lasagne import nonlinearities, objectives, updates
@@ -197,15 +197,15 @@ def main():
         paths = ['/'.join(name.rsplit('/')[:-1]) for name in names_lou[0, :]]
         roi_names = [os.path.join(p_path, 'test' + str(i) + '.iter1.nii.gz') for p_path in paths]
         mask_names = [os.path.join(p_path, 'Consensus.nii.gz') for p_path in paths]
-        rois = load_thresholded_images_by_name(roi_names, threshold=0.5)
+        pr_maps = [load_nii(roi_name) for roi_name in roi_names]
         print('              Loading FLAIR images')
-        flair, y_train = load_patch_vectors_by_name(names_lou[0, :], mask_names, patch_size, rois)
+        flair, y_train = load_patch_vectors_by_name_pr(names_lou[0, :], mask_names, patch_size, pr_maps)
         print('              Loading PD images')
-        pd, _ = load_patch_vectors_by_name(names_lou[1, :], mask_names, patch_size, rois)
+        pd, _ = load_patch_vectors_by_name_pr(names_lou[1, :], mask_names, patch_size, pr_maps)
         print('              Loading T2 images')
-        t2, _ = load_patch_vectors_by_name(names_lou[2, :], mask_names, patch_size, rois)
+        t2, _ = load_patch_vectors_by_name_pr(names_lou[2, :], mask_names, patch_size, pr_maps)
         print('              Loading T1 images')
-        t1, _ = load_patch_vectors_by_name(names_lou[3, :], mask_names, patch_size, rois)
+        t1, _ = load_patch_vectors_by_name_pr(names_lou[3, :], mask_names, patch_size, pr_maps)
 
         print('              Creating data vector')
         x_train = [np.stack(images, axis=1) for images in zip(*[flair, pd, t2, t1])]
