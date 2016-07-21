@@ -197,7 +197,7 @@ def main():
         paths = ['/'.join(name.rsplit('/')[:-1]) for name in names_lou[0, :]]
         roi_names = [os.path.join(p_path, 'test' + str(i) + '.iter1.nii.gz') for p_path in paths]
         mask_names = [os.path.join(p_path, 'Consensus.nii.gz') for p_path in paths]
-        pr_maps = [load_nii(roi_name) for roi_name in roi_names]
+        pr_maps = [load_nii(roi_name).get_data() for roi_name in roi_names]
         print('              Loading FLAIR images')
         flair, y_train = load_patch_vectors_by_name_pr(names_lou[0, :], mask_names, patch_size, pr_maps)
         print('              Loading PD images')
