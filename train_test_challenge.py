@@ -30,7 +30,7 @@ def color_codes():
 def main():
 
     parser = argparse.ArgumentParser(description='Test different nets with 3D data.')
-    parser.add_argument('-f', '--folder', dest='folder', default='/home/sergivalverde/w/CNN/images/CH16')
+    parser.add_argument('-f', '--folder', dest='dir_name', default='/home/sergivalverde/w/CNN/images/CH16')
     parser.add_argument('--flair', action='store', dest='flair', default='FLAIR_preprocessed.nii.gz')
     parser.add_argument('--pd', action='store', dest='pd', default='DP_preprocessed.nii.gz')
     parser.add_argument('--t2', action='store', dest='t2', default='T2_preprocessed.nii.gz')
