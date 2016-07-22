@@ -42,7 +42,7 @@ def main():
     patch_size = (15, 15, 15)
     batch_size = 100000
     # Create the data
-    names = np.stack([name for name in [options['flair'], options['pd'], options['t2'], ptions['t1']]])
+    names = np.stack([name for name in [options['flair'], options['pd'], options['t2'], options['t1']]])
     seed = np.random.randint(np.iinfo(np.int32).max)
 
     print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + 'Starting leave-one-out' + c['nc'])
