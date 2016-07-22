@@ -5,14 +5,14 @@ import sys
 from time import strftime
 import numpy as np
 from cnn.data_creation import load_patches, leave_one_out, load_patch_batch_percent
-from cnn.data_creation import load_patch_vectors_by_name_pr
+from cnn.data_creation import load_patch_vectors_by_name_pr, load_patch_vectors_by_name
 from lasagne.layers import InputLayer, DenseLayer, DropoutLayer
 from lasagne.layers.dnn import Conv3DDNNLayer, Pool3DDNNLayer
 from lasagne import nonlinearities, objectives, updates
 from nolearn.lasagne import TrainSplit
 from nolearn.lasagne import NeuralNet, BatchIterator
 from nolearn.lasagne.handlers import SaveWeights
-from nolearn_utils.hooks import SaveTrainingHistory, PlotTrainingHistory, EarlyStopping
+from nolearn_utils.hooks import EarlyStopping
 from nibabel import load as load_nii
 
 
@@ -44,26 +44,12 @@ def main():
     print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' +
           c['g'] + 'Loading the data for the leave-one-out test' + c['nc'])
     # Create the data
-    (x, y, names) = load_patches(
-        dir_name=options['dir_name'],
-        use_flair=True,
-        use_pd=True,
-        use_t2=True,
-        use_gado=False,
-        use_t1=True,
-        flair_name=options['flair'],
-        pd_name=options['pd'],
-        t2_name=options['t2'],
-        gado_name=None,
-        t1_name=options['t1'],
-        mask_name=options['mask'],
-        size=patch_size
-    )
+    names = np.stack([name for name in [options['flair'], options['pd'], options['t2'], ptions['t1']]])
     seed = np.random.randint(np.iinfo(np.int32).max)
 
     print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + 'Starting leave-one-out' + c['nc'])
 
-    for x_train, y_train, i in leave_one_out(x, y):
+    for i in range(0, 15):
         case = names[0, i].rsplit('/')[-2]
         path = '/'.join(names[0, i].rsplit('/')[:-1])
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['nc'] + 'Patient ' + c['b'] + case + c['nc'])
@@ -99,13 +85,27 @@ def main():
         except IOError:
             print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
                   c['g'] + 'Loading the data for ' + c['b'] + 'iteration 1' + c['nc'])
-            # Create the data
+            names_lou = np.concatenate([names[:, :i], names[:, i + 1:]], axis=1)
+            paths = ['/'.join(name.rsplit('/')[:-1]) for name in names_lou[0, :]]
+            mask_names = [os.path.join(p_path, 'Consensus.nii.gz') for p_path in paths]
+            print('              Loading FLAIR images')
+            flair, y_train = load_patch_vectors_by_name(names_lou[0, :], mask_names, patch_size)
+            print('              Loading PD images')
+            pd, _ = load_patch_vectors_by_name(names_lou[1, :], mask_names, patch_size)
+            print('              Loading T2 images')
+            t2, _ = load_patch_vectors_by_name(names_lou[2, :], mask_names, patch_size)
+            print('              Loading T1 images')
+            t1, _ = load_patch_vectors_by_name(names_lou[3, :], mask_names, patch_size)
+
+            print('              Creating data vector')
+            x_train = [np.stack(images, axis=1) for images in zip(*[flair, pd, t2, t1])]
+
             print('              Permuting the data')
             np.random.seed(seed)
-            x_train = np.random.permutation(np.concatenate(x_train).astype(dtype=np.float32))
+            x_train = np.random.permutation(np.concatenate(x_train[:i] + x_train[i + 1:]).astype(dtype=np.float32))
             print('              Permuting the labels')
             np.random.seed(seed)
-            y_train = np.random.permutation(np.concatenate(y_train).astype(dtype=np.int32))
+            y_train = np.random.permutation(np.concatenate(y_train[:i] + y_train[i + 1:]).astype(dtype=np.int32))
             y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
             print('              Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
             print('              Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
