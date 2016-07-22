@@ -42,7 +42,13 @@ def main():
     patch_size = (15, 15, 15)
     batch_size = 100000
     # Create the data
-    names = np.stack([name for name in [options['flair'], options['pd'], options['t2'], options['t1']]])
+    patients = [f for f in sorted(os.listdir(options['dir_name']))
+                if os.path.isdir(os.path.join(options['dir_name'], f))]
+    flair_names = [os.path.join(options['dir_name'], patient, options['flair']) for patient in patients]
+    pd_names = [os.path.join(options['dir_name'], patient, options['pd']) for patient in patients]
+    t2_names = [os.path.join(options['dir_name'], patient, options['t2']) for patient in patients]
+    t1_names = [os.path.join(options['dir_name'], patient, options['t1']) for patient in patients]
+    names = np.stack([name for name in [flair_names, pd_names, t2_names, t1_names]])
     seed = np.random.randint(np.iinfo(np.int32).max)
 
     print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + 'Starting leave-one-out' + c['nc'])
