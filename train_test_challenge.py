@@ -133,6 +133,7 @@ def main():
             [x, y, z] = np.stack(centers, axis=1)
             image1[x, y, z] = y_pred[:, 1]
 
+        image1.tofile(os.path.join(path, 'test' + str(i) + '.iter1.nii.gz'))
         ''' Here we get the seeds '''
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
               c['g'] + '<Looking for seeds for the final iteration>' + c['nc'])
@@ -235,11 +236,16 @@ def main():
             [x, y, z] = np.stack(centers, axis=1)
             image2[x, y, z] = y_pred[:, 1]
 
+        image2.tofile(os.path.join(path, 'test' + str(i) + '.iter2.nii.gz'))
+
         image = (image1 * image2) > 0.5
-        image_nii.get_data()[:] = np.roll(np.roll(image, 1, axis=0), 1, axis=1)
+        seg = np.roll(np.roll(image, 1, axis=0), 1, axis=1)
+        image_nii.get_data()[:] = seg
+
+        image_nii.tofile(os.path.join(path, 'test' + str(i) + '.final.nii.gz'))
 
         gt = load_nii(os.path.join(path, 'Consensus.nii.gz')).get_data().astype(dtype=np.bool)
-        dsc = np.sum(2.0 * np.logical_and(gt, image)) / (np.sum(gt) + np.sum(image))
+        dsc = np.sum(2.0 * np.logical_and(gt, seg)) / (np.sum(gt) + np.sum(seg))
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
               '<DSC value for ' + c['c'] + case + c['g'] + ' = ' + c['b'] + str(dsc) + c['nc'] + c['g'] + '>' + c['nc'])
 
