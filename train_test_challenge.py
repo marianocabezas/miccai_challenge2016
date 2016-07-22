@@ -41,8 +41,6 @@ def main():
     c = color_codes()
     patch_size = (15, 15, 15)
     batch_size = 100000
-    print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' +
-          c['g'] + 'Loading the data for the leave-one-out test' + c['nc'])
     # Create the data
     names = np.stack([name for name in [options['flair'], options['pd'], options['t2'], ptions['t1']]])
     seed = np.random.randint(np.iinfo(np.int32).max)
