@@ -111,14 +111,15 @@ def main():
             t1, _ = load_patch_vectors_by_name(names_lou[3, :], mask_names, patch_size)
 
             print('                Creating data vector')
-            x_train = [np.stack(images, axis=1) for images in zip(*[flair, pd, t2, t1])]
+            x_train = np.concatenate([np.stack(images, axis=1) for images in zip(*[flair, pd, t2, t1])])
+            y_train = np.concatenate(y_train)
 
             print('                Permuting the data')
             np.random.seed(seed)
-            x_train = np.random.permutation(np.concatenate(x_train).astype(dtype=np.float32))
+            x_train = np.random.permutation(x_train.astype(dtype=np.float32))
             print('                Permuting the labels')
             np.random.seed(seed)
-            y_train = np.random.permutation(np.concatenate(y_train).astype(dtype=np.int32))
+            y_train = np.random.permutation(y_train.astype(dtype=np.int32))
             y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
             print('                Training vector shape ='
                   ' (' + ','.join([str(length) for length in x_train.shape]) + ')')
@@ -232,14 +233,15 @@ def main():
                 t1, _ = load_patch_vectors_by_name_pr(names_lou[3, :], mask_names, patch_size, pr_maps)
 
             print('              Creating data vector')
-            x_train = [np.stack(images, axis=1) for images in zip(*[flair, pd, t2, t1])]
+            x_train = np.concatenate([np.stack(images, axis=1) for images in zip(*[flair, pd, t2, t1])])
+            y_train = np.concatenate(y_train)
 
             print('              Permuting the data')
             np.random.seed(seed)
-            x_train = np.random.permutation(np.concatenate(x_train).astype(dtype=np.float32))
+            x_train = np.random.permutation(x_train.astype(dtype=np.float32))
             print('              Permuting the labels')
             np.random.seed(seed)
-            y_train = np.random.permutation(np.concatenate(y_train).astype(dtype=np.int32))
+            y_train = np.random.permutation(y_train.astype(dtype=np.int32))
             y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
             print('              Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
             print('              Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
