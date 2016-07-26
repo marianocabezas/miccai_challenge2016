@@ -5,7 +5,8 @@ import sys
 from time import strftime
 import numpy as np
 from cnn.data_creation import load_patch_batch_percent
-from cnn.data_creation import load_thresholded_images_by_name, load_patch_vectors_by_name
+from cnn.data_creation import load_thresholded_images_by_name
+from cnn.data_creation import load_patch_vectors_by_name_pr, load_patch_vectors_by_name
 from lasagne.layers import InputLayer, DenseLayer, DropoutLayer
 from lasagne.layers.dnn import Conv3DDNNLayer, Pool3DDNNLayer
 from lasagne import nonlinearities, objectives, updates
@@ -36,6 +37,7 @@ def main():
     parser.add_argument('--t2', action='store', dest='t2', default='T2_preprocessed.nii.gz')
     parser.add_argument('--t1', action='store', dest='t1', default='T1_preprocessed.nii.gz')
     parser.add_argument('--mask', action='store', dest='mask', default='Consensus.nii.gz')
+    parser.add_argument('--old', action='store_true', dest='old', default=False)
     options = vars(parser.parse_args())
 
     c = color_codes()
@@ -208,15 +210,26 @@ def main():
             paths = ['/'.join(name.rsplit('/')[:-1]) for name in names_lou[0, :]]
             roi_names = [os.path.join(p_path, 'test' + str(i) + '.iter1.nii.gz') for p_path in paths]
             mask_names = [os.path.join(p_path, 'Consensus.nii.gz') for p_path in paths]
-            rois = load_thresholded_images_by_name(roi_names, threshold=0.5)
-            print('              Loading FLAIR images')
-            flair, y_train = load_patch_vectors_by_name(names_lou[0, :], mask_names, patch_size, rois)
-            print('              Loading PD images')
-            pd, _ = load_patch_vectors_by_name(names_lou[1, :], mask_names, patch_size, rois)
-            print('              Loading T2 images')
-            t2, _ = load_patch_vectors_by_name(names_lou[2, :], mask_names, patch_size, rois)
-            print('              Loading T1 images')
-            t1, _ = load_patch_vectors_by_name(names_lou[3, :], mask_names, patch_size, rois)
+            if options['old']:
+                rois = load_thresholded_images_by_name(roi_names, threshold=0.5)
+                print('              Loading FLAIR images')
+                flair, y_train = load_patch_vectors_by_name(names_lou[0, :], mask_names, patch_size, rois)
+                print('              Loading PD images')
+                pd, _ = load_patch_vectors_by_name(names_lou[1, :], mask_names, patch_size, rois)
+                print('              Loading T2 images')
+                t2, _ = load_patch_vectors_by_name(names_lou[2, :], mask_names, patch_size, rois)
+                print('              Loading T1 images')
+                t1, _ = load_patch_vectors_by_name(names_lou[3, :], mask_names, patch_size, rois)
+            else:
+                pr_maps = [load_nii(roi_name).get_data() for roi_name in roi_names]
+                print('              Loading FLAIR images')
+                flair, y_train = load_patch_vectors_by_name_pr(names_lou[0, :], mask_names, patch_size, pr_maps)
+                print('              Loading PD images')
+                pd, _ = load_patch_vectors_by_name_pr(names_lou[1, :], mask_names, patch_size, pr_maps)
+                print('              Loading T2 images')
+                t2, _ = load_patch_vectors_by_name_pr(names_lou[2, :], mask_names, patch_size, pr_maps)
+                print('              Loading T1 images')
+                t1, _ = load_patch_vectors_by_name_pr(names_lou[3, :], mask_names, patch_size, pr_maps)
 
             print('              Creating data vector')
             x_train = [np.stack(images, axis=1) for images in zip(*[flair, pd, t2, t1])]
