@@ -131,7 +131,9 @@ def main():
     image = reduce(np.logical_or, map(lambda lab: lab == labels, lesion_list))
 
     image_nii.get_data()[:] = np.roll(np.roll(image, 1, axis=0), 1, axis=1)
-    image_nii.to_filename(options['output'])
+    path = '/'.join(options['t1'].rsplit('/')[:-1])
+    outputname = options['output'].rsplit('/')[-1]
+    image_nii.to_filename(os.path.join(path, outputname))
 
     if not options['docker']:
         path = '/'.join(options['output'].rsplit('/')[:-1])
