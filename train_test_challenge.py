@@ -91,7 +91,7 @@ def main():
         outputname1 = os.path.join(path, 'test' + str(i) + '.iter1.nii.gz')
         try:
             image_nii = load_nii(outputname1)
-            image1 = image_nii.getdata()
+            image1 = image_nii.get_data()
             net.load_params_from(net_name + 'model_weights.pkl')
         except IOError:
             print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
@@ -175,7 +175,7 @@ def main():
         outputname2 = os.path.join(path, 'test' + str(i) + '.iter2.nii.gz')
         try:
             image_nii = load_nii(outputname2)
-            image2 = image_nii.getdata()
+            image2 = image_nii.get_data()
         except IOError:
             net_name = os.path.join(path, 'deep-challenge2016.final.')
             net = NeuralNet(
