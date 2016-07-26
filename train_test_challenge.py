@@ -164,8 +164,6 @@ def main():
         names_test = np.array([flair_name, pd_name, t2_name, t1_name])
         outputname1 = os.path.join(path, 'test' + str(i) + '.iter1.nii.gz')
         try:
-            image_nii = load_nii(outputname1)
-            image1 = image_nii.get_data()
             net.load_params_from(net_name + 'model_weights.pkl')
         except IOError:
             print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
@@ -191,6 +189,10 @@ def main():
             # We try to get the last weights to keep improving the net over and over
             net.fit(x_train, y_train)
 
+        try:
+            image_nii = load_nii(outputname1)
+            image1 = image_nii.get_data()
+        except IOError:
             print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
                   '<Creating the probability map ' + c['b'] + '1' + c['nc'] + c['g'] + '>' + c['nc'])
             flair_name = os.path.join(path, options['flair'])
@@ -207,6 +209,7 @@ def main():
 
             image_nii.get_data()[:] = image1
             image_nii.to_filename(outputname1)
+
         ''' Here we get the seeds '''
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
               c['g'] + '<Looking for seeds for the final iteration>' + c['nc'])
