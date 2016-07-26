@@ -1,52 +1,114 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
   <head>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="Miccai challenge2016 : Files for the MSSEG challenge of the MICCAI 2016. This repository containes code and the weights for the two nets.">
+    <title>Lesion detection and segmentation using a convolutional network of 3D patches (MICCAI-MSSEG 2016) by marianocabezas</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-dark.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>Miccai challenge2016</title>
   </head>
-
   <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/marianocabezas/miccai_challenge2016">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/marianocabezas/miccai_challenge2016/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/marianocabezas/miccai_challenge2016/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/marianocabezas/miccai_challenge2016">View on GitHub</a>
+    <div class="wrapper">
 
-          <h1 id="project_title">Miccai challenge2016</h1>
-          <h2 id="project_tagline">Files for the MSSEG challenge of the MICCAI 2016. This repository containes code and the weights for the two nets.</h2>
+      <section>
+        <div id="title">
+          <h1>Lesion detection and segmentation using a convolutional network of 3D patches (MICCAI-MSSEG 2016)</h1>
+          <p>Files for the MSSEG challenge of the MICCAI 2016. This repository containes code and the weights for the two nets.</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/marianocabezas">marianocabezas</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/marianocabezas/miccai_challenge2016/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/marianocabezas/miccai_challenge2016/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
         <h3>
-<a id="intro" class="anchor" href="#intro" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Introduction</h3>
-This is a simple website to host the deep learning pipeline from the VICOROB team sent to the MICCAI challenge2016.
-<p></p>
-    </section>
-    </div>
+<a id="abstract" class="anchor" href="#abstract" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Abstract</h3>
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Miccai challenge2016 maintained by <a href="https://github.com/marianocabezas">marianocabezas</a></p>
-        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
+<p>Automatic multiple sclerosis (MS) lesion segmentation in magnetic resonance (MR) imaging is a challenging task due to the small size of the lesions, its heterogeneous shape and distribution, overlapping tissue intensity distributions, and the inherent artifacts of MR images. Here, we propose a convolutional neural network trained with 3D patches of candidate lesion voxels. The method uses 4 anatomical MR images: T1-weigthed, T2-weighted, PD-weighted and T2-FLAIR-weighted.</p>
 
+<h3>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Introduction</h3>
+
+<p>Magnetic resonance (MR) imaging of the brain has been widely used during the last years in clinical practice. This image modality presents a high contrast for soft tissues, including white matter lesions (WML). Expert tracing of these lesions is a time-consuming task prone to observer errors. On the other hand, intensity inhomogeneities and image artifacts difficult the task of obtaining an automatic and reliable segmentation of these lesions based only on intensity features.</p>
+
+<p>Common supervised approaches rely on the use of a classification algorithm. These algorithms involve a first stage in which a model is estimated on training data composed by a set of features and their corresponding ground truth, and a second stage in which the model is tested on a new dataset to provide the desired classification. These features can include information from an atlas, context, spatial coordiantes or even texture. However, classic machine learning methods require hand-crafting these feature vectors to extract appearance information using, for instance, Gaussian or Haar-like kernels. In contrast, convolutional neural networks (CNNs) learn sets of convolution kernels that are specifically created for the task at hand.</p>
+
+<p>Currently, CNNs have demonstrated a superior performance in several computer vision tasks including handwriting recognition, classification of 2D images in 1000 classes, segmentation of crowds in surveillance videos or the application of a painting’s style to other pictures. Recently, CNNs have also gained popularity in medical imaging in general, and brain imaging specifically.</p>
+
+<p>Different architectures have been published in the literature to tackle the abovementioned problems. For instance, Zhang et al proposed a deep convolutional neural network for segmenting isointense brain tissues using multi-modality MR images. Their multiple intermediate layers applied convolution, pooling, normalization and other operations on 2D patches to capture highly nonlinear mappings between the inputs and the outputs. Moreover, Moeskops et al, also presented a CNN architecture based on 2D patches of a single anatomical MR image. However, in their work they used different patch sizes to which they applied different convolutional layers and average pooling that were finally combined using a fully connected layer with softmax to obtain a 9 class segmentation including background. On the other hand, Brosch et al defined a multiscale fully convolutional encoder network with shortcuts to segment lesions using the whole brain image. However, as pointed out in their work, this kind of network needs a large number of cases in order to train a deep network of more than 1 layer for the convolutional and deconvolutional pathways.</p>
+
+<p>Here, we present a 3D CNN that uses 3D candidate voxel patches to train an architecture that incorporates convolutional layers, max pooling and dense layers to obtain the probability for each candidate voxel of being lesion. This map is then post-processed to obtain a final lesion mask.</p>
+
+<h3>
+<a id="methods" class="anchor" href="#methods" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Methods</h3>
+
+<h2>
+<a id="preprocessing" class="anchor" href="#preprocessing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Preprocessing</h2>
+
+<p>We decided to use the pre-processed dataset to focus exclusively on the CNNs implementation. This dataset has been denoised with the NL-means algorithm and rigidly registered of each image towards the FLAIR image. Moreover, the skull has been stripped using the volBrain platform on the T1 image and applied on the other modalities with sinc interpolation, and, finally, bias correction was applied using the N4 algorithm.</p>
+
+<p>In order to train our CNN architecture, we also normalised the intensities for each image using the mean and standard deviation of the brain voxels.</p>
+
+<h2>
+<a id="cnn-architecture" class="anchor" href="#cnn-architecture" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CNN architecture</h2>
+
+<p>Most of the CNNs from the literature use 2D images or patches to segment tissues or lesions. However, when using MR images, such approaches are prone to false positives on some slices, due to the similarity between lesions and artifacts in some slices. By using 3D patches we can discard those false positives that are clearly not lesions when analysed in 3D. Furthermore, we decided to use patches instead of the whole image as input to obtain a higher number of training samples (positive and negative) while also reducing the amount of parameters to optimise as network weights. For each candidate voxel, we define a patch of size 15 × 15 × 15 for each image i ∈ [T1, T2, PD, FLAIR]. Therefore, our input vector has a size of N × 4 × 15 × 15 × 15.</p>
+
+<p>With this input vector, we desgined our CNN architecture detailed in figure 1. The first convolutional layer contained 32 filters of size 5 × 5 × 5, followed by a max pooling of size 2 with stride 2. The following convolutional layer had 64 filters of the same size, also followed by a max pooling with the previous parameters. Afterwards we apply a dropout on probabilities lower than 0.5 to reduce overfitting, and we finish the architecture with 2 dense layers. The first one had 256 outputs and the last one was a 2-way softmax to obtain the probabilities for the 2 possible classes (lesion and not lesion).</p>
+
+<h2>
+<a id="training" class="anchor" href="#training" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Training</h2>
+
+<p>Since the dataset is unbalanced, we have a larger number of voxels that belong to normal appearing tissues than lesion voxels, we decided to apply an iterative process during training. This process has two main steps that train the same CNN architecture with different data.</p>
+
+<p>During the initial step, we select a random number of negative voxels. First, we applied an empirical threshold of 1.5 (deviations) on the normalised FLAIR image to obtain all hyperintense candidate voxels. From this set of voxels, we used all the voxels defined as lesion in the consensus and a random sampling of the same size of all the candidates that are not lesion, in order to balance the dataset. Since this initial selection is suboptimal, some of the tissue voxels from each image have a high probability of belonging to lesion and would be classified as false positives. Therefore, we must train again our network with a new subset of negative voxels to better classify these voxels. </p>
+
+<p>During the second and final step, we test the training images with the first network to obtain a probabilistic map. In order to select challenging false positive, we apply a threshold of 0.5 to this map and we randomly select a sample of the negative voxels inside this mask of the same size as the lesion voxel dataset.</p>
+
+<p>Finally, we train again the same CNN architecture with these new training set. Since both networks use the same positive voxels, when testing both networks, all lesions are correctly classified. However, since we used different negative voxels, the probabilistic maps present different false positive detections that do not overlap. Therefore, we decided to multiply the output of both networks to maximise the true positives and minimise the false positives.</p>
+
+<h2>
+<a id="cnn-parameter-tunning" class="anchor" href="#cnn-parameter-tunning" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CNN parameter tunning</h2>
+
+<p>Our CNN architecture was developed in Python using the <a href="https://pythonhosted.org/nolearn/">nolearn</a> and <a href="http://lasagne.readthedocs.io/en/latest/">Lasagne</a> modules for <a href="http://deeplearning.net/software/theano/">Theano</a>. The batch size of the net for training was set to 4096 and the maximum number of epochs was set to 50 for the initial iteration and 2000 for the final iteration (even though it automatically stops if there is no improvement after 50 iterations). To update the weights we used the ADAM learning algorithm.</p>
+
+<p>In order to evaluate the performance of the net, we used the training dataset with a leave-one-out strategy.</p>
+
+<h2>
+<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authors and Contributors</h2>
+
+<p>In 2016, <strong>Sergi Valverde (<a href="https://github.com/sergivalverde" class="user-mention">@sergivalverde</a>)</strong>, <strong>Mariano Cabezas (<a href="https://github.com/marianocabezas" class="user-mention">@marianocabezas</a>)</strong>, <strong>Eloy Roura (<a href="https://github.com/eloyroura" class="user-mention">@eloyroura</a>)</strong>, <strong>Sandra González-Villà</strong>, <strong>Arnau Oliver</strong> and <strong>Xavier Lladó</strong>. Strategy developed by the <a href="http://atc.udg.edu/nic/about.html">NIC-VICOROB team</a> (<a href="https://github.com/NIC-VICOROB" class="user-mention">@NIC-VICOROB</a>)</p>
+
+<h2>
+<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Support or Contact</h2>
+
+<p>Having trouble with the code? Contact with <a href="http://atc.udg.edu/%7Emcabezas/">me</a>.</p>
+
+<h1>
+<a id="acknowledgments" class="anchor" href="#acknowledgments" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Acknowledgments</h1>
+
+<p>This work has been partially supported by ”La Fundació la Marató de TV3”, by Retos de Investigación TIN2014-55710-R, and by MPC UdG 2016/022 grant. The authors gratefully acknowledge the support of the NVIDIA Corporation with their donation of the Tesla K40 GPU used in this research.</p>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
     
-
   </body>
 </html>
