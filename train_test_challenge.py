@@ -28,7 +28,7 @@ def color_codes():
     return codes
 
 
-def load_iter1_data(names_lou, mask_names, patch_size, seed):
+def load_and_stack_iter1(names_lou, mask_names, patch_size):
     print('                Loading FLAIR images')
     flair, y_train = load_patch_vectors_by_name(names_lou[0, :], mask_names, patch_size)
     print('                Loading PD images')
@@ -38,22 +38,12 @@ def load_iter1_data(names_lou, mask_names, patch_size, seed):
     print('                Loading T1 images')
     t1, _ = load_patch_vectors_by_name(names_lou[3, :], mask_names, patch_size)
 
-    print('                Creating data vector')
-    x_train = np.concatenate([np.stack(images, axis=1) for images in zip(*[flair, pd, t2, t1])])
-    y_train = np.concatenate(y_train)
-
-    print('                Permuting the data')
-    np.random.seed(seed)
-    x_train = np.random.permutation(x_train.astype(dtype=np.float32))
-    print('                Permuting the labels')
-    np.random.seed(seed)
-    y_train = np.random.permutation(y_train.astype(dtype=np.int32))
-    y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
+    x_train = [np.stack(images, axis=1) for images in zip(*[flair, pd, t2, t1])]
 
     return x_train, y_train
 
 
-def load_iter2_data(names_lou, mask_names, roi_names, patch_size, seed, old):
+def load_and_stack_iter2(names_lou, mask_names, roi_names, patch_size, old):
     if old:
         rois = load_thresholded_images_by_name(roi_names, threshold=0.5)
         print('                Loading FLAIR images')
@@ -75,17 +65,37 @@ def load_iter2_data(names_lou, mask_names, roi_names, patch_size, seed, old):
         print('                Loading T1 images')
         t1, _ = load_patch_vectors_by_name_pr(names_lou[3, :], mask_names, patch_size, pr_maps)
 
-    print('              Creating data vector')
-    x_train = np.concatenate([np.stack(images, axis=1) for images in zip(*[flair, pd, t2, t1])])
-    y_train = np.concatenate(y_train)
+    x_train = [np.stack(images, axis=1) for images in zip(*[flair, pd, t2, t1])]
 
-    print('              Permuting the data')
+    return x_train, y_train
+
+
+def concatenate_and_permute(x, y, seed):
+    print('                Creating data vector')
+    x_train = np.concatenate(x)
+    y_train = np.concatenate(y)
+
+    print('                Permuting the data')
     np.random.seed(seed)
     x_train = np.random.permutation(x_train.astype(dtype=np.float32))
-    print('              Permuting the labels')
+    print('                Permuting the labels')
     np.random.seed(seed)
     y_train = np.random.permutation(y_train.astype(dtype=np.int32))
     y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
+
+    return x_train, y_train
+
+
+def load_iter1_data(names_lou, mask_names, patch_size, seed):
+    x_train, y_train = load_and_stack_iter1(names_lou, mask_names, patch_size)
+    x_train, y_train = concatenate_and_permute(x_train, y_train, seed)
+
+    return x_train, y_train
+
+
+def load_iter2_data(names_lou, mask_names, roi_names, patch_size, seed, old):
+    x_train, y_train = load_and_stack_iter2(names_lou, mask_names, roi_names, patch_size, old)
+    x_train, y_train = concatenate_and_permute(x_train, y_train, seed)
 
     return x_train, y_train
 
@@ -261,6 +271,7 @@ def main():
             paths = ['/'.join(name.rsplit('/')[:-1]) for name in names_lou[0, :]]
             roi_names = [os.path.join(p_path, 'test' + str(i) + '.iter1.nii.gz') for p_path in paths]
             mask_names = [os.path.join(p_path, 'Consensus.nii.gz') for p_path in paths]
+
             x_train, y_train = load_iter2_data(
                 names_lou=names_lou,
                 mask_names=mask_names,
@@ -269,6 +280,7 @@ def main():
                 seed=seed,
                 old=options['old']
             )
+
             print('              Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
             print('              Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
             print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
