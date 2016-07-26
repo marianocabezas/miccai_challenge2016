@@ -236,10 +236,10 @@ def main():
 
             print('              Permuting the data')
             np.random.seed(seed)
-            x_train = np.random.permutation(np.concatenate(x_train[:i] + x_train[i+1:]).astype(dtype=np.float32))
+            x_train = np.random.permutation(np.concatenate(x_train).astype(dtype=np.float32))
             print('              Permuting the labels')
             np.random.seed(seed)
-            y_train = np.random.permutation(np.concatenate(y_train[:i] + y_train[i+1:]).astype(dtype=np.int32))
+            y_train = np.random.permutation(np.concatenate(y_train).astype(dtype=np.int32))
             y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
             print('              Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
             print('              Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
