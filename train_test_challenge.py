@@ -4,7 +4,7 @@ import os
 import sys
 from time import strftime
 import numpy as np
-from cnn.data_creation import load_patches, leave_one_out, load_patch_batch_percent
+from cnn.data_creation import load_patch_batch_percent
 from cnn.data_creation import load_patch_vectors_by_name_pr, load_patch_vectors_by_name
 from lasagne.layers import InputLayer, DenseLayer, DropoutLayer
 from lasagne.layers.dnn import Conv3DDNNLayer, Pool3DDNNLayer
@@ -83,8 +83,15 @@ def main():
             train_split=TrainSplit(eval_size=0.25),
             custom_scores=[('dsc', lambda p, t: 2 * np.sum(p * t[:, 1]) / np.sum((p + t[:, 1])))],
         )
-
+        flair_name = os.path.join(path, options['flair'])
+        pd_name = os.path.join(path, options['pd'])
+        t2_name = os.path.join(path, options['t2'])
+        t1_name = os.path.join(path, options['t1'])
+        names_test = np.array([flair_name, pd_name, t2_name, t1_name])
+        outputname1 = os.path.join(path, 'test' + str(i) + '.iter1.nii.gz')
         try:
+            image_nii = load_nii(outputname1)
+            image1 = image_nii.getdata()
             net.load_params_from(net_name + 'model_weights.pkl')
         except IOError:
             print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
@@ -111,34 +118,32 @@ def main():
             np.random.seed(seed)
             y_train = np.random.permutation(np.concatenate(y_train[:i] + y_train[i + 1:]).astype(dtype=np.int32))
             y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
-            print('              Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
-            print('              Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
+            print('              Training vector shape ='
+                  ' (' + ','.join([str(length) for length in x_train.shape]) + ')')
+            print('              Training labels shape ='
+                  ' (' + ','.join([str(length) for length in y_train.shape]) + ')')
 
             print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
                   'Training (' + c['b'] + 'initial' + c['nc'] + c['g'] + ')' + c['nc'])
             # We try to get the last weights to keep improving the net over and over
             net.fit(x_train, y_train)
 
-        print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
-              '<Creating the probability map ' + c['b'] + '1' + c['nc'] + c['g'] + '>' + c['nc'])
-        flair_name = os.path.join(path, options['flair'])
-        pd_name = os.path.join(path, options['pd'])
-        t2_name = os.path.join(path, options['t2'])
-        t1_name = os.path.join(path, options['t1'])
-        names_test = np.array([flair_name, pd_name, t2_name, t1_name])
-        image_nii = load_nii(flair_name)
-        image1 = np.zeros_like(image_nii.get_data())
-        print('              0% of data tested', end='\r')
-        sys.stdout.flush()
-        for batch, centers, percent in load_patch_batch_percent(names_test, batch_size, patch_size):
-            y_pred = net.predict_proba(batch)
-            print('              %f%% of data tested' % percent, end='\r')
+            print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
+                  '<Creating the probability map ' + c['b'] + '1' + c['nc'] + c['g'] + '>' + c['nc'])
+            flair_name = os.path.join(path, options['flair'])
+            image_nii = load_nii(flair_name)
+            image1 = np.zeros_like(image_nii.get_data())
+            print('              0% of data tested', end='\r')
             sys.stdout.flush()
-            [x, y, z] = np.stack(centers, axis=1)
-            image1[x, y, z] = y_pred[:, 1]
+            for batch, centers, percent in load_patch_batch_percent(names_test, batch_size, patch_size):
+                y_pred = net.predict_proba(batch)
+                print('              %f%% of data tested' % percent, end='\r')
+                sys.stdout.flush()
+                [x, y, z] = np.stack(centers, axis=1)
+                image1[x, y, z] = y_pred[:, 1]
 
-        image_nii.get_data()[:] = image1
-        image_nii.to_filename(os.path.join(path, 'test' + str(i) + '.iter1.nii.gz'))
+            image_nii.get_data()[:] = image1
+            image_nii.to_filename(outputname1)
         ''' Here we get the seeds '''
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
               c['g'] + '<Looking for seeds for the final iteration>' + c['nc'])
@@ -167,83 +172,88 @@ def main():
         ''' Here we perform the last iteration '''
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
               '<Running iteration ' + c['b'] + '2' + c['nc'] + c['g'] + '>' + c['nc'])
-        net_name = os.path.join(path, 'deep-challenge2016.final.')
-        net = NeuralNet(
-            layers=[
-                (InputLayer, dict(name='in', shape=(None, 4, 15, 15, 15))),
-                (Conv3DDNNLayer, dict(name='conv1_1', num_filters=32, filter_size=(5, 5, 5), pad='same')),
-                (Pool3DDNNLayer, dict(name='avgpool_1', pool_size=2, stride=2, mode='average_inc_pad')),
-                (Conv3DDNNLayer, dict(name='conv2_1', num_filters=64, filter_size=(5, 5, 5), pad='same')),
-                (Pool3DDNNLayer, dict(name='avgpool_2', pool_size=2, stride=2, mode='average_inc_pad')),
-                (DropoutLayer, dict(name='l2drop', p=0.5)),
-                (DenseLayer, dict(name='l1', num_units=256)),
-                (DenseLayer, dict(name='out', num_units=2, nonlinearity=nonlinearities.softmax)),
-            ],
-            objective_loss_function=objectives.categorical_crossentropy,
-            update=updates.adam,
-            update_learning_rate=0.0001,
-            on_epoch_finished=[
-                SaveWeights(net_name + 'model_weights.pkl', only_best=True, pickle=False),
-                EarlyStopping(patience=50)
-            ],
-            batch_iterator_train=BatchIterator(batch_size=4096),
-            verbose=10,
-            max_epochs=2000,
-            train_split=TrainSplit(eval_size=0.25),
-            custom_scores=[('dsc', lambda p, t: 2 * np.sum(p * t[:, 1]) / np.sum((p + t[:, 1])))],
-        )
-
+        outputname2 = os.path.join(path, 'test' + str(i) + '.iter2.nii.gz')
         try:
-            net.load_params_from(net_name + 'model_weights.pkl')
+            image_nii = load_nii(outputname2)
+            image2 = image_nii.getdata()
         except IOError:
-            pass
-        print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
-              c['g'] + 'Loading the data for ' + c['b'] + 'iteration 2' + c['nc'])
-        names_lou = np.concatenate([names[:, :i], names[:, i + 1:]], axis=1)
-        paths = ['/'.join(name.rsplit('/')[:-1]) for name in names_lou[0, :]]
-        roi_names = [os.path.join(p_path, 'test' + str(i) + '.iter1.nii.gz') for p_path in paths]
-        mask_names = [os.path.join(p_path, 'Consensus.nii.gz') for p_path in paths]
-        pr_maps = [load_nii(roi_name).get_data() for roi_name in roi_names]
-        print('              Loading FLAIR images')
-        flair, y_train = load_patch_vectors_by_name_pr(names_lou[0, :], mask_names, patch_size, pr_maps)
-        print('              Loading PD images')
-        pd, _ = load_patch_vectors_by_name_pr(names_lou[1, :], mask_names, patch_size, pr_maps)
-        print('              Loading T2 images')
-        t2, _ = load_patch_vectors_by_name_pr(names_lou[2, :], mask_names, patch_size, pr_maps)
-        print('              Loading T1 images')
-        t1, _ = load_patch_vectors_by_name_pr(names_lou[3, :], mask_names, patch_size, pr_maps)
+            net_name = os.path.join(path, 'deep-challenge2016.final.')
+            net = NeuralNet(
+                layers=[
+                    (InputLayer, dict(name='in', shape=(None, 4, 15, 15, 15))),
+                    (Conv3DDNNLayer, dict(name='conv1_1', num_filters=32, filter_size=(5, 5, 5), pad='same')),
+                    (Pool3DDNNLayer, dict(name='avgpool_1', pool_size=2, stride=2, mode='average_inc_pad')),
+                    (Conv3DDNNLayer, dict(name='conv2_1', num_filters=64, filter_size=(5, 5, 5), pad='same')),
+                    (Pool3DDNNLayer, dict(name='avgpool_2', pool_size=2, stride=2, mode='average_inc_pad')),
+                    (DropoutLayer, dict(name='l2drop', p=0.5)),
+                    (DenseLayer, dict(name='l1', num_units=256)),
+                    (DenseLayer, dict(name='out', num_units=2, nonlinearity=nonlinearities.softmax)),
+                ],
+                objective_loss_function=objectives.categorical_crossentropy,
+                update=updates.adam,
+                update_learning_rate=0.0001,
+                on_epoch_finished=[
+                    SaveWeights(net_name + 'model_weights.pkl', only_best=True, pickle=False),
+                    EarlyStopping(patience=50)
+                ],
+                batch_iterator_train=BatchIterator(batch_size=4096),
+                verbose=10,
+                max_epochs=2000,
+                train_split=TrainSplit(eval_size=0.25),
+                custom_scores=[('dsc', lambda p, t: 2 * np.sum(p * t[:, 1]) / np.sum((p + t[:, 1])))],
+            )
 
-        print('              Creating data vector')
-        x_train = [np.stack(images, axis=1) for images in zip(*[flair, pd, t2, t1])]
+            try:
+                net.load_params_from(net_name + 'model_weights.pkl')
+            except IOError:
+                pass
+            print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
+                  c['g'] + 'Loading the data for ' + c['b'] + 'iteration 2' + c['nc'])
+            names_lou = np.concatenate([names[:, :i], names[:, i + 1:]], axis=1)
+            paths = ['/'.join(name.rsplit('/')[:-1]) for name in names_lou[0, :]]
+            roi_names = [os.path.join(p_path, 'test' + str(i) + '.iter1.nii.gz') for p_path in paths]
+            mask_names = [os.path.join(p_path, 'Consensus.nii.gz') for p_path in paths]
+            pr_maps = [load_nii(roi_name).get_data() for roi_name in roi_names]
+            print('              Loading FLAIR images')
+            flair, y_train = load_patch_vectors_by_name_pr(names_lou[0, :], mask_names, patch_size, pr_maps)
+            print('              Loading PD images')
+            pd, _ = load_patch_vectors_by_name_pr(names_lou[1, :], mask_names, patch_size, pr_maps)
+            print('              Loading T2 images')
+            t2, _ = load_patch_vectors_by_name_pr(names_lou[2, :], mask_names, patch_size, pr_maps)
+            print('              Loading T1 images')
+            t1, _ = load_patch_vectors_by_name_pr(names_lou[3, :], mask_names, patch_size, pr_maps)
 
-        print('              Permuting the data')
-        np.random.seed(seed)
-        x_train = np.random.permutation(np.concatenate(x_train[:i] + x_train[i+1:]).astype(dtype=np.float32))
-        print('              Permuting the labels')
-        np.random.seed(seed)
-        y_train = np.random.permutation(np.concatenate(y_train[:i] + y_train[i+1:]).astype(dtype=np.int32))
-        y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
-        print('              Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
-        print('              Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
-        print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
-              c['g'] + 'Training (' + c['b'] + 'final' + c['nc'] + c['g'] + ')' + c['nc'])
-        net.fit(x_train, y_train)
+            print('              Creating data vector')
+            x_train = [np.stack(images, axis=1) for images in zip(*[flair, pd, t2, t1])]
 
-        print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
-              '<Creating the probability map ' + c['b'] + '2' + c['nc'] + c['g'] + '>' + c['nc'])
-        image_nii = load_nii(flair_name)
-        image2 = np.zeros_like(image_nii.get_data())
-        print('              0% of data tested', end='\r')
-        sys.stdout.flush()
-        for batch, centers, percent in load_patch_batch_percent(names_test, batch_size, patch_size):
-            y_pred = net.predict_proba(batch)
-            print('              %f%% of data tested' % percent, end='\r')
+            print('              Permuting the data')
+            np.random.seed(seed)
+            x_train = np.random.permutation(np.concatenate(x_train[:i] + x_train[i+1:]).astype(dtype=np.float32))
+            print('              Permuting the labels')
+            np.random.seed(seed)
+            y_train = np.random.permutation(np.concatenate(y_train[:i] + y_train[i+1:]).astype(dtype=np.int32))
+            y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
+            print('              Training vector shape = (' + ','.join([str(length) for length in x_train.shape]) + ')')
+            print('              Training labels shape = (' + ','.join([str(length) for length in y_train.shape]) + ')')
+            print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
+                  c['g'] + 'Training (' + c['b'] + 'final' + c['nc'] + c['g'] + ')' + c['nc'])
+            net.fit(x_train, y_train)
+
+            print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
+                  '<Creating the probability map ' + c['b'] + '2' + c['nc'] + c['g'] + '>' + c['nc'])
+            image_nii = load_nii(flair_name)
+            image2 = np.zeros_like(image_nii.get_data())
+            print('              0% of data tested', end='\r')
             sys.stdout.flush()
-            [x, y, z] = np.stack(centers, axis=1)
-            image2[x, y, z] = y_pred[:, 1]
+            for batch, centers, percent in load_patch_batch_percent(names_test, batch_size, patch_size):
+                y_pred = net.predict_proba(batch)
+                print('              %f%% of data tested' % percent, end='\r')
+                sys.stdout.flush()
+                [x, y, z] = np.stack(centers, axis=1)
+                image2[x, y, z] = y_pred[:, 1]
 
-        image_nii.get_data()[:] = image1
-        image_nii.to_filename(os.path.join(path, 'test' + str(i) + '.iter2.nii.gz'))
+            image_nii.get_data()[:] = image2
+            image_nii.to_filename(os.path.join(path, 'test' + str(i) + '.iter2.nii.gz'))
 
         image = (image1 * image2) > 0.5
         seg = np.roll(np.roll(image, 1, axis=0), 1, axis=1)
