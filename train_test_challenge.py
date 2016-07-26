@@ -173,40 +173,35 @@ def main():
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
               '<Running iteration ' + c['b'] + '2' + c['nc'] + c['g'] + '>' + c['nc'])
         outputname2 = os.path.join(path, 'test' + str(i) + '.iter2.nii.gz')
-        try:
-            image_nii = load_nii(outputname2)
-            image2 = image_nii.get_data()
-        except IOError:
-            net_name = os.path.join(path, 'deep-challenge2016.final.')
-            net = NeuralNet(
-                layers=[
-                    (InputLayer, dict(name='in', shape=(None, 4, 15, 15, 15))),
-                    (Conv3DDNNLayer, dict(name='conv1_1', num_filters=32, filter_size=(5, 5, 5), pad='same')),
-                    (Pool3DDNNLayer, dict(name='avgpool_1', pool_size=2, stride=2, mode='average_inc_pad')),
-                    (Conv3DDNNLayer, dict(name='conv2_1', num_filters=64, filter_size=(5, 5, 5), pad='same')),
-                    (Pool3DDNNLayer, dict(name='avgpool_2', pool_size=2, stride=2, mode='average_inc_pad')),
-                    (DropoutLayer, dict(name='l2drop', p=0.5)),
-                    (DenseLayer, dict(name='l1', num_units=256)),
-                    (DenseLayer, dict(name='out', num_units=2, nonlinearity=nonlinearities.softmax)),
-                ],
-                objective_loss_function=objectives.categorical_crossentropy,
-                update=updates.adam,
-                update_learning_rate=0.0001,
-                on_epoch_finished=[
-                    SaveWeights(net_name + 'model_weights.pkl', only_best=True, pickle=False),
-                    EarlyStopping(patience=50)
-                ],
-                batch_iterator_train=BatchIterator(batch_size=4096),
-                verbose=10,
-                max_epochs=2000,
-                train_split=TrainSplit(eval_size=0.25),
-                custom_scores=[('dsc', lambda p, t: 2 * np.sum(p * t[:, 1]) / np.sum((p + t[:, 1])))],
-            )
+        net_name = os.path.join(path, 'deep-challenge2016.final.')
+        net = NeuralNet(
+            layers=[
+                (InputLayer, dict(name='in', shape=(None, 4, 15, 15, 15))),
+                (Conv3DDNNLayer, dict(name='conv1_1', num_filters=32, filter_size=(5, 5, 5), pad='same')),
+                (Pool3DDNNLayer, dict(name='avgpool_1', pool_size=2, stride=2, mode='average_inc_pad')),
+                (Conv3DDNNLayer, dict(name='conv2_1', num_filters=64, filter_size=(5, 5, 5), pad='same')),
+                (Pool3DDNNLayer, dict(name='avgpool_2', pool_size=2, stride=2, mode='average_inc_pad')),
+                (DropoutLayer, dict(name='l2drop', p=0.5)),
+                (DenseLayer, dict(name='l1', num_units=256)),
+                (DenseLayer, dict(name='out', num_units=2, nonlinearity=nonlinearities.softmax)),
+            ],
+            objective_loss_function=objectives.categorical_crossentropy,
+            update=updates.adam,
+            update_learning_rate=0.0001,
+            on_epoch_finished=[
+                SaveWeights(net_name + 'model_weights.pkl', only_best=True, pickle=False),
+                EarlyStopping(patience=50)
+            ],
+            batch_iterator_train=BatchIterator(batch_size=4096),
+            verbose=10,
+            max_epochs=2000,
+            train_split=TrainSplit(eval_size=0.25),
+            custom_scores=[('dsc', lambda p, t: 2 * np.sum(p * t[:, 1]) / np.sum((p + t[:, 1])))],
+        )
 
-            try:
-                net.load_params_from(net_name + 'model_weights.pkl')
-            except IOError:
-                pass
+        try:
+            net.load_params_from(net_name + 'model_weights.pkl')
+        except IOError:
             print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
                   c['g'] + 'Loading the data for ' + c['b'] + 'iteration 2' + c['nc'])
             names_lou = np.concatenate([names[:, :i], names[:, i + 1:]], axis=1)
@@ -238,7 +233,10 @@ def main():
             print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
                   c['g'] + 'Training (' + c['b'] + 'final' + c['nc'] + c['g'] + ')' + c['nc'])
             net.fit(x_train, y_train)
-
+        try:
+            image_nii = load_nii(outputname2)
+            image2 = image_nii.get_data()
+        except IOError:
             print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
                   '<Creating the probability map ' + c['b'] + '2' + c['nc'] + c['g'] + '>' + c['nc'])
             image_nii = load_nii(flair_name)
