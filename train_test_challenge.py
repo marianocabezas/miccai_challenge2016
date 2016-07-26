@@ -58,7 +58,7 @@ def main():
     for i in range(0, 15):
         case = names[0, i].rsplit('/')[-2]
         path = '/'.join(names[0, i].rsplit('/')[:-1])
-        print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['nc'] + 'Patient ' + c['b'] + case + c['nc'])
+        print(c['c'] + '[' + strftime("%H:%M:%S") + ']  ' + c['nc'] + 'Patient ' + c['b'] + case + c['nc'])
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
               '<Running iteration ' + c['b'] + '1' + c['nc'] + c['g'] + '>' + c['nc'])
         net_name = os.path.join(path, 'deep-challenge2016.init.')
@@ -101,28 +101,28 @@ def main():
             names_lou = np.concatenate([names[:, :i], names[:, i + 1:]], axis=1)
             paths = ['/'.join(name.rsplit('/')[:-1]) for name in names_lou[0, :]]
             mask_names = [os.path.join(p_path, 'Consensus.nii.gz') for p_path in paths]
-            print('              Loading FLAIR images')
+            print('                Loading FLAIR images')
             flair, y_train = load_patch_vectors_by_name(names_lou[0, :], mask_names, patch_size)
-            print('              Loading PD images')
+            print('                Loading PD images')
             pd, _ = load_patch_vectors_by_name(names_lou[1, :], mask_names, patch_size)
-            print('              Loading T2 images')
+            print('                Loading T2 images')
             t2, _ = load_patch_vectors_by_name(names_lou[2, :], mask_names, patch_size)
-            print('              Loading T1 images')
+            print('                Loading T1 images')
             t1, _ = load_patch_vectors_by_name(names_lou[3, :], mask_names, patch_size)
 
-            print('              Creating data vector')
+            print('                Creating data vector')
             x_train = [np.stack(images, axis=1) for images in zip(*[flair, pd, t2, t1])]
 
-            print('              Permuting the data')
+            print('                Permuting the data')
             np.random.seed(seed)
             x_train = np.random.permutation(np.concatenate(x_train[:i] + x_train[i + 1:]).astype(dtype=np.float32))
-            print('              Permuting the labels')
+            print('                Permuting the labels')
             np.random.seed(seed)
             y_train = np.random.permutation(np.concatenate(y_train[:i] + y_train[i + 1:]).astype(dtype=np.int32))
             y_train = y_train[:, y_train.shape[1] / 2 + 1, y_train.shape[2] / 2 + 1, y_train.shape[3] / 2 + 1]
-            print('              Training vector shape ='
+            print('                Training vector shape ='
                   ' (' + ','.join([str(length) for length in x_train.shape]) + ')')
-            print('              Training labels shape ='
+            print('                Training labels shape ='
                   ' (' + ','.join([str(length) for length in y_train.shape]) + ')')
 
             print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
@@ -154,7 +154,7 @@ def main():
             try:
                 load_nii(output_name)
                 print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
-                      c['g'] + '    Patient ' + patient[0].rsplit('/')[-2] + ' already done' + c['nc'])
+                      c['g'] + '     Patient ' + patient[0].rsplit('/')[-2] + ' already done' + c['nc'])
             except IOError:
                 print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
                       c['g'] + '     Testing with patient ' + c['b'] + patient[0].rsplit('/')[-2] + c['nc'])
@@ -212,23 +212,23 @@ def main():
             mask_names = [os.path.join(p_path, 'Consensus.nii.gz') for p_path in paths]
             if options['old']:
                 rois = load_thresholded_images_by_name(roi_names, threshold=0.5)
-                print('              Loading FLAIR images')
+                print('                Loading FLAIR images')
                 flair, y_train = load_patch_vectors_by_name(names_lou[0, :], mask_names, patch_size, rois)
-                print('              Loading PD images')
+                print('                Loading PD images')
                 pd, _ = load_patch_vectors_by_name(names_lou[1, :], mask_names, patch_size, rois)
-                print('              Loading T2 images')
+                print('                Loading T2 images')
                 t2, _ = load_patch_vectors_by_name(names_lou[2, :], mask_names, patch_size, rois)
-                print('              Loading T1 images')
+                print('                Loading T1 images')
                 t1, _ = load_patch_vectors_by_name(names_lou[3, :], mask_names, patch_size, rois)
             else:
                 pr_maps = [load_nii(roi_name).get_data() for roi_name in roi_names]
-                print('              Loading FLAIR images')
+                print('                Loading FLAIR images')
                 flair, y_train = load_patch_vectors_by_name_pr(names_lou[0, :], mask_names, patch_size, pr_maps)
-                print('              Loading PD images')
+                print('                Loading PD images')
                 pd, _ = load_patch_vectors_by_name_pr(names_lou[1, :], mask_names, patch_size, pr_maps)
-                print('              Loading T2 images')
+                print('                Loading T2 images')
                 t2, _ = load_patch_vectors_by_name_pr(names_lou[2, :], mask_names, patch_size, pr_maps)
-                print('              Loading T1 images')
+                print('                Loading T1 images')
                 t1, _ = load_patch_vectors_by_name_pr(names_lou[3, :], mask_names, patch_size, pr_maps)
 
             print('              Creating data vector')
