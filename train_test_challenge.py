@@ -231,7 +231,7 @@ def main():
                     [x, y, z] = np.stack(centers, axis=1)
                     image[x, y, z] = y_pred[:, 1]
 
-                print(c['g'] + '              -- Saving image ' + c['b'] + output_name + c['nc'])
+                print(c['g'] + '                   -- Saving image ' + c['b'] + output_name + c['nc'])
                 image_nii.get_data()[:] = image
                 image_nii.to_filename(output_name)
 
