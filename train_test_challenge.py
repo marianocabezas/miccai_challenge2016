@@ -214,9 +214,9 @@ def main():
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
               c['g'] + '<Looking for seeds for the final iteration>' + c['nc'])
         for patient in np.rollaxis(np.concatenate([names[:, :i], names[:, i+1:]], axis=1), 1):
-            output_name = os.path.join('/'.join(patient[0].rsplit('/')[:-1]), 'test' + str(i) + '.iter1.nii.gz')
+            outputname = os.path.join('/'.join(patient[0].rsplit('/')[:-1]), 'test' + str(i) + '.iter1.nii.gz')
             try:
-                load_nii(output_name)
+                load_nii(outputname)
                 print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' +
                       c['g'] + '     Patient ' + patient[0].rsplit('/')[-2] + ' already done' + c['nc'])
             except IOError:
@@ -231,15 +231,17 @@ def main():
                     [x, y, z] = np.stack(centers, axis=1)
                     image[x, y, z] = y_pred[:, 1]
 
-                print(c['g'] + '                   -- Saving image ' + c['b'] + output_name + c['nc'])
+                print(c['g'] + '                   -- Saving image ' + c['b'] + outputname + c['nc'])
                 image_nii.get_data()[:] = image
-                image_nii.to_filename(output_name)
+                image_nii.to_filename(outputname)
 
         ''' Here we perform the last iteration '''
         print(c['c'] + '[' + strftime("%H:%M:%S") + ']    ' + c['g'] +
               '<Running iteration ' + c['b'] + '2' + c['nc'] + c['g'] + '>' + c['nc'])
-        outputname2 = os.path.join(path, 'test' + str(i) + '.iter2.nii.gz')
-        net_name = os.path.join(path, 'deep-challenge2016.final.')
+        outputname2 = os.path.join(path, 'test' + str(i) + '.old.iter2.nii.gz') if options['old'] \
+            else os.path.join(path, 'test' + str(i) + '.new.iter2.nii.gz')
+        net_name = os.path.join(path, 'deep-challenge2016.final.old.') if options['old'] \
+            else os.path.join(path, 'deep-challenge2016.final.new.')
         net = NeuralNet(
             layers=[
                 (InputLayer, dict(name='in', shape=(None, 4, 15, 15, 15))),
@@ -307,12 +309,14 @@ def main():
                 image2[x, y, z] = y_pred[:, 1]
 
             image_nii.get_data()[:] = image2
-            image_nii.to_filename(os.path.join(path, 'test' + str(i) + '.iter2.nii.gz'))
+            image_nii.to_filename(outputname2)
 
         image = (image1 * image2) > 0.5
         seg = np.roll(np.roll(image, 1, axis=0), 1, axis=1)
         image_nii.get_data()[:] = seg
-        image_nii.to_filename(os.path.join(path, 'test' + str(i) + '.final.nii.gz'))
+        outputname_final = os.path.join(path, 'test' + str(i) + '.old.final.nii.gz') if options['old'] \
+            else os.path.join(path, 'test' + str(i) + '.new.final.nii.gz')
+        image_nii.to_filename(outputname_final)
 
         gt = load_nii(os.path.join(path, 'Consensus.nii.gz')).get_data().astype(dtype=np.bool)
         dsc = np.sum(2.0 * np.logical_and(gt, seg)) / (np.sum(gt) + np.sum(seg))
