@@ -38,7 +38,7 @@ def main():
     c = color_codes()
     patch_size = (15, 15, 15)
     options = vars(parser.parse_args())
-    batch_size = 100000
+    batch_size = 10000
     min_size = 30
 
     print(c['c'] + '[' + strftime("%H:%M:%S") + '] ' + c['g'] +
